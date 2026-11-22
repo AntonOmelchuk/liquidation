@@ -7,6 +7,7 @@ import {
   tradeInput,
 } from "../../../packages/domain/trade.ts";
 import type { Trade } from "../../../packages/domain/trade.ts";
+import { InstrumentIcons, InstrumentPicker } from "./instrument-picker.tsx";
 import "./style.css";
 
 const money = new Intl.NumberFormat(undefined, {
@@ -93,6 +94,7 @@ function PerformanceChart({ trades }: { trades: readonly Trade[] }) {
 
 function App() {
   const dialog = useRef<HTMLDialogElement>(null);
+  const [symbol, setSymbol] = useState("");
   const [formError, setFormError] = useState("");
   const [trades, setTrades] = useState<Trade[] | null>(null);
   const [error, setError] = useState("");
@@ -149,6 +151,7 @@ function App() {
       const trade: Trade = await response.json();
       setTrades((current) => [trade, ...(current ?? [])]);
       form.reset();
+      setSymbol("");
       dialog.current?.close();
     } catch {
       setFormError(
@@ -247,7 +250,10 @@ function App() {
                       return (
                         <tr key={trade.id}>
                           <th scope="row">
-                            {trade.symbol}
+                            <span className="instrument-label">
+                              <InstrumentIcons symbol={trade.symbol} />
+                              {trade.symbol}
+                            </span>
                             {trade.notes && <small>{trade.notes}</small>}
                           </th>
                           <td>{trade.direction}</td>
@@ -309,15 +315,7 @@ function App() {
             )}
             <form onSubmit={save}>
               <fieldset disabled={saving || !trades}>
-                <label>
-                  Symbol
-                  <input
-                    name="symbol"
-                    placeholder="EURUSD"
-                    required
-                    maxLength={24}
-                  />
-                </label>
+                <InstrumentPicker value={symbol} onChange={setSymbol} />
                 <label>
                   Side
                   <select name="direction">
