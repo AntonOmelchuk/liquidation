@@ -1,0 +1,5 @@
+{
+  "name": "@liquidation/local-server",
+  "type": "module",
+  "private": true
+}
