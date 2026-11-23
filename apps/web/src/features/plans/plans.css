@@ -1,0 +1,436 @@
+.plan-metrics {
+  margin-bottom: 0.75rem;
+}
+.plan-metrics small {
+  margin-top: 0.35rem;
+}
+.plan-status-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.plan-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.24rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 0.45rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--muted);
+}
+.plan-status[data-status="worked"] {
+  color: #83e6c1;
+  background: #142a28;
+}
+.plan-status[data-status="failed"] {
+  color: #ffaaa5;
+  background: #30202b;
+}
+.plan-status[data-status="in-progress"] {
+  color: #b0caff;
+  background: #202a43;
+}
+.plan-status[data-status="missed"] {
+  color: #f2ca83;
+  background: #312a23;
+}
+[data-theme="light"] .plan-status[data-status="worked"] {
+  color: #106d53;
+  background: #e2f3ec;
+}
+[data-theme="light"] .plan-status[data-status="failed"] {
+  color: #9f2433;
+  background: #fff0f1;
+}
+[data-theme="light"] .plan-status[data-status="in-progress"] {
+  color: #31538c;
+  background: #e7eefb;
+}
+[data-theme="light"] .plan-status[data-status="missed"] {
+  color: #785219;
+  background: #fcf0d8;
+}
+.plan-status-detail {
+  margin-top: 0.35rem;
+  white-space: pre-wrap;
+}
+.plans-table table {
+  min-width: 55rem;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.plan-table-group th {
+  color: var(--muted);
+  font-size: 0.81rem;
+  padding-block: 0.6rem;
+  background: color-mix(in srgb, var(--border) 28%, var(--surface));
+}
+.plan-table-group span {
+  margin-inline-start: 0.5rem;
+  font-variant-numeric: tabular-nums;
+}
+.plan-row:hover > :not(.plan-table-actions) {
+  background: color-mix(in srgb, var(--border) 15%, var(--surface));
+}
+.plan-name {
+  min-width: 12rem;
+  overflow-wrap: anywhere;
+}
+.plans-table td {
+  text-transform: none;
+}
+.plan-row-market {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.5rem;
+  align-items: center;
+  margin-top: 0.35rem;
+  color: var(--muted);
+}
+.plans-table .instrument-label {
+  white-space: nowrap;
+}
+.plan-table-playbook {
+  min-width: 8rem;
+  overflow-wrap: anywhere;
+}
+.plan-table-values {
+  display: grid;
+  gap: 0.25rem;
+}
+.plan-table-values small {
+  white-space: nowrap;
+}
+.plan-status-link {
+  display: inline-block;
+  text-decoration: none;
+  color: inherit;
+}
+.plan-status-link:hover .plan-status {
+  border-color: currentColor;
+}
+.plan-table-actions {
+  position: sticky;
+  inset-inline-end: 0;
+  background: var(--surface);
+  text-align: end;
+  z-index: 1;
+  border-inline-start: 1px solid var(--border);
+}
+.plan-table-actions .action-link {
+  padding: 0.4rem 0.65rem;
+  font-size: 0.83rem;
+}
+.plan-price-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
+  gap: 0.75rem;
+}
+.plan-original {
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.55rem;
+}
+.plan-original summary {
+  cursor: pointer;
+}
+.plan-setup-details {
+  margin-top: 0.6rem;
+  overflow-wrap: anywhere;
+}
+.plan-setup-details p {
+  white-space: pre-wrap;
+}
+.plan-setup-details dl,
+.comparison-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+}
+.plan-setup-details dt,
+.comparison-legend dt {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.plan-setup-details dd,
+.comparison-legend dd {
+  margin: 0.2rem 0 0;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+.plan-field-hint {
+  margin: 0.5rem 0 0;
+  font-size: 0.88rem;
+}
+.plan-outcome-figure {
+  margin: 0;
+}
+.plan-outcome-figure figcaption {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+.plan-curve-realized {
+  stroke: currentColor;
+}
+.plan-curve-scenario {
+  stroke: #b9a5ff;
+  stroke-dasharray: 6 4;
+}
+.comparison-legend [data-series="realized"] dd {
+  color: var(--accent);
+}
+.comparison-legend [data-series="scenario"] dd {
+  color: #b9a5ff;
+}
+[data-theme="light"] .plan-curve-scenario {
+  stroke: #6744b2;
+}
+[data-theme="light"] .comparison-legend [data-series="realized"] dd {
+  color: #106d53;
+}
+[data-theme="light"] .comparison-legend [data-series="scenario"] dd {
+  color: #6744b2;
+}
+.comparison-exclusions {
+  padding-inline-start: 1.2rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+@media (max-width: 36rem) {
+  .plan-metrics {
+    grid-template-columns: 1fr;
+  }
+}
+
+.plan-back,
+.plan-name a {
+  color: var(--accent);
+}
+[data-theme="light"] :is(.plan-back, .plan-name a) {
+  color: #106d53;
+}
+.plan-detail-heading {
+  margin-block-start: 0.9rem;
+}
+.plan-detail-heading h1 {
+  overflow-wrap: anywhere;
+}
+.plan-detail-meta,
+.plan-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+.plan-detail-meta {
+  margin-top: 0.65rem;
+  color: var(--muted);
+}
+.plan-state {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+.plan-status-detail {
+  flex-basis: 100%;
+}
+.plan-dates {
+  min-width: 10rem;
+}
+
+.plan-linked-table table {
+  min-width: 53rem;
+}
+.plan-linked-table time {
+  white-space: nowrap;
+}
+.plan-evidence-editor {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+}
+.plan-analysis-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+  align-items: start;
+  gap: 1rem;
+}
+.plan-setup-details .plan-analysis-grid {
+  margin-top: 0.75rem;
+}
+.plan-analysis-block {
+  min-width: 0;
+  padding: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 0.7rem;
+}
+.plan-analysis-block h3,
+.plan-alignment h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+.plan-analysis-block p,
+.plan-prose,
+.plan-timeline p {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.plan-analysis-block .plan-actions {
+  align-items: end;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+.plan-analysis-block .screenshot-field {
+  margin-top: 0.65rem;
+}
+.plan-detail-page .plan-original {
+  margin-block: 0.85rem 0;
+}
+.plan-timeline {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  gap: 0.65rem;
+}
+.plan-timeline li {
+  padding: 0.65rem 0.85rem;
+  border-inline-start: 2px solid var(--border);
+}
+.plan-timeline time {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.plan-timeline p {
+  margin-block: 0.35rem 0;
+}
+.plan-timeline p:empty {
+  display: none;
+}
+.plan-alignment {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 0.7rem;
+  margin-bottom: 0.75rem;
+}
+.plan-alignment p {
+  margin: 0;
+}
+.plan-alignment-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.plan-detail-page .panel-heading {
+  flex-wrap: wrap;
+}
+.plan-detail-page .panel-detail {
+  min-width: 0;
+  flex-shrink: 1;
+}
+
+.plan-editor-name {
+  margin: 0.4rem 0 0;
+  overflow-wrap: anywhere;
+}
+.plan-editor-section {
+  scroll-margin-top: 1rem;
+  min-width: 0;
+}
+.plan-editor .record-form-footer {
+  position: sticky;
+  inset-block-end: 0;
+  z-index: 2;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.65rem 0.65rem 0 0;
+  padding: 0.75rem;
+}
+.plan-trade-fieldset {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+}
+.plan-trade-filters {
+  margin-bottom: 0;
+}
+.plan-trade-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.6rem;
+}
+.plan-trade-checkbox input,
+.plan-trade-options input {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  accent-color: var(--accent);
+}
+.plan-trade-options table {
+  min-width: 42rem;
+}
+.plan-trade-options td {
+  text-transform: none;
+}
+.plan-trade-options th:first-child,
+.plan-trade-options td:first-child {
+  text-align: center;
+}
+
+.plan-analytics-table table {
+  min-width: 45rem;
+}
+
+.plan-analytics-table tbody tr {
+  cursor: pointer;
+}
+
+.plan-analytics-table tbody tr:hover,
+.plan-analytics-table tbody tr[data-active] {
+  background: color-mix(in srgb, var(--border) 20%, var(--surface));
+}
+
+.plan-analytics-table td small {
+  margin-top: 0.25rem;
+}
+
+.plan-analytics-group {
+  padding: 0.25rem 0;
+  color: inherit;
+  background: transparent;
+  text-align: start;
+  overflow-wrap: anywhere;
+}
+
+.plan-analytics-group span {
+  color: var(--muted);
+}
+
+.plan-analytics-details {
+  margin-block-start: 1.25rem;
+}
+
+.plan-analytics-details h3 {
+  margin: 0;
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+}
+
+.plan-analysis-factors {
+  margin: 0.9rem 0;
+}
