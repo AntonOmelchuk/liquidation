@@ -1,0 +1,55 @@
+import type { Currency } from "./types.ts";
+
+export const currencies = {
+  USD: ["US dollar", "🇺🇸"],
+  EUR: ["Euro", "🇪🇺"],
+  GBP: ["British pound", "🇬🇧"],
+  JPY: ["Japanese yen", "🇯🇵"],
+  CHF: ["Swiss franc", "🇨🇭"],
+  CAD: ["Canadian dollar", "🇨🇦"],
+  AUD: ["Australian dollar", "🇦🇺"],
+  NZD: ["New Zealand dollar", "🇳🇿"],
+  SEK: ["Swedish krona", "🇸🇪"],
+  NOK: ["Norwegian krone", "🇳🇴"],
+  MXN: ["Mexican peso", "🇲🇽"],
+  ZAR: ["South African rand", "🇿🇦"],
+  SGD: ["Singapore dollar", "🇸🇬"],
+} as const;
+
+export const forexPairs = {
+  EUR: ["USD", "GBP", "JPY", "CHF", "CAD", "AUD", "NZD", "SEK", "NOK"],
+  GBP: ["USD", "JPY", "CHF", "CAD", "AUD", "NZD"],
+  USD: ["JPY", "CHF", "CAD", "SEK", "NOK", "MXN", "ZAR", "SGD"],
+  AUD: ["USD", "JPY", "CHF", "CAD", "NZD"],
+  NZD: ["USD", "JPY", "CHF", "CAD"],
+  CAD: ["JPY", "CHF"],
+  CHF: ["JPY"],
+} satisfies Partial<Record<Currency, Currency[]>>;
+
+export const otherInstruments = [
+  ["XAUUSD", "Gold / US dollar", "Au"],
+  ["XAGUSD", "Silver / US dollar", "Ag"],
+  ["XPTUSD", "Platinum / US dollar", "Pt"],
+  ["XPDUSD", "Palladium / US dollar", "Pd"],
+  ["NAS100", "Nasdaq 100", "🇺🇸"],
+  ["US500", "S&P 500", "🇺🇸"],
+  ["US30", "Dow Jones Industrial Average", "🇺🇸"],
+  ["DXY", "US Dollar Index", "🇺🇸"],
+  ["GER40", "DAX", "🇩🇪"],
+  ["UK100", "FTSE 100", "🇬🇧"],
+  ["JP225", "Nikkei 225", "🇯🇵"],
+  ["EU50", "Euro Stoxx 50", "🇪🇺"],
+  ["USOIL", "WTI crude oil", "WTI"],
+  ["UKOIL", "Brent crude oil", "BR"],
+  ["BTCUSD", "Bitcoin / US dollar", "₿"],
+  ["ETHUSD", "Ethereum / US dollar", "Ξ"],
+  ["SOLUSD", "Solana / US dollar", "SOL"],
+  ["AAPL", "Apple", "A"],
+  ["MSFT", "Microsoft", "M"],
+  ["NVDA", "NVIDIA", "N"],
+  ["TSLA", "Tesla", "T"],
+  ["ES", "E-mini S&P 500 futures", "ES"],
+  ["NQ", "E-mini Nasdaq 100 futures", "NQ"],
+  ["GC", "Gold futures", "Au"],
+  ["CL", "WTI crude oil futures", "WTI"],
+] as const;

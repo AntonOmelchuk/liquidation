@@ -1,5 +1,11 @@
 {
   "name": "@liquidation/domain",
   "type": "module",
-  "private": true
+  "private": true,
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "dependencies": {
+    "zod": "^4.6.7"
+  }
 }

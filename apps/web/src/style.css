@@ -102,7 +102,7 @@ fieldset {
   background: linear-gradient(135deg, #1a2334, var(--surface) 74%);
 }
 .metrics span,
-.panel-heading span,
+.panel-detail,
 p,
 small {
   color: var(--muted);
@@ -118,7 +118,7 @@ small {
 .panel-heading {
   margin-bottom: 1rem;
 }
-.panel-heading span {
+.panel-detail {
   font-size: 0.85rem;
   flex-shrink: 0;
 }
@@ -181,7 +181,8 @@ label {
 input,
 select,
 textarea,
-button {
+button,
+.action-link {
   font: inherit;
   border-radius: 0.55rem;
   padding: 0.65rem 0.8rem;
@@ -194,7 +195,8 @@ textarea {
   width: 100%;
   min-width: 0;
 }
-button {
+button,
+.action-link {
   color: #10221b;
   background: var(--accent);
   border: 1px solid transparent;
@@ -335,4 +337,305 @@ dialog::backdrop {
 }
 .instrument-icons > span + span {
   margin-left: -0.32rem;
+}
+
+.preferences {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+}
+.preferences select {
+  width: auto;
+}
+.topbar {
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+:root[data-text-size="large"] {
+  font-size: 112.5%;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  color: #172438;
+  background: #edf1f6;
+  --muted: #505e72;
+  --surface: #fff;
+  --border: #c7d0de;
+  --accent: #97dfc6;
+}
+[data-theme="light"] .topbar {
+  background: #fafcff;
+}
+[data-theme="light"] .brand span {
+  color: #12644d;
+  background: #ddf1e8;
+}
+[data-theme="light"] .local i {
+  background: #19785d;
+}
+[data-theme="light"] .metrics article {
+  background: linear-gradient(135deg, #e6f1ff, var(--surface) 74%);
+}
+[data-theme="light"] input,
+[data-theme="light"] select,
+[data-theme="light"] textarea {
+  border-color: #929fb4;
+  background: #fafcff;
+}
+[data-theme="light"] .chart,
+[data-theme="light"] .positive {
+  color: #106d53;
+}
+[data-theme="light"] .negative,
+[data-theme="light"] .error {
+  color: #9f2433;
+}
+[data-theme="light"] :focus-visible {
+  outline-color: #12644d;
+}
+[data-theme="light"] .instrument-picker ul {
+  background: #fff;
+}
+[data-theme="light"] .instrument-picker li:hover,
+[data-theme="light"] .instrument-picker li[aria-selected="true"] {
+  background: #e4edf9;
+}
+[data-theme="light"] .instrument-icons > span {
+  background: #ddeae6;
+  color: #12644d;
+}
+
+.journal-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.select-control {
+  position: relative;
+  display: block;
+}
+.select-control select {
+  appearance: none;
+  min-width: 8rem;
+  min-height: 2.65rem;
+  padding-inline-end: 2.3rem;
+  cursor: pointer;
+}
+.select-control svg {
+  position: absolute;
+  inset-inline-end: 0.85rem;
+  top: 50%;
+  width: 1rem;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--muted);
+}
+.settings-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+.settings-trigger svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+.settings-fields {
+  display: grid;
+  gap: 1rem;
+}
+.journal-filters {
+  align-items: end;
+}
+
+.journal-overview {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+.instrument-breakdown {
+  max-height: clamp(13rem, 33vh, 24rem);
+}
+.instrument-breakdown table {
+  min-width: 28rem;
+}
+.instrument-breakdown thead th {
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+}
+.instrument-breakdown th:not(:first-child),
+.instrument-breakdown td {
+  text-align: end;
+}
+.instrument-breakdown .instrument-label {
+  white-space: nowrap;
+}
+@media (min-width: 78rem) {
+  .journal-overview {
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  }
+}
+
+.position-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.primary-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-inline-end: auto;
+  margin-inline-start: clamp(0rem, 2.3vw, 2rem);
+}
+.primary-nav a {
+  padding: 0.55rem 0.85rem;
+  border: 1px solid transparent;
+  border-radius: 0.55rem;
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 650;
+}
+.primary-nav a:hover,
+.primary-nav a[aria-current="page"] {
+  color: inherit;
+  background: var(--surface);
+  border-color: var(--border);
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+@media (max-width: 36rem) {
+  .primary-nav {
+    order: 3;
+    width: 100%;
+    margin: 0;
+  }
+  .preferences .local {
+    display: none;
+  }
+}
+
+.record-link {
+  color: var(--accent);
+}
+[data-theme="light"] .record-link {
+  color: #106d53;
+}
+
+.action-link {
+  display: inline-block;
+  text-decoration: none;
+  text-align: center;
+}
+.action-link:hover,
+button:not(:disabled):hover {
+  filter: brightness(1.11);
+}
+.record-form-footer {
+  display: grid;
+  gap: 0.7rem;
+  padding: 0.25rem 0 0.75rem;
+}
+.record-form-footer p {
+  margin: 0;
+}
+.record-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  justify-content: flex-end;
+}
+.record-editor {
+  max-width: 72rem;
+  margin-inline: auto;
+}
+.record-editor .panel-heading,
+.record-editor .page-heading {
+  flex-wrap: wrap;
+}
+.record-editor fieldset {
+  align-items: start;
+}
+.record-back {
+  color: var(--accent);
+}
+[data-theme="light"] .record-back {
+  color: #106d53;
+}
+.timeline-form {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 0.65rem;
+  margin-block: 0.75rem;
+}
+.timeline-form h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+.statistics-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: 1rem;
+  margin: 0;
+}
+.statistics-facts div {
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.55rem;
+}
+.statistics-facts dt {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+.statistics-facts dd {
+  margin: 0.35rem 0 0;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 44rem) {
+  .primary-nav {
+    flex-wrap: wrap;
+  }
+}
+
+.record-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 29rem), 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+
+.trade-tags {
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 0.65rem;
+}
+
+.trade-tags summary {
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+
+.trade-tag-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+  gap: 0.85rem;
+  margin-top: 0.8rem;
 }

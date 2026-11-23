@@ -9,7 +9,8 @@
     "strict": true,
     "noEmit": true,
     "allowImportingTsExtensions": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "verbatimModuleSyntax": true
   },
-  "include": ["apps", "packages", "vite.config.ts"]
+  "include": ["apps", "packages", "tests", "vite.config.ts", "vitest.config.ts"]
 }

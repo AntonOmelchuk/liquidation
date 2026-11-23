@@ -1,5 +1,8 @@
 {
   "name": "@liquidation/local-server",
   "type": "module",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "@liquidation/domain": "workspace:*"
+  }
 }

@@ -1,0 +1,123 @@
+.analytics-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr));
+  gap: 0.75rem;
+}
+
+.analytics-more {
+  margin-top: 0.75rem;
+}
+
+.analytics-more summary {
+  width: fit-content;
+  cursor: pointer;
+  color: var(--accent);
+  font-size: 0.9rem;
+}
+
+.analytics-more[open] summary {
+  margin-bottom: 0.8rem;
+}
+
+.analytics-hint {
+  margin: 0.75rem 0 0;
+  font-size: 0.85rem;
+}
+
+.analytics-factor-list {
+  display: grid;
+  gap: 0.55rem;
+  margin-bottom: 1rem;
+}
+
+.analytics-factor-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: center;
+}
+
+.analytics-factor-section > span {
+  width: 7.25rem;
+  font-size: 0.84rem;
+  font-weight: 650;
+  color: var(--muted);
+}
+
+.analytics-factors {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.analytics-factors button {
+  padding: 0.32rem 0.62rem;
+  font-size: 0.86rem;
+}
+
+.analytics-factors button[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.analytics-table {
+  margin-top: 0.65rem;
+}
+
+.analytics-table table {
+  min-width: 54rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.analytics-table tbody tr:hover,
+.analytics-table tbody tr[data-active] {
+  background: color-mix(in srgb, var(--accent) 6%, var(--surface));
+}
+
+.analytics-table tfoot {
+  font-weight: 700;
+  background: color-mix(in srgb, var(--accent) 7%, var(--surface));
+}
+
+.analytics-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 0;
+  background: transparent;
+  padding: 0.25rem 0;
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  text-align: start;
+  white-space: nowrap;
+}
+
+.analytics-sort:hover,
+.analytics-table th[aria-sort] .analytics-sort {
+  color: var(--accent);
+}
+
+.analytics-sort span {
+  opacity: 0.65;
+}
+
+.analytics-details {
+  border-top: 1px solid var(--border);
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+}
+
+.analytics-details h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+@media (max-width: 700px) {
+  .analytics-factor-section > span {
+    width: 100%;
+  }
+}
