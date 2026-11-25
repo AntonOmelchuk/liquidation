@@ -1,10 +1,16 @@
 import type { z } from "zod";
 import type { positionCommand, positionSchema } from "./position.ts";
 import type { tradeLinkCommand, tradeLinksSchema } from "./trade-links.ts";
-import type { tradeInput, tradeSchema } from "./trade.ts";
+import type { tradeRecordInput, tradeSchema } from "./trade.ts";
 import type { tradePricesSchema } from "./prices.ts";
 
-export type TradeInput = z.infer<typeof tradeInput>;
+import type { TRADE_SIDE } from "./constants.ts";
+import type { pnlCalculationSchema, riskSizingSchema } from "./financials.ts";
+
+export type TradeInput = z.infer<typeof tradeRecordInput>;
+export type TradeDirection = (typeof TRADE_SIDE)[keyof typeof TRADE_SIDE];
+export type RiskSizing = z.infer<typeof riskSizingSchema>;
+export type PnlCalculation = z.infer<typeof pnlCalculationSchema>;
 
 export type Trade = z.infer<typeof tradeSchema>;
 

@@ -76,6 +76,7 @@ export type Route =
     };
 
 export type Preferences = {
+  quoteSymbols: string[];
   language: keyof typeof LOCALES;
   theme: (typeof THEMES)[number];
   textSize: (typeof TEXT_SIZES)[number];

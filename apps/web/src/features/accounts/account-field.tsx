@@ -18,7 +18,7 @@ export function readAccountLink(data: FormData) {
   };
 }
 
-export function AccountField({ initial }: AccountFieldProps) {
+export function AccountField({ initial, onChange }: AccountFieldProps) {
   const { t } = useLocale();
   const m = useAccountMessages();
   const accounts = useJournal((state) => state.accounts);
@@ -43,6 +43,11 @@ export function AccountField({ initial }: AccountFieldProps) {
           <SelectField
             label={t.account}
             name="accountId"
+            onChange={
+              onChange
+                ? (event) => onChange(event.currentTarget.value)
+                : undefined
+            }
             defaultValue={
               initial?.accountId ?? (legacy ? LEGACY_ACCOUNT_OPTION : "")
             }

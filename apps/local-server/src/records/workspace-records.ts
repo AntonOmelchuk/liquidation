@@ -3,6 +3,7 @@ import { TRASH_KIND } from "@liquidation/domain/journal/trash/constants";
 import { deletedPlan } from "@liquidation/domain/journal/trash/trash";
 import { WORKSPACE_RECORD } from "@liquidation/domain/workspace/constants";
 import { lectureScreenshotIds } from "@liquidation/domain/workspace/learning";
+import { isBreakevenReviewReason } from "@liquidation/domain/workspace/planning";
 import type { WorkspaceCommand } from "@liquidation/domain/workspace/types";
 import { InvalidJournalInput, JournalConflict } from "../errors.ts";
 import { assertScreenshotAttachments } from "./screenshot-attachments.ts";
@@ -117,8 +118,12 @@ export function mutateWorkspace(
               );
             }
             if (
+              !isBreakevenReviewReason(input.reason) &&
               workspace.missedTrades.some(
-                (item) => item.id !== id && item.planId === input.planId,
+                (item) =>
+                  item.id !== id &&
+                  item.planId === input.planId &&
+                  !isBreakevenReviewReason(item.reason),
               )
             )
               throw new JournalConflict(

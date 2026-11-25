@@ -115,7 +115,7 @@ export function PlansPage() {
                 label={p.planWinRate}
                 value={showRate(data.allPlanWinRate)}
                 detail={
-                  count(data.statuses.worked) +
+                  count(data.worked) +
                   "/" +
                   count(plans.length) +
                   " · " +
@@ -126,7 +126,7 @@ export function PlansPage() {
                 label={p.reviewedWinRate}
                 value={showRate(data.planWinRate)}
                 detail={
-                  count(data.statuses.worked) +
+                  count(data.worked) +
                   "/" +
                   count(data.decided) +
                   " · " +

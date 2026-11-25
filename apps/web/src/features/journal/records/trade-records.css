@@ -42,9 +42,9 @@
   color: var(--section-accent);
   text-decoration: underline;
 }
-.trade-ledger-symbol .instrument-icons > span {
-  width: 1.45rem;
-  height: 1.45rem;
+.trade-ledger-symbol .instrument-icons {
+  --instrument-icon-size: 2.175rem;
+  --instrument-icon-font: 0.975rem;
 }
 .trade-ledger-group {
   background: color-mix(in srgb, var(--border) 35%, var(--surface));
@@ -251,19 +251,29 @@ dialog.trade-details-dialog {
 }
 .mistake-option {
   border: 1px solid var(--border);
-  border-radius: 0.55rem;
-  padding: 0.7rem;
-  display: grid;
-  gap: 0.5rem;
+  border-radius: 0.65rem;
+  background: color-mix(in srgb, var(--border) 12%, var(--surface));
+}
+.mistake-option > .checkbox-field {
+  padding: 0.62rem 0.72rem;
+}
+.mistake-review-completed {
+  justify-self: start;
+  padding-block: 0.24rem;
+  font-weight: 650;
 }
 .mistake-option[data-selected="true"] {
   border-color: var(--section-accent);
   background: color-mix(in srgb, var(--accent) 7%, var(--surface));
 }
 .mistake-option .mistake-critical {
+  --checkbox-accent: #fa8994;
+  border-top: 1px solid var(--border);
   color: var(--muted);
-  margin-left: 1.5rem;
   font-size: 0.85rem;
+}
+[data-theme="light"] .mistake-option .mistake-critical {
+  --checkbox-accent: #a12035;
 }
 .mistake-custom {
   display: flex;
@@ -294,4 +304,55 @@ dialog.trade-details-dialog {
 }
 .trade-editor > .panel {
   margin-bottom: 1rem;
+}
+
+.trade-risk-field {
+  display: grid;
+  align-content: start;
+  gap: 0.35rem;
+  min-width: 0;
+}
+.trade-risk-field .analytics-hint {
+  margin: 0;
+}
+.trade-financial-preview {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.85rem;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  font-variant-numeric: tabular-nums;
+}
+.trade-financial-preview > span {
+  color: var(--muted);
+}
+
+.trade-pagination,
+.trade-page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem 0.65rem;
+}
+.trade-pagination {
+  padding-top: 0.65rem;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+.trade-pagination label {
+  display: flex;
+  align-items: center;
+  font-size: inherit;
+}
+.trade-pagination select,
+.trade-page-actions button {
+  padding-block: 0.3rem;
+}
+.trade-page-actions {
+  margin-inline-start: auto;
+}
+.trade-page-count {
+  color: var(--muted);
 }

@@ -1,4 +1,5 @@
 import { comparePlanPerformance } from "@liquidation/domain/analytics/plan-performance";
+import { summarizeBreakevenReviews } from "@liquidation/domain/analytics/breakeven-review";
 import { summarizePlanGroups } from "@liquidation/domain/analytics/plan-analytics";
 import { PLAN_GROUPING } from "@liquidation/domain/analytics/constants";
 import { PLAYBOOK_TEMPLATE } from "@liquidation/domain/playbooks/constants";
@@ -114,6 +115,79 @@ test("combines signed estimates with actual results and counts linked opportunit
   expect(range.cash.points).toEqual([]);
   expect(summarizePlanGroups(records, PLAN_GROUPING.INSTRUMENT)).toMatchObject([
     { missed: 1, assessedMisses: 1, missedR: 3, realizedR: null },
+  ]);
+});
+
+test("compares missed profit with avoided loss from BE while preserving plan opportunity estimates", () => {
+  const records: MissedTrade[] = [
+    {
+      ...baseMiss,
+      planId: basePlan.id,
+      reason: "worked-after-be",
+      outcome: { closedAt: closed, netR: 2, risk: 40 },
+    },
+    {
+      ...baseMiss,
+      id: crypto.randomUUID(),
+      reason: "be-saved-stop",
+      outcome: { closedAt: closed, netR: -0.75, risk: 40 },
+    },
+    {
+      ...baseMiss,
+      id: crypto.randomUUID(),
+      reason: "be-saved-stop",
+      outcome: { closedAt: closed, netR: -1 },
+    },
+    {
+      ...baseMiss,
+      id: crypto.randomUUID(),
+      reason: "worked-after-be",
+      outcome: null,
+    },
+  ];
+  expect(summarizeBreakevenReviews([...records, baseMiss])).toEqual({
+    rows: [
+      {
+        reason: "worked-after-be",
+        count: 2,
+        assessed: 1,
+        measuredCash: 1,
+        effectR: -2,
+        effectCents: -8000,
+      },
+      {
+        reason: "be-saved-stop",
+        count: 2,
+        assessed: 2,
+        measuredCash: 1,
+        effectR: 1.75,
+        effectCents: 3000,
+      },
+    ],
+    total: {
+      count: 4,
+      assessed: 3,
+      measuredCash: 2,
+      effectR: -0.25,
+      effectCents: -5000,
+    },
+  });
+  const source = {
+    plans: [basePlan],
+    positions: [],
+    trades: [trade],
+    missedTrades: records,
+  };
+  expect(comparePlanPerformance(source)).toMatchObject({
+    assessedMisses: 1,
+    replacedPlanMisses: 0,
+    recordedMisses: 0,
+    realized: 2,
+    missed: 5,
+    cash: { realized: 50, missed: 500 },
+  });
+  expect(summarizePlanGroups(source, PLAN_GROUPING.INSTRUMENT)).toMatchObject([
+    { missed: 1, assessedMisses: 1, missedR: 5 },
   ]);
 });
 

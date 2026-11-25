@@ -45,19 +45,6 @@ body {
   color: var(--accent);
   background: #1d3338;
 }
-.local {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--muted);
-  font-size: 0.88rem;
-}
-.local i {
-  width: 0.44rem;
-  height: 0.44rem;
-  background: var(--accent);
-  border-radius: 50%;
-}
 main {
   width: 100%;
   padding: clamp(1rem, 3vw, 3rem);
@@ -328,24 +315,45 @@ dialog::backdrop {
   background: #273449;
 }
 .instrument-icons {
+  --instrument-icon-size: 2.4rem;
+  --instrument-icon-font: 0.975rem;
   display: inline-flex;
   flex: none;
   align-items: center;
+  isolation: isolate;
 }
 .instrument-icons > span {
+  position: relative;
   display: grid;
   place-items: center;
-  width: 1.6rem;
-  height: 1.6rem;
+  width: var(--instrument-icon-size);
+  height: var(--instrument-icon-size);
   border-radius: 50%;
   border: 1px solid var(--border);
   background: #26364b;
   color: var(--accent);
-  font-size: 0.65rem;
+  font-size: var(--instrument-icon-font);
   font-weight: 700;
 }
+.instrument-icons > span:first-child {
+  z-index: 1;
+}
 .instrument-icons > span + span {
-  margin-left: -0.32rem;
+  margin-inline-start: calc(var(--instrument-icon-size) * -0.32);
+}
+.instrument-icons > .instrument-flag {
+  width: 1.2em;
+  height: 0.92em;
+  overflow: hidden;
+  border-radius: 0.18rem;
+  background: var(--surface);
+  font-family:
+    "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  font-size: calc(var(--instrument-icon-font) * 1.5);
+  line-height: 1;
+}
+.instrument-icons > .instrument-flag + .instrument-flag {
+  margin-inline-start: -0.37em;
 }
 
 .preferences {
@@ -384,9 +392,6 @@ dialog::backdrop {
   color: #12644d;
   background: #ddf1e8;
 }
-[data-theme="light"] .local i {
-  background: #19785d;
-}
 [data-theme="light"] .metrics article {
   background: linear-gradient(135deg, #e6f1ff, var(--surface) 74%);
 }
@@ -414,7 +419,7 @@ dialog::backdrop {
 [data-theme="light"] .instrument-picker li[aria-selected="true"] {
   background: #e4edf9;
 }
-[data-theme="light"] .instrument-icons > span {
+[data-theme="light"] .instrument-icons > span:not(.instrument-flag) {
   background: #ddeae6;
   color: #12644d;
 }
@@ -535,9 +540,6 @@ dialog::backdrop {
     order: 3;
     width: 100%;
     margin: 0;
-  }
-  .preferences .local {
-    display: none;
   }
 }
 

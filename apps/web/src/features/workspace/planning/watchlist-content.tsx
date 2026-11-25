@@ -3,6 +3,7 @@ import { netCents } from "@liquidation/domain/trades/trade";
 import { reviewTrades } from "@liquidation/domain/workspace/analytics";
 import { PERIOD, WATCH_OUTCOME } from "@liquidation/domain/workspace/constants";
 import { localDay, periodBounds } from "@liquidation/domain/workspace/period";
+import { isBreakevenReviewReason } from "@liquidation/domain/workspace/planning";
 import type { WeeklyWatchlist } from "@liquidation/domain/workspace/types";
 import { planHref } from "../../../app/page.ts";
 import { useLocale } from "../../../shared/messages.ts";
@@ -43,7 +44,10 @@ export function WatchlistContent({
     ({ symbol }) => symbol,
   );
   const missedBySymbol = Map.groupBy(
-    misses.filter(({ missedAt }) => duringWeek(missedAt)),
+    misses.filter(
+      ({ missedAt, reason }) =>
+        duringWeek(missedAt) && !isBreakevenReviewReason(reason),
+    ),
     ({ symbol }) => symbol,
   );
   const reviewed = entry.items.filter(

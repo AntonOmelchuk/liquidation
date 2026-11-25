@@ -1,3 +1,4 @@
+import { CheckboxField } from "../../../shared/ui/checkbox-field.tsx";
 import { useAccountMessages } from "../../accounts/messages.ts";
 import type { TradePriceFieldsProps } from "./types.ts";
 import { TRADE_PRICE_FIELDS, PRICE_FIELD_LABEL } from "./constants.ts";
@@ -10,11 +11,19 @@ export function readTradePrices(form: FormData) {
   return values.length ? Object.fromEntries(values) : undefined;
 }
 
-export function TradePriceFields({ initial, closed }: TradePriceFieldsProps) {
+export function TradePriceFields({
+  initial,
+  closed,
+  forceOpen,
+  onPriceChange,
+}: TradePriceFieldsProps) {
   const m = useAccountMessages();
   const fields = closed ? TRADE_PRICE_FIELDS : TRADE_PRICE_FIELDS.slice(0, 3);
   return (
-    <details className="trade-tags wide" open={Boolean(initial?.prices)}>
+    <details
+      className="trade-tags wide"
+      open={forceOpen || Boolean(initial?.prices)}
+    >
       <summary>{m.tradePrices}</summary>
       <div className="trade-tag-fields">
         {fields.map((key) => {
@@ -28,18 +37,28 @@ export function TradePriceFields({ initial, closed }: TradePriceFieldsProps) {
                 min={0}
                 name={name}
                 defaultValue={initial?.prices?.[key]}
+                onChange={
+                  onPriceChange
+                    ? (event) =>
+                        onPriceChange(
+                          key,
+                          event.currentTarget.value
+                            ? event.currentTarget.valueAsNumber
+                            : undefined,
+                        )
+                    : undefined
+                }
               />
             </label>
           );
         })}
-        <label className="workspace-check wide">
-          <input
-            name="breakeven"
-            type="checkbox"
-            defaultChecked={initial?.breakeven ?? false}
-          />
+        <CheckboxField
+          className="wide"
+          name="breakeven"
+          defaultChecked={initial?.breakeven ?? false}
+        >
           {m.breakeven}
-        </label>
+        </CheckboxField>
       </div>
       <p className="analytics-hint">{m.priceHint}</p>
     </details>

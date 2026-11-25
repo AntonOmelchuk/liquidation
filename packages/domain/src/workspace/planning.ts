@@ -5,6 +5,8 @@ import { PLAN_NARRATIVES } from "../plans/constants.ts";
 import { missedOutcomeSchema } from "../plans/plan.ts";
 import { TRADE_SIDE } from "../trades/constants.ts";
 import {
+  BREAKEVEN_REVIEW_REASONS,
+  MISSED_REASON,
   MISSED_REASONS,
   PERIOD,
   WATCH_OUTCOMES,
@@ -12,6 +14,7 @@ import {
   WORKSPACE_TEXT_LIMIT,
 } from "./constants.ts";
 import { periodBounds } from "./period.ts";
+import type { MissedReason } from "./types.ts";
 
 const text = z.string().trim().max(WORKSPACE_TEXT_LIMIT);
 const revision = z.number().int().positive();
@@ -52,6 +55,10 @@ export const watchlistInputSchema = z.object({
     ),
 });
 
+export function isBreakevenReviewReason(reason: MissedReason) {
+  return BREAKEVEN_REVIEW_REASONS.some((value) => value === reason);
+}
+
 export const missedInputSchema = z
   .object({
     symbol: instrumentSymbolSchema,
@@ -66,7 +73,22 @@ export const missedInputSchema = z
   .refine(
     ({ missedAt, outcome }) =>
       !outcome || Date.parse(outcome.closedAt) >= Date.parse(missedAt),
-    "The hypothetical exit precedes the missed entry.",
+    {
+      path: ["outcome", "closedAt"],
+      message: "The hypothetical exit is too early.",
+    },
+  )
+  .refine(
+    ({ reason, outcome }) => {
+      if (!outcome || !isBreakevenReviewReason(reason)) return true;
+      return reason === MISSED_REASON.WORKED_AFTER_BE
+        ? outcome.netR > 0
+        : outcome.netR < 0;
+    },
+    {
+      path: ["outcome", "netR"],
+      message: "The BE estimate must match the selected outcome.",
+    },
   );
 
 export const thoughtSchema = thoughtInputSchema.safeExtend({

@@ -25,6 +25,12 @@ const en = {
   open: "Open",
   be: "Open · BE",
   grouping: "Group by closing date",
+  pagination: "Trade pages",
+  tradesPerPage: "Trades per page",
+  previousPage: "Previous page",
+  nextPage: "Next page",
+  page: "Page",
+  of: "of",
   all: "All trades",
   week: "Weeks",
   month: "Months",
@@ -35,6 +41,23 @@ const en = {
   duration: "Holding time",
   hours: "h",
   initialRisk: "Initial monetary risk",
+  riskPercent: "Risk (%)",
+  entryBalance: "Entry balance",
+  riskAccountHint: "Select an account to calculate the cash risk.",
+  riskBalanceHint: "Risk is calculated from the journal balance at entry.",
+  riskInvalid:
+    "Enter a positive percentage up to 100 and select an account with a positive entry balance.",
+  pnlMode: "Calculate P&L",
+  pnlByPrices: "From entry, stop and exit prices",
+  pnlByR: "From realized R",
+  pnlManual: "Enter broker amount",
+  grossMultiple: "Gross result in R",
+  pnlNeedsRisk: "Add initial risk or enter the broker's gross result.",
+  pnlPriceHint:
+    "Use entry, initial stop and exit prices for a full exit. Enter the broker amount for partial exits or conversion adjustments.",
+  pnlRHint: "Enter the result in R before commission and swap.",
+  pnlInvalid:
+    "Check the risk and result inputs, or enter the broker's gross result.",
   atRisk: "Remaining stop risk",
   stopMoved: "Stop moved to entry",
   checklist: "Recorded checklist",
@@ -45,7 +68,7 @@ const en = {
     "Closed trades use the closing date. Open positions use the entry date.",
   compactHelp: "Select a row to open its full details.",
   initialRiskHelp:
-    "Initial risk in the journal currency. Moving the stop to entry keeps the risk used for R.",
+    "Initial risk at entry. Select the trade to see the currency amount. Moving the stop to entry keeps the risk used for R.",
   flatHelp:
     "Closed BE means exactly zero net P&L. An open BE flag records a stop moved to entry.",
   riskChangeError:
@@ -75,6 +98,12 @@ const uk: typeof en = {
   open: "Відкрито",
   be: "Відкрито · BE",
   grouping: "Групувати за датою закриття",
+  pagination: "Сторінки угод",
+  tradesPerPage: "Угод на сторінці",
+  previousPage: "Попередня сторінка",
+  nextPage: "Наступна сторінка",
+  page: "Сторінка",
+  of: "з",
   all: "Усі угоди",
   week: "Тижні",
   month: "Місяці",
@@ -85,6 +114,25 @@ const uk: typeof en = {
   duration: "Час у позиції",
   hours: "год",
   initialRisk: "Початковий грошовий ризик",
+  riskPercent: "Ризик (%)",
+  entryBalance: "Баланс на момент входу",
+  riskAccountHint: "Обери акаунт, щоб розрахувати суму ризику.",
+  riskBalanceHint:
+    "Ризик розраховується від балансу в журналі на момент входу.",
+  riskInvalid:
+    "Вкажи відсоток понад 0 і до 100 та обери акаунт із додатним балансом на момент входу.",
+  pnlMode: "Розрахунок P&L",
+  pnlByPrices: "За цінами входу, стопа й виходу",
+  pnlByR: "За результатом у R",
+  pnlManual: "Ввести суму від брокера",
+  grossMultiple: "Валовий результат у R",
+  pnlNeedsRisk:
+    "Вкажи початковий ризик або введи валовий результат від брокера.",
+  pnlPriceHint:
+    "Вкажи ціни входу, початкового стопа й виходу всієї позиції. Для часткового виходу або конвертації валюти введи суму від брокера.",
+  pnlRHint: "Вкажи результат у R до комісії й свопу.",
+  pnlInvalid:
+    "Перевір ризик і дані для розрахунку або введи валовий результат від брокера.",
   atRisk: "Залишковий ризик стопа",
   stopMoved: "Стоп перенесено до входу",
   checklist: "Записаний чекліст",
@@ -95,7 +143,7 @@ const uk: typeof en = {
     "Закриті угоди показано за датою виходу. Відкриті позиції — за датою входу.",
   compactHelp: "Натисни на рядок, щоб відкрити всі деталі.",
   initialRiskHelp:
-    "Початковий ризик у валюті журналу. Перенесення стопа до входу зберігає базу розрахунку R.",
+    "Початковий ризик на момент входу. Сума у валюті журналу доступна в деталях угоди. Перенесення стопа до входу зберігає базу розрахунку R.",
   flatHelp:
     "BE закритої угоди означає нульовий чистий P&L. Для відкритої позиції BE означає перенесення стопа до входу.",
   riskChangeError:

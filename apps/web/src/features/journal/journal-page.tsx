@@ -3,16 +3,21 @@ import { useAccountOptions } from "../accounts/account-options.ts";
 import { useAccountMessages } from "../accounts/messages.ts";
 import { TRADE_SIDE } from "@liquidation/domain/trades/constants";
 import { tradeStatistics } from "@liquidation/domain/analytics/trade-statistics";
-import { newestTrades } from "@liquidation/domain/workspace/analytics";
 import { localDay } from "@liquidation/domain/workspace/period";
 import { useDeferredValue, useMemo, useState } from "react";
-import { NEW_TRADE_HREF, RECENT_REVIEW_HREF } from "../../app/constants.ts";
+import {
+  NEW_TRADE_HREF,
+  OPEN_POSITION_HREF,
+  RECENT_REVIEW_HREF,
+} from "../../app/constants.ts";
 import { AnalyticsSelect } from "../../shared/analytics/filter-fields.tsx";
 import { EMPTY_VALUE, FILTER_ALL } from "../../shared/constants.ts";
 import { useLocale } from "../../shared/messages.ts";
 import { InfoTip } from "../../shared/ui/info-tip.tsx";
 import { Metric, Panel } from "../../shared/ui/layout.tsx";
 import { SelectField } from "../../shared/ui/select-field.tsx";
+import { QuotePanel } from "../market/quote-panel.tsx";
+import "../market/market.css";
 import { useWorkspaceMessages } from "../workspace/messages.ts";
 import {
   MissedTradesPanel,
@@ -23,13 +28,16 @@ import { PnlCalendar } from "./dashboard/pnl-calendar.tsx";
 import { JournalOverview } from "./dashboard/journal-overview.tsx";
 import { JOURNAL_STATUS } from "./data/constants.ts";
 import { useJournal } from "./data/store.ts";
-import { filterTrades } from "./filters.ts";
+import { filterJournalRecords } from "./filters.ts";
 import { InstrumentBreakdown } from "./instrument-breakdown.tsx";
 import { PerformanceChart } from "./performance-chart.tsx";
 import { OpenPositions } from "./records/open-positions.tsx";
-import { TRADE_GROUPING } from "./records/constants.ts";
+import {
+  DEFAULT_TRADE_PAGE_SIZE,
+  TRADE_GROUPING,
+} from "./records/constants.ts";
 import { useTradeRecordMessages } from "./records/messages.ts";
-import type { TradeGrouping } from "./records/types.ts";
+import type { TradeGrouping, TradePageSize } from "./records/types.ts";
 import { TradeTable } from "./records/trade-table.tsx";
 import "./dashboard/dashboard.css";
 
@@ -37,8 +45,12 @@ export function JournalPage() {
   const { t, format } = useLocale();
   const m = useWorkspaceMessages();
   const records = useTradeRecordMessages();
+  const [pageSize, setPageSize] = useState<TradePageSize>(
+    DEFAULT_TRADE_PAGE_SIZE,
+  );
   const [grouping, setGrouping] = useState<TradeGrouping>(TRADE_GROUPING.WEEK);
   const trades = useJournal((state) => state.trades);
+  const positions = useJournal((state) => state.positions);
   const status = useJournal((state) => state.status);
   const load = useJournal((state) => state.load);
   const [search, setSearch] = useState("");
@@ -50,16 +62,26 @@ export function JournalPage() {
   const [through, setThrough] = useState("");
   const invalidRange = Boolean(from && through && from > through);
   const query = useDeferredValue(search.trim().toUpperCase());
-  const filtered = useMemo(
-    () => filterTrades(trades ?? [], { query, side, from, through, account }),
-    [trades, query, side, from, through, account],
-  );
+  const { filtered, filteredPositions } = useMemo(() => {
+    const criteria = { query, side, from, through, account };
+    return {
+      filtered: filterJournalRecords(trades ?? [], criteria),
+      filteredPositions: filterJournalRecords(positions, criteria),
+    };
+  }, [trades, positions, query, side, from, through, account]);
   const metrics = useMemo(() => tradeStatistics(filtered), [filtered]);
   const today = localDay(new Date().toISOString());
   const initialMonth = useMemo(() => {
-    const recent = newestTrades(filtered)[0];
-    return (recent ? localDay(recent.closedAt) : today).slice(0, 7);
-  }, [filtered, today]);
+    let latest = -Infinity;
+    for (const trade of filtered)
+      latest = Math.max(latest, Date.parse(trade.closedAt));
+    for (const position of filteredPositions)
+      latest = Math.max(latest, Date.parse(position.openedAt));
+    const day = Number.isFinite(latest)
+      ? localDay(new Date(latest).toISOString())
+      : today;
+    return day.slice(0, 7);
+  }, [filtered, filteredPositions, today]);
 
   return (
     <main className="journal-dashboard">
@@ -71,7 +93,7 @@ export function JournalPage() {
             {m.recent}
           </a>
           {trades ? (
-            <a className="action-link" href={NEW_TRADE_HREF}>
+            <a className="action-link" href={OPEN_POSITION_HREF}>
               <span aria-hidden="true">＋</span> {t.record}
             </a>
           ) : (
@@ -81,6 +103,7 @@ export function JournalPage() {
           )}
         </div>
       </div>
+      <QuotePanel />
       {status === JOURNAL_STATUS.READY && <DashboardAccounts />}
       <div className="journal-filters">
         <label>
@@ -109,7 +132,7 @@ export function JournalPage() {
           onChange={setAccount}
         />
         <label>
-          {t.fromDate}
+          {m.calendarFrom}
           <input
             type="date"
             value={from}
@@ -117,7 +140,7 @@ export function JournalPage() {
           />
         </label>
         <label>
-          {t.toDate}
+          {m.calendarThrough}
           <input
             type="date"
             value={through}
@@ -209,6 +232,7 @@ export function JournalPage() {
           {trades && (
             <PnlCalendar
               trades={filtered}
+              positions={filteredPositions}
               initialMonth={initialMonth}
               today={today}
             />
@@ -263,12 +287,29 @@ export function JournalPage() {
                   </option>
                 ))}
               </SelectField>
+              {trades && (
+                <a className="action-link secondary" href={NEW_TRADE_HREF}>
+                  {t.recordTitle}
+                </a>
+              )}
             </div>
           }
         >
           {trades ? (
             filtered.length || trades.length === 0 ? (
-              <TradeTable trades={filtered} grouping={grouping} />
+              <TradeTable
+                key={JSON.stringify([
+                  query,
+                  side,
+                  from,
+                  through,
+                  account,
+                  grouping,
+                ])}
+                trades={filtered}
+                grouping={grouping}
+                pagination={{ pageSize, onPageSizeChange: setPageSize }}
+              />
             ) : (
               <p>{t.noMatches}</p>
             )

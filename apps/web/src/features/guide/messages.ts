@@ -21,7 +21,7 @@ const en = {
   ],
   journal: "Journal",
   journalText:
-    "Record a closed trade or open a position. Complete the account, risk, timeframe, session, strategy and setup for useful comparisons. The compact ledger opens a detail window by clicking a row. Open and close positions on dedicated full-page forms, attach entry and exit charts, and record skipped-rule explanations. Review closed trades from their detail window, select mistakes and mark critical exceptions. Open positions can be moved to breakeven from their details. Group closed trades by week, month or quarter.",
+    "Use Record trade to log an open position. For historical trades, choose Record a closed trade above the closed-trade table. Complete the account, risk, timeframe, session, strategy and setup for useful comparisons. The compact ledger opens a detail window by clicking a row. Open and close positions on dedicated full-page forms, attach entry and exit charts, and record skipped-rule explanations. Review closed trades from their detail window, select mistakes and mark critical exceptions. Open positions can be moved to breakeven from their details. Group closed trades by week, month or quarter.",
   preparation: "Thoughts and weekly preparation",
   preparationText:
     "Use Daily review and Weekly review for market observations, tasks, news and priorities. Complete the DRC after the session and the WRC after the trading week. Keep daily market thoughts under Thoughts even on days without trades. Prepare the weekly Watchlist with instruments, ideas and plans, then review it at the end of the week.",
@@ -70,7 +70,7 @@ const uk: typeof en = {
   ],
   journal: "Журнал",
   journalText:
-    "Запиши закриту угоду або відкрий позицію. Вкажи рахунок, ризик, таймфрейм, сесію, стратегію та сетап для детального аналізу. Натисни на рядок компактної таблиці, щоб відкрити деталі. Відкривай, редагуй і закривай позиції на окремих сторінках, додавай скріншоти входу й виходу та пояснення пропущених правил. У рев’ю закритої угоди позначай помилки й критичні винятки. У деталях позиції можна перевести стоп у BE. Групуй історію за тижнями, місяцями або кварталами.",
+    "Натисни «Записати угоду», щоб додати відкриту позицію. Для історичних угод скористайся кнопкою «Записати закриту угоду» над таблицею закритих угод. Вкажи рахунок, ризик, таймфрейм, сесію, стратегію та сетап для детального аналізу. Натисни на рядок компактної таблиці, щоб відкрити деталі. Відкривай, редагуй і закривай позиції на окремих сторінках, додавай скріншоти входу й виходу та пояснення пропущених правил. У рев’ю закритої угоди позначай помилки й критичні винятки. У деталях позиції можна перевести стоп у BE. Групуй історію за тижнями, місяцями або кварталами.",
   preparation: "Думки й підготовка до тижня",
   preparationText:
     "У розділах «Рев’ю дня» й «Рев’ю тижня» записуй спостереження, завдання, новини та пріоритети. DRC заповнюй наприкінці торгового дня, WRC — наприкінці тижня. У розділі думок зберігай спостереження навіть у дні без угод. Підготуй Watchlist на тиждень, додай інструменти, ідеї та плани, а наприкінці тижня проведи рев’ю.",

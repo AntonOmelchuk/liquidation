@@ -1,14 +1,15 @@
-import { accountPerformance } from "@liquidation/domain/accounts/performance";
+import { accountBalance } from "@liquidation/domain/accounts/performance";
 import { PAGE_HASHES } from "../../app/constants.ts";
 import { accountHref } from "../../app/page.ts";
 import { useJournal } from "../journal/data/store.ts";
-import { AccountSummary } from "./account-summary.tsx";
+import { useLocale } from "../../shared/messages.ts";
 import { useAccountMessages } from "./messages.ts";
 import { useAccountSource } from "./use-account-source.ts";
 import "./accounts.css";
 
 export function DashboardAccounts() {
   const m = useAccountMessages();
+  const { format } = useLocale();
   const accounts = useJournal((state) => state.accounts);
   const source = useAccountSource();
   const active = accounts.filter((account) => !account.archived);
@@ -20,6 +21,7 @@ export function DashboardAccounts() {
         </a>
       </div>
     );
+  const now = new Date().toISOString();
   return (
     <section className="dashboard-accounts" aria-label={m.accounts}>
       {active.map((account) => (
@@ -27,11 +29,11 @@ export function DashboardAccounts() {
           <a className="record-link" href={accountHref(account.id)}>
             {account.name}
           </a>
-          <AccountSummary
-            account={account}
-            performance={accountPerformance(account, source)}
-            compact
-          />
+          <strong className="account-tile-balance">
+            <span className="visually-hidden">{m.balance} </span>
+            {format.money.format(accountBalance(account, source, now))}{" "}
+            {account.currency}
+          </strong>
         </article>
       ))}
     </section>

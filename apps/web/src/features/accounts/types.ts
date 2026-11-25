@@ -31,11 +31,13 @@ export type AccountRulesPanelProps = {
 export type AccountSummaryProps = {
   account: Account;
   performance: AccountPerformance;
-  compact?: boolean;
 };
 export type AccountSaveError =
   (typeof ACCOUNT_SAVE_ERROR)[keyof typeof ACCOUNT_SAVE_ERROR];
-export type AccountFieldProps = { initial?: TradeLinks };
+export type AccountFieldProps = {
+  initial?: TradeLinks;
+  onChange?: (accountId: string) => void;
+};
 export type AccountPageProps = { id?: string };
 export type AccountsListProps = { onCreate: (name?: string) => void };
 export type AccountDetailsProps = { account: Account };

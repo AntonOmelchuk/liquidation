@@ -1,7 +1,7 @@
 import { netCents, realizedR } from "@liquidation/domain/trades/trade";
-import { calendarDate, localDay } from "@liquidation/domain/workspace/period";
+import { localDay } from "@liquidation/domain/workspace/period";
 import { EMPTY_VALUE } from "../../../shared/constants.ts";
-import { numericTone } from "../../../shared/format.ts";
+import { formatCompactDay, numericTone } from "../../../shared/format.ts";
 import { useLocale } from "../../../shared/messages.ts";
 import { InstrumentIcons } from "../../../shared/ui/instrument-picker.tsx";
 import { TRADE_RESULT } from "./constants.ts";
@@ -40,7 +40,7 @@ export function TradeRecordRows({
       >
         <td>
           <time dateTime={at} title={fullDate}>
-            {trade ? format.day.format(calendarDate(localDay(at))) : fullDate}
+            {formatCompactDay(localDay(at))}
           </time>
         </td>
         <td title={record.account} className="trade-ledger-clip">
@@ -50,13 +50,7 @@ export function TradeRecordRows({
           <button
             type="button"
             className="trade-ledger-symbol"
-            aria-label={
-              m.view +
-              " · " +
-              record.symbol +
-              " · " +
-              format.date.format(Date.parse(at))
-            }
+            aria-label={m.view + " · " + record.symbol + " · " + fullDate}
             onClick={(event) => {
               event.stopPropagation();
               onInspect(record.id);
@@ -76,9 +70,11 @@ export function TradeRecordRows({
         </td>
         <td>{record.timeframe?.toUpperCase() || EMPTY_VALUE}</td>
         <td className="trade-number">
-          {record.risk === null
-            ? EMPTY_VALUE
-            : format.money.format(record.risk)}
+          {record.riskSizing
+            ? format.riskPercent.format(record.riskSizing.percent / 100)
+            : record.risk === null
+              ? EMPTY_VALUE
+              : format.money.format(record.risk)}
         </td>
         <td>
           <span className="trade-outcome" data-outcome={outcome}>

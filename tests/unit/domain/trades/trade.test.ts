@@ -1,4 +1,8 @@
 import {
+  calculatedGrossProfit,
+  riskPercentSchema,
+} from "@liquidation/domain/trades/financials";
+import {
   netCents,
   summarize,
   tradeInput,
@@ -35,4 +39,27 @@ test("rejects a closing time before the entry and sub-cent amounts", () => {
   expect(tradeInput.safeParse({ ...trade, commission: -0.003 }).success).toBe(
     false,
   );
+});
+
+test("enforces risk percent bounds and rounds a short's P&L to cents", () => {
+  expect(riskPercentSchema.safeParse(0).success).toBe(false);
+  expect(riskPercentSchema.safeParse(101).success).toBe(false);
+  expect(riskPercentSchema.safeParse(0.5).success).toBe(true);
+  expect(
+    calculatedGrossProfit(25, { mode: "prices" }, "short", {
+      entry: 3500,
+      stop: 3502,
+      exit: 3497,
+    }),
+  ).toBe(37.5);
+  expect(
+    calculatedGrossProfit(5.55, { mode: "r-multiple", multiple: -0.5 }, "long"),
+  ).toBe(-2.78);
+  expect(
+    calculatedGrossProfit(25, { mode: "prices" }, "short", {
+      entry: 3500,
+      stop: 3499,
+      exit: 3497,
+    }),
+  ).toBeNull();
 });

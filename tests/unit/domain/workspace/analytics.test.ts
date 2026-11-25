@@ -50,17 +50,84 @@ describe("workspace calendar", () => {
     expect(calendar.days.get("2026-11-01")).toEqual({
       net: 3010,
       trades: [first],
+      positions: [],
       wins: 1,
     });
     expect(calendar.days.get("2026-11-03")).toEqual({
       net: 0,
       trades: [flat],
+      positions: [],
       wins: 0,
     });
     expect(calendar.days.has("2026-12-01")).toBe(false);
     expect(calendar.weeks[0]).toMatchObject({ active: 1, net: 3010 });
     expect(calendar.weeks[1]).toMatchObject({ active: 2, net: -501 });
     expect(calendar).toMatchObject({ net: 2509, active: 3 });
+  });
+
+  it("shows open positions at entry without adding them to realized calendar totals", () => {
+    const closed = trade(
+      "2026-11-02T10:00:00Z",
+      "2026-11-02T14:00:00Z",
+      20,
+      -2,
+    );
+    const open: Position = {
+      id: crypto.randomUUID(),
+      symbol: "GBPUSD",
+      direction: "short",
+      openedAt: "2026-11-07T23:00:00Z",
+      risk: 20,
+      notes: "",
+      revision: 1,
+    };
+    const mixed = {
+      ...open,
+      id: crypto.randomUUID(),
+      openedAt: "2026-11-02T00:00:00Z",
+    };
+    const outside = {
+      ...open,
+      id: crypto.randomUUID(),
+      openedAt: "2026-11-30T23:00:00Z",
+    };
+    const at = (iso: string) =>
+      new Date(Date.parse(iso) + 2 * 3_600_000).toISOString().slice(0, 10);
+    const calendar = calendarMonth([closed], "2026-11", at, [
+      open,
+      mixed,
+      outside,
+    ]);
+    expect(calendar.days.get("2026-11-02")).toEqual({
+      trades: [closed],
+      positions: [mixed],
+      net: 1800,
+      wins: 1,
+    });
+    expect(calendar.days.get("2026-11-08")).toEqual({
+      trades: [],
+      positions: [open],
+      net: 0,
+      wins: 0,
+    });
+    expect(calendar.days.has("2026-12-01")).toBe(false);
+    expect(calendar.weeks[1]).toMatchObject({
+      active: 2,
+      closedDays: 1,
+      net: 1800,
+    });
+    expect(calendar).toMatchObject({ net: 1800, active: 2 });
+
+    const nowClosed = {
+      ...trade(open.openedAt, "2026-11-09T09:00:00Z", -10),
+      id: open.id,
+    };
+    const updated = calendarMonth([closed, nowClosed], "2026-11", at, [
+      mixed,
+      outside,
+    ]);
+    expect(updated.days.has("2026-11-08")).toBe(false);
+    expect(updated.days.get("2026-11-09")?.trades).toEqual([nowClosed]);
   });
 
   it("handles Monday weeks, leap months and quarters over year boundaries", () => {

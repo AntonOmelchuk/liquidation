@@ -73,10 +73,6 @@ export function Header({ page }: HeaderProps) {
         ))}
       </nav>
       <div className="preferences">
-        <span className="local">
-          <i aria-hidden="true" />
-          {t.local}
-        </span>
         <button
           className="secondary settings-trigger"
           onClick={() => dialog.current?.showModal()}

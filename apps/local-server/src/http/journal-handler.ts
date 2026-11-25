@@ -12,12 +12,11 @@ import { playbookCommand } from "@liquidation/domain/playbooks/playbook";
 import { positionCommand } from "@liquidation/domain/trades/position";
 import { buildReview } from "@liquidation/domain/review/report";
 import { reviewQuerySchema } from "@liquidation/domain/review/schemas";
-import { tradeInput } from "@liquidation/domain/trades/trade";
+import { tradeRecordInput } from "@liquidation/domain/trades/trade";
 import { tradeLinkCommand } from "@liquidation/domain/trades/trade-links";
 import { workspaceCommand } from "@liquidation/domain/workspace/workspace";
 import { trashCommandSchema } from "@liquidation/domain/journal/trash/trash";
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { CROSS_SITE, SEC_FETCH_SITE } from "../constants.ts";
 import {
   InvalidJournalInput,
   JournalConflict,
@@ -26,6 +25,7 @@ import {
 import { createJournal } from "../journal.ts";
 import { createLocalReview } from "../review/local-model.ts";
 import type { ReviewSummarizer } from "../review/types.ts";
+import { isLocalRequest } from "./local-request.ts";
 import { readJournalBody } from "./request-body.ts";
 
 export function journalHandler(
@@ -42,13 +42,7 @@ export function journalHandler(
       response.end(JSON.stringify(data));
     }
 
-    const host = request.headers.host ?? "";
-    const origin = request.headers.origin;
-    if (
-      !/^127\.0\.0\.1:\d+$/.test(host) ||
-      (origin && origin !== `http://${host}`) ||
-      request.headers[SEC_FETCH_SITE] === CROSS_SITE
-    ) {
+    if (!isLocalRequest(request)) {
       send(HTTP_STATUS.FORBIDDEN, { error: "Request origin is not allowed." });
       return;
     }
@@ -202,7 +196,7 @@ export function journalHandler(
         );
         return;
       }
-      const result = tradeInput.safeParse(input);
+      const result = tradeRecordInput.safeParse(input);
       if (!result.success) {
         send(HTTP_STATUS.UNPROCESSABLE_CONTENT, { error: "Invalid trade." });
         return;

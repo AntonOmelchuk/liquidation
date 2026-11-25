@@ -1,6 +1,7 @@
 import { PLAN_STATUS, PLAN_STATUSES } from "../plans/constants.ts";
 import type { PlanStatus } from "../plans/types.ts";
 import type { ChartEvent, OpportunitySource, TimeWindow } from "./types.ts";
+import { isBreakevenReviewReason } from "../workspace/planning.ts";
 import type { MissedTrade } from "../workspace/types.ts";
 
 import { netCents, realizedR } from "../trades/trade.ts";
@@ -74,8 +75,11 @@ export function comparePlanPerformance(
   let assessedMisses = 0;
   let winningMisses = 0;
   let linkedMisses = 0;
+  const opportunities = missedTrades.filter(
+    ({ reason }) => !isBreakevenReviewReason(reason),
+  );
   const explicitPlans = new Set(
-    missedTrades.flatMap(({ planId }) => (planId ? [planId] : [])),
+    opportunities.flatMap(({ planId }) => (planId ? [planId] : [])),
   );
   let replacedPlanMisses = 0;
   let recordedMisses = 0;
@@ -101,8 +105,7 @@ export function comparePlanPerformance(
 
   for (const { id, review } of plans) {
     statuses[review.status]++;
-    if (review.status !== PLAN_STATUS.MISSED || review.outcome === null)
-      continue;
+    if (!("outcome" in review) || !review.outcome) continue;
     if (explicitPlans.has(id)) {
       const at = Date.parse(review.outcome.closedAt);
       if (at >= start && at < end) replacedPlanMisses++;
@@ -110,16 +113,19 @@ export function comparePlanPerformance(
     }
     addMiss(review.outcome, id);
   }
-  for (const { outcome, planId } of missedTrades) {
+  for (const { outcome, planId } of opportunities) {
     if (outcome && addMiss(outcome, planId)) recordedMisses++;
   }
 
-  const decided = statuses.worked + statuses.failed;
+  const worked =
+    statuses[PLAN_STATUS.WORKED] + statuses[PLAN_STATUS.WORKED_WITHOUT_ENTRY];
+  const decided = worked + statuses[PLAN_STATUS.FAILED];
   return {
     statuses,
+    worked,
     decided,
-    allPlanWinRate: plans.length ? statuses.worked / plans.length : null,
-    planWinRate: decided ? statuses.worked / decided : null,
+    allPlanWinRate: plans.length ? worked / plans.length : null,
+    planWinRate: decided ? worked / decided : null,
     missedWinRate: assessedMisses ? winningMisses / assessedMisses : null,
     assessedMisses,
     linkedMisses,

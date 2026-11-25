@@ -27,6 +27,9 @@ export const TRADE_GROUPING = {
   MONTH: "month",
   QUARTER: "quarter",
 } as const;
+export const TRADE_PAGE_SIZES = [10, 20] as const;
+export const DEFAULT_TRADE_PAGE_SIZE = 20;
+
 export const TRADE_RESULT = {
   WIN: "win",
   LOSS: "loss",

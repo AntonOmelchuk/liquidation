@@ -8,7 +8,7 @@ import {
   shiftDay,
   weekIndex,
 } from "./period.ts";
-import type { ReviewPeriod } from "./types.ts";
+import type { CalendarDay, ReviewPeriod } from "./types.ts";
 
 export function newestTrades(trades: readonly Trade[]) {
   return trades.toSorted(
@@ -67,22 +67,32 @@ export function calendarMonth(
   trades: readonly Trade[],
   month: string,
   dayAt = localDay,
+  positions: readonly Position[] = [],
 ) {
   const { start, through } = periodBounds(PERIOD.MONTH, month + "-01");
-  const days = new Map<
-    string,
-    { trades: Trade[]; net: number; wins: number }
-  >();
+  const days = new Map<string, CalendarDay>();
+  function activity(iso: string) {
+    const day = dayAt(iso);
+    if (day < start || day > through) return undefined;
+    const aggregate = days.get(day) ?? {
+      trades: [],
+      positions: [],
+      net: 0,
+      wins: 0,
+    };
+    days.set(day, aggregate);
+    return aggregate;
+  }
   for (const trade of trades) {
-    const day = dayAt(trade.closedAt);
-    if (day < start || day > through) continue;
-    const aggregate = days.get(day) ?? { trades: [], net: 0, wins: 0 };
+    const aggregate = activity(trade.closedAt);
+    if (!aggregate) continue;
     const net = netCents(trade);
     aggregate.trades.push(trade);
     aggregate.net += net;
     aggregate.wins += Number(net > 0);
-    days.set(day, aggregate);
   }
+  for (const position of positions)
+    activity(position.openedAt)?.positions.push(position);
 
   const first = shiftDay(start, -weekIndex(calendarDate(start)));
   const weekCount = Math.ceil(
@@ -101,6 +111,7 @@ export function calendarMonth(
       dates,
       net: active.reduce((sum, { net }) => sum + net, 0),
       active: active.length,
+      closedDays: active.filter(({ trades }) => trades.length > 0).length,
     };
   });
   return {

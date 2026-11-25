@@ -1,6 +1,6 @@
 import { netCents, realizedR } from "../trades/trade.ts";
 import type { Trade } from "../trades/types.ts";
-import { TRADE_SIDE } from "../trades/constants.ts";
+import { priceMoveR } from "../trades/prices.ts";
 import { R_BUCKET, STOP_OVERRUN_R } from "./constants.ts";
 import type { PriceMetrics, RiskDrawdown, TradeCurvePoint } from "./types.ts";
 
@@ -117,10 +117,7 @@ export function priceMetrics(trade: Trade): PriceMetrics {
     prices.stop === prices.entry
   )
     return unavailable;
-  const risk = Math.abs(prices.entry - prices.stop);
-  const sign = trade.direction === TRADE_SIDE.LONG ? 1 : -1;
-  const toR = (price?: number) =>
-    price === undefined ? null : (sign * (price - prices.entry!)) / risk;
+  const toR = (price?: number) => priceMoveR(trade.direction, prices, price);
   const grossR = toR(prices.exit);
   const mfe = toR(prices.favorable);
   const adverse = toR(prices.adverse);

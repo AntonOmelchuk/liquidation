@@ -12,54 +12,6 @@
   margin: 0;
   list-style: none;
 }
-.plan-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.24rem 0.55rem;
-  border: 1px solid var(--border);
-  border-radius: 0.45rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-  white-space: nowrap;
-  color: var(--muted);
-}
-.plan-status[data-status="worked"] {
-  color: #83e6c1;
-  background: #142a28;
-}
-.plan-status[data-status="failed"] {
-  color: #ffaaa5;
-  background: #30202b;
-}
-.plan-status[data-status="in-progress"] {
-  color: #b0caff;
-  background: #202a43;
-}
-.plan-status[data-status="missed"] {
-  color: #f2ca83;
-  background: #312a23;
-}
-[data-theme="light"] .plan-status[data-status="worked"] {
-  color: #106d53;
-  background: #e2f3ec;
-}
-[data-theme="light"] .plan-status[data-status="failed"] {
-  color: #9f2433;
-  background: #fff0f1;
-}
-[data-theme="light"] .plan-status[data-status="in-progress"] {
-  color: #31538c;
-  background: #e7eefb;
-}
-[data-theme="light"] .plan-status[data-status="missed"] {
-  color: #785219;
-  background: #fcf0d8;
-}
-.plan-status-detail {
-  margin-top: 0.35rem;
-  white-space: pre-wrap;
-}
 .plans-table table {
   min-width: 48rem;
   border-collapse: separate;
@@ -97,10 +49,9 @@
   gap: 0.35rem;
   white-space: nowrap;
 }
-.plan-row-market .instrument-icons > span {
-  width: 1.25rem;
-  height: 1.25rem;
-  font-size: 0.56rem;
+.plan-row-market .instrument-icons {
+  --instrument-icon-size: 1.875rem;
+  --instrument-icon-font: 0.84rem;
 }
 .plan-table-playbook {
   min-width: 7rem;
@@ -253,15 +204,6 @@
 .plan-detail-meta {
   margin-top: 0.65rem;
   color: var(--muted);
-}
-.plan-state {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.25rem;
-}
-.plan-status-detail {
-  flex-basis: 100%;
 }
 .plan-dates {
   min-width: 10rem;

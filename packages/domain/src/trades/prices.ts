@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { TRADE_SIDE } from "./constants.ts";
-import type { TradePrices } from "./types.ts";
+import type { TradeDirection, TradePrices } from "./types.ts";
 
 const price = z.number().positive().max(1_000_000_000).optional();
 
@@ -14,7 +14,7 @@ export const tradePricesSchema = z.object({
 });
 
 export function validPriceGeometry(
-  direction: (typeof TRADE_SIDE)[keyof typeof TRADE_SIDE],
+  direction: TradeDirection,
   prices?: TradePrices,
 ) {
   if (!prices || prices.entry === undefined) return true;
@@ -32,4 +32,22 @@ export function validPriceGeometry(
       adverse === undefined ||
       sign * (exit - adverse) >= 0)
   );
+}
+
+export function priceMoveR(
+  direction: TradeDirection,
+  prices: TradePrices | undefined,
+  price: number | undefined,
+) {
+  const entry = prices?.entry;
+  const stop = prices?.stop;
+  if (
+    entry === undefined ||
+    stop === undefined ||
+    stop === entry ||
+    price === undefined
+  )
+    return null;
+  const sign = direction === TRADE_SIDE.LONG ? 1 : -1;
+  return (sign * (price - entry)) / Math.abs(entry - stop);
 }

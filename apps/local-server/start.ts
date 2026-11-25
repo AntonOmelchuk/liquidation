@@ -1,5 +1,4 @@
 import { HTTP_STATUS } from "@liquidation/domain/journal/constants";
-import { isJournalRoute } from "@liquidation/domain/journal/journal";
 import { createReadStream } from "node:fs";
 import { stat } from "node:fs/promises";
 import { createServer } from "node:http";
@@ -10,10 +9,10 @@ import {
   LOCAL_PORT,
   ROOT_PATH,
 } from "./src/constants.ts";
-import { journalHandler } from "./src/http/journal-handler.ts";
+import { localApiHandler } from "./src/http/local-api.ts";
 
 const root = resolve("dist");
-const handleJournal = journalHandler();
+const handleApi = localApiHandler();
 const types: Record<string, string> = {
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
@@ -23,10 +22,7 @@ const types: Record<string, string> = {
 createServer(async (request, response) => {
   const pathname = new URL(request.url ?? ROOT_PATH, "http://127.0.0.1")
     .pathname;
-  if (isJournalRoute(pathname)) {
-    await handleJournal(request, response);
-    return;
-  }
+  if (handleApi(request, response)) return;
   const path = resolve(
     root,
     "." + (pathname === ROOT_PATH ? INDEX_DOCUMENT : pathname),

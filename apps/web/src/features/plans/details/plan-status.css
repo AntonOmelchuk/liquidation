@@ -1,0 +1,65 @@
+.plan-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.24rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 0.45rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--muted);
+}
+.plan-status:is([data-status="worked"], [data-status="worked-without-entry"]) {
+  color: #83e6c1;
+  background: #142a28;
+}
+.plan-status[data-status="waiting"] {
+  color: var(--text);
+  background: color-mix(in srgb, var(--muted) 11%, var(--surface));
+}
+.plan-status[data-status="failed"] {
+  color: #ffaaa5;
+  background: #30202b;
+}
+.plan-status[data-status="in-progress"] {
+  color: #b0caff;
+  background: #202a43;
+}
+.plan-status[data-status="missed"] {
+  color: #f2ca83;
+  background: #312a23;
+}
+[data-theme="light"]
+  .plan-status:is(
+    [data-status="worked"],
+    [data-status="worked-without-entry"]
+  ) {
+  color: #106d53;
+  background: #e2f3ec;
+}
+[data-theme="light"] .plan-status[data-status="failed"] {
+  color: #9f2433;
+  background: #fff0f1;
+}
+[data-theme="light"] .plan-status[data-status="in-progress"] {
+  color: #31538c;
+  background: #e7eefb;
+}
+[data-theme="light"] .plan-status[data-status="missed"] {
+  color: #785219;
+  background: #fcf0d8;
+}
+.plan-status-detail {
+  margin-top: 0.35rem;
+  white-space: pre-wrap;
+}
+.plan-state {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+.plan-status-detail {
+  flex-basis: 100%;
+}

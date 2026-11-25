@@ -38,22 +38,49 @@ export function firmDay(iso: string, timeZone: string, dayStart: string) {
   return firmDayReader(timeZone, dayStart)(iso);
 }
 
+function accountCashEntries(
+  account: Account,
+  source: AccountSource,
+  end: number,
+) {
+  return {
+    trades: source.trades.filter(
+      ({ accountId, closedAt }) =>
+        accountId === account.id && Date.parse(closedAt) <= end,
+    ),
+    movements: source.movements.filter(
+      ({ accountId, at }) => accountId === account.id && Date.parse(at) <= end,
+    ),
+  };
+}
+
+export function accountBalance(
+  account: Account,
+  source: AccountSource,
+  through = new Date().toISOString(),
+) {
+  const { trades, movements } = accountCashEntries(
+    account,
+    source,
+    Date.parse(through),
+  );
+  return fromCents(
+    toCents(account.startingBalance) +
+      trades.reduce((sum, trade) => sum + netCents(trade), 0) +
+      movements.reduce((sum, movement) => sum + toCents(movement.amount), 0),
+  );
+}
+
 export function accountPerformance(
   account: Account,
   source: AccountSource,
   now = new Date().toISOString(),
 ) {
   const end = Date.parse(now);
-  const trades = source.trades.filter(
-    ({ accountId, closedAt }) =>
-      accountId === account.id && Date.parse(closedAt) <= end,
-  );
+  const { trades, movements } = accountCashEntries(account, source, end);
   const positions = source.positions.filter(
     ({ accountId, openedAt }) =>
       accountId === account.id && Date.parse(openedAt) <= end,
-  );
-  const movements = source.movements.filter(
-    ({ accountId, at }) => accountId === account.id && Date.parse(at) <= end,
   );
   const moneyByKind = Object.fromEntries(
     Object.values(MOVEMENT_KIND).map((kind) => [kind, 0]),

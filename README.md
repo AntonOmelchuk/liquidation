@@ -34,7 +34,7 @@ Enter a position’s opening and closing times in your computer’s local time. 
 
 ### Compact trade ledger
 
-Open and closed trades appear in single-line rows. The main Journal groups closed trades by closing week by default. The grouping selector also supports months, quarters and an ungrouped list. Each period shows its date range, trade count, win rate, net P&L and total realized R. The closing date determines the closed-trade group, while open positions display their entry date and time.
+Open and closed trades appear in single-line rows. The main Journal groups closed trades by closing week by default. The grouping selector also supports months, quarters and an ungrouped list. Each period shows its date range, trade count, win rate, net P&L and total realized R. The closing date determines the closed-trade group, while open positions display their entry date and time. Use the page controls below the closed-trade table to show 10 or 20 trades at a time. Group totals and dashboard metrics use the full filtered sample.
 
 Click a row or focus its instrument button and press Enter to open the detail dialog. It provides the full timestamps, account, monetary risk, financial result, prices, realized R, playbook and rule version, setup, linked plan, recorded checklist answers and reasons, classifications and notes. The closed-trade outcome uses cost-adjusted net P&L (Win, Loss or BE for an exact zero result). The open-position outcome shows whether a move to breakeven has been recorded. All initial risk values are in journal currency.
 
@@ -42,19 +42,39 @@ Use **Review trade** for the editable associations, checklists, price evidence, 
 
 ### Open, record and review trades on full pages
 
-1. Select **Open position** on Journal to record a live entry, or **Record trade** to enter a historical closed trade. Both actions open dedicated pages. Record the opening time, symbol, direction, initial monetary risk and any entry notes.
+1. Select **Record trade** on Journal to log an open position. The entry time defaults to your current local time and can be edited. Record the symbol and direction, select an account, and enter risk as a percentage. The form shows the corresponding 1R in the journal currency. To enter a historical trade, select **Record a closed trade** above the closed-trade table and fill in its closing details.
 2. Select the account, plan, playbook and setup. A plan can suggest its saved playbook version. Choosing a setup reveals all of its entry rules and the playbook's common filters. Check the followed rules. Each newly recorded unchecked rule requires a nonblank explanation. A position keeps the rules version that was selected at entry.
 3. Under **Trade screenshots**, attach entry and setup charts. Paste images into the focused drop area, drag files there or choose images. You may reorder them with the arrow buttons or by dragging. Open positions can be edited later to add more evidence.
-4. Click the position's row and choose **Close position**. Record the result and assess management rules. Existing entry evidence and saved explanations remain in the editor. Add exit and review charts, select mistakes and save review notes.
+4. Click the position's row and choose **Close position**. Choose the P&L calculation method and assess management rules. Existing entry evidence and saved explanations remain in the editor. Add exit and review charts, select mistakes and save review notes.
 5. Click any closed trade and select **Review trade** to update its context, setup, checklist, prices, chart evidence and review. The details window displays the saved entry and exit galleries. Select a thumbnail to open the original image at full size. Use the remove control in the editor to detach an image.
 
 Each chart section supports up to 12 PNG, JPEG, WebP or GIF files. Each file can be up to 8 MiB, and one save accepts up to 32 MiB of new images across both sections. Screenshot bytes and their references are stored locally. The close operation preserves the position's identity and entry images. Removing a chart from a trade removes its file once no active or trashed record references it. Moving a trade or position to Trash preserves its images for restoration. Permanently deleting it releases unreferenced images.
 
 Existing trades and positions can be reviewed without any data conversion. Legacy unchecked rules that were saved without reasons remain readable and editable. Newly recorded rule exceptions require a reason. On an older trade with no recorded checklist, the review editor can leave that historic assessment unrecorded.
 
+### Risk and P&L
+
+Enter `0.5` for 0.5% risk. A journal balance of 10,000 USD at entry yields 50 USD of initial risk. The local server uses the account's starting balance, net P&L already realized by entry and movements dated through entry. It records the account, entry balance, percentage and rounded cash amount with the trade. Later movements and closes do not resize that trade. Editing the entry time, percentage or account of an open position recalculates the initial risk. An empty percentage leaves risk unrecorded on a new trade. Existing cash risks remain available for review and closing.
+
+- **From entry, stop and exit prices** calculates the signed exit move divided by the initial stop distance, then multiplies by the saved cash risk. Use this with a full exit and matching initial monetary stop risk.
+- **From realized R** multiplies the entered gross R by the cash risk. A result of 2R with 50 USD risk yields 100 USD gross.
+- **Enter broker amount** accepts the actual gross result for partial exits, currency conversion or a trade without recorded risk.
+
+Enter commission and swap with their original signs. The preview and saved net P&L add both to gross P&L. A 100 USD gross result with a 2 USD commission charge and a 1 USD swap charge yields 97 USD net.
+
+## Market data on the dashboard
+
+**Today's economic calendar** appears below the daily and weekly review. It shows the current day in the browser's local time zone. The server checks the [biquote calendar](https://biquote.io/docs/#calendar) once per minute while the page is open and shows actual, forecast and previous readings when published. The [Forex Factory weekly export](https://www.forexfactory.com/calendar) provides a cached backup schedule. If both requests fail, the calendar can show the last successful feed with its fetch time. The medium and high impact filter controls visible releases, past scheduled times are dimmed, and the nearest upcoming time is highlighted.
+
+After a scheduled release, open **Price move** and select an instrument. It compares the mid-price close immediately before the scheduled time with closes at five and fifteen minutes afterward. The panel shows the difference in FX pips or USD for metals, and in percent. It uses complete one-minute candles from biquote, with complete five-minute candles as a fallback on matching boundaries. Empty windows can indicate an unfinished interval, missing data or a date outside the provider's rolling candle history.
+
+**Market quotes** is a scrolling strip across the top of Journal. **Choose pairs** saves up to eight FX and metal symbols in the browser. The local server fetches the latest [biquote](https://biquote.io/docs/) mid-prices as one batch every five seconds while the tab is visible. A quote shows its price and daily percentage change when available. The last update is available on hover. Metals display two decimals, JPY pairs three and other FX pairs five. Calendar currencies show their flags next to the code. Hover or focus the strip to pause scrolling, or select **Pause ticker** to stop it until you resume. The strip is static when reduced motion is enabled.
+
+Both feeds work without API keys. The external services receive the public market-data requests and selected ticker symbols. Trading records, account details and screenshots stay in the local journal.
+
 ## Accounts and cash flows
 
-Open **Accounts → New account**, choose a broker, prop firm or demo account, and enter its name, opening balance, firm and notes. The first account defines the journal currency (USD by default). Subsequent accounts use that currency, including when aggregating their results. If an older trade already has a free-text account label, creating an account with the same name (case-insensitive) links those trades and positions to the new account automatically. The old label list on Accounts provides a shortcut.
+Open **Accounts → New account**, choose a broker, prop firm or demo account, and enter its name, opening balance, firm and notes. The first account defines the journal currency (USD by default). Subsequent accounts use that currency, including when aggregating their results. If an older trade already has a free-text account label, creating an account with the same name (case-insensitive) links those trades and positions to the new account automatically. The old label list on Accounts provides a shortcut. On Journal, each active account tile shows the name and current journal balance.
 
 ### Associate trades and positions
 
@@ -92,11 +112,11 @@ Expand **Prices and excursions** in a trade or position form to record entry, in
 
 ## Dashboard and daily/weekly review
 
-The dashboard shows open positions and active plans alongside **Daily review** and **Weekly review**. Use **Edit review** to save market observations, news or events, monitored levels, setups, learning plans and tasks. Daily and weekly entries are stored independently. Open the DRC for the end-of-day market and process assessment, or the WRC for the end-of-week assessment. Active plans are non-voided plans in **Waiting** or **In progress** whose dates overlap the selected day or week, plus undated plans. The news and alert fields are manual entries.
+The dashboard shows open positions and active plans alongside **Daily review** and **Weekly review**. Use **Edit review** to save market observations, news or events, monitored levels, setups, learning plans and tasks. Daily and weekly entries are stored independently. Open the DRC for the end-of-day market and process assessment, or the WRC for the end-of-week assessment. **DRC saved** appears after you save today's report card. Active plans are non-voided plans in **Waiting** or **In progress** whose dates overlap the selected day or week, plus undated plans. Each active plan shows its instrument and status. The news and alert fields are manual entries.
 
 On wide screens, the review sits below today’s thoughts. The weekly watchlist and active plans form a separate column. Both columns stack on narrow screens.
 
-The calendar opens on the month of the most recent close in the filtered sample. Use the month arrows or **This month** to navigate. Each date shows net P&L, the closed-trade count and trade win rate for that date. A week starts on Monday. Weekly subtotals include dates in the displayed month. Select a day for its trades and a link to its DRC. The chart below the calendar shows daily net P&L for that month. The dashboard filters use symbol, side, account and inclusive closing dates across cards, the calendar, the cumulative chart and the closed trade table.
+The P&L calendar opens on the month of the most recent trade close or open-position entry in the filtered sample. Use the month arrows or **This month** to navigate. Closed trades show their symbol and net P&L on the closing date. Open positions show their symbol and remaining stop risk on the entry date. A stop moved to entry has zero remaining risk. A day shows up to three records and a count of further entries. Select a day to inspect all its records and open the DRC. Weeks start on Monday and weekly totals cover dates in the displayed month. The daily and cumulative P&L charts use closed trades. Journal date filters match closing dates for closed trades and entry dates for open positions in the calendar.
 
 ### Daily thoughts
 
@@ -127,10 +147,10 @@ Open **Plans** to create a market narrative and an execution plan for a day or a
 - **Original setup** preserves the first saved version of the plan with its images. Timeline updates are dated and can be edited. **Void plan** records an invalidation reason and moves the plan to the past section. **Restore plan** records a separate event.
 - In the plan form, choose a playbook and rule version from **Playbook**. In **Linked trades**, select existing trades and positions to include. Search by ticker, entry date or notes. Clear a selection to detach a record previously linked to the plan. Saving a selected trade that belongs to a different plan moves it to this plan. Trade outcomes and trade-level playbook assignments are preserved.
 - Choose a plan in the trade or position form. The selector offers plans covering the trade’s local entry day and retains an existing link during edits. Undated plans from older journals stay selectable until you set dates. The link survives closing the position. Use **Review trade** on a closed record to change its plan, playbook, checklists or entry timeframe.
-- **Overall plan win rate** divides plans explicitly marked **Worked** by all saved plans, including waiting, in-progress and missed plans. The numerator counts each confirmed correct plan once. For example, 12 worked out of 20 saved plans produces 60%.
-- **Reviewed plan win rate** divides **Worked** by **Worked + Did not work**. With 12 worked, three failed and five awaiting a worked/failed decision, this figure is 80%. The status summary shows every remaining status. A missed plan stays in the missed category until it is explicitly marked worked; estimated missed outcomes have their own win rate. A **Did not work** review requires a reason.
+- **Overall plan win rate** divides the number of plans marked **Worked** or **Worked without my entry** by all saved plans. For example, 12 confirmed scenarios out of 20 saved plans produces 60%.
+- **Reviewed plan win rate** divides confirmed scenarios by the sum of confirmed scenarios and plans marked **Did not work**. With 12 confirmed, three failed and five awaiting a worked/failed decision, this figure is 80%. A **Did not work** review requires a reason. Saving a completed outcome moves the plan to **Past plans** even if its original period has days left.
 - **Trade win rate** on the plan page divides winning linked trades by all closed linked trades. **Realized plan win rate** counts plans with a positive aggregate closed net P&L divided by plans with at least one closed trade. Open positions are counted separately and trades without initial risk are excluded from R totals. The narrative comparison uses the original saved setup. Overall plan cards use the full active plan collection regardless of list filters; grouped analytics show both all-plan and reviewed-plan rates for each selected cohort.
-- For a **Missed opportunity**, record the estimated net result in R and the hypothetical closing time after reviewing the setup. Leave the time and result empty while the outcome is pending. Add the estimated initial risk in journal currency to include the plan in the monetary scenario. Missed trade win rate counts positive outcomes among eligible reviewed misses, including zero outcomes in the denominator.
+- For **Missed opportunity** and **Worked without my entry**, you can record the estimated net result in R and the hypothetical closing time after reviewing the setup. Leave the time and result empty while the outcome is pending. Add estimated initial risk in journal currency to include the plan in the monetary scenario. Missed trade win rate counts positive outcomes among eligible reviewed misses, including zero outcomes in the denominator.
 - The all-time performance chart compares the cumulative R of closed trades with initial risk against the same results plus eligible assessed missed opportunities from plan reviews and individual journal entries. The chart shows exclusions and which plan estimates are superseded by journal entries.
 
 ### Recording a missed trade
@@ -140,11 +160,17 @@ Open **Plans** to create a market narrative and an execution plan for a day or a
 3. Leave the hypothetical outcome pending until you can assess the setup. Edit the saved entry, enable **Reviewed hypothetical outcome**, and enter its hypothetical exit time and estimated net R, including trading costs if applicable. Negative and zero outcomes are supported. Optionally enter the initial monetary risk you intended to use.
 4. The panel shows the recorded opportunities, reviewed net R and monetary estimate. With an estimated risk of 25 and a net result of 2R, the hypothetical P&L is 50 in the journal currency. An assessed entry without a monetary risk value contributes to the R total and has an unavailable monetary estimate. Edit or delete each entry independently of its report card.
 
+### Reviewing exits at break-even
+
+In **Missed trades**, choose **Worked after BE** if price reached the planned target after the BE exit, or **BE avoided the original stop** if price reached the original SL first. Record the time of the BE exit and add a chart if you have one. Both outcomes can be linked to the relevant plan.
+
+To estimate an effect, enter the time price reached the target or original stop and the absolute difference in R between the actual exit and the estimated net result with the original stop, including costs. Enter the original monetary risk to calculate the difference in journal currency. The comparison counts all saved cases and shows how many have each estimate. The net effect subtracts foregone profit from avoided losses. For example, 2R in foregone profit and 1R in avoided losses gives a net effect of −1R. The journal shows these estimates in the BE comparison alongside the missed-entry history.
+
 ### Plan performance
 
 Open **Plans → Plan performance** and choose a breakdown by instrument, playbook version, both together or trade side. Combine the start date, instrument, playbook version, review status and side filters. Unscheduled plans use their local creation date. The start and end dates are inclusive. Select a column heading to sort, and select a group name to open its exact set of plans.
 
-Each row shows the plan count, win rate among decided plans, linked closed trades and actual R. The **With initial risk** count shows how many trades contribute to actual R when the figures differ. **Missed opportunities** counts all plans with that status. **Missed result (R)** sums eligible assessed misses for those plans, including their linked missed-trade entries when present. Date filtering chooses plans. Their actual result uses all linked closed trades.
+Each row shows the plan count, win rate among decided plans, linked closed trades and actual R. The **With initial risk** count shows how many trades contribute to actual R when the figures differ. **Missed opportunities** counts plans marked **Missed opportunity** or **Worked without my entry**. **Missed result (R)** sums eligible assessed misses for those plans, including their linked missed-entry records when present. Date filtering chooses plans. Their actual result uses all linked closed trades.
 
 ## Playbooks
 
@@ -391,7 +417,7 @@ GitHub Actions runs the same gate. Once the project has a GitHub remote and a su
 
 ## Current scope
 
-The current release supports multiple accounts in one journal currency. See [Plainbook comparison](docs/plainbook-comparison.md) for the implemented reference workflows and remaining differences.
+The current release supports multiple accounts in one journal currency. Trading views use the journal's recorded trades, rules, and screenshots.
 
 ## Web application structure
 
@@ -409,7 +435,7 @@ The current release supports multiple accounts in one journal currency. See [Pla
 - `packages/domain/src/workspace` owns workspace record contracts and date and cohort calculations. `packages/domain/src/journal/trash` owns recoverable record contracts.
 - `apps/web/src/shared` contains shared configuration, translations, formatters and UI components.
 
-The Settings dialog lets you switch between English and Ukrainian, dark and light themes, and normal and large text. The journal filters by symbol, side, account and local closing dates. The table, metrics and cumulative P&L use the same filtered set of closed trades. Trade records are saved by the local server.
+The Settings dialog lets you switch between English and Ukrainian, dark and light themes, and normal and large text. The journal filters by symbol, side, account and local dates. The closed-trade table, metrics and cumulative P&L use closing dates. The calendar filters open positions by entry date. Trade records are saved by the local server.
 
 ## Verification and troubleshooting
 

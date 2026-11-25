@@ -1,3 +1,4 @@
+import { fromCents } from "@liquidation/domain/shared/money";
 import { priceMetrics } from "@liquidation/domain/analytics/trade-risk";
 import { HOURS_IN_MS } from "@liquidation/domain/analytics/constants";
 import { TRASH_KIND } from "@liquidation/domain/journal/trash/constants";
@@ -138,8 +139,19 @@ export function TradeDetailsDialog({
             )}
             <div>
               <dt>{m.initialRisk}</dt>
-              <dd>{cash(initialRisk)}</dd>
+              <dd>
+                {record.riskSizing &&
+                  format.riskPercent.format(record.riskSizing.percent / 100) +
+                    " · "}
+                {cash(initialRisk)}
+              </dd>
             </div>
+            {record.riskSizing && (
+              <div>
+                <dt>{m.entryBalance}</dt>
+                <dd>{cash(fromCents(record.riskSizing.balanceCents))}</dd>
+              </div>
+            )}
             {!trade && (
               <div>
                 <dt>{m.atRisk}</dt>

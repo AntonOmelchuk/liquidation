@@ -5,6 +5,14 @@ export const POSITION_ACTION = {
   CLOSE: "close",
 } as const;
 
+export const MAX_TRADE_RISK_PERCENT = 100;
+export const TRADE_RISK_PERCENT_STEP = 0.0001;
+export const PNL_CALCULATION = {
+  MANUAL: "manual",
+  PRICES: "prices",
+  R_MULTIPLE: "r-multiple",
+} as const;
+
 export const TRADE_SESSION = {
   ASIA: "AKZ",
   PRE_LONDON: "PreLKZ",

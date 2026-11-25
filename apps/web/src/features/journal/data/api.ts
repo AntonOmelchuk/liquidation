@@ -10,7 +10,7 @@ import type { PlanCommand } from "@liquidation/domain/plans/types";
 import type { PlaybookCommand } from "@liquidation/domain/playbooks/types";
 import type {
   PositionCommand,
-  Trade,
+  TradeInput,
   TradeLinkCommand,
 } from "@liquidation/domain/trades/types";
 import type { WorkspaceCommand } from "@liquidation/domain/workspace/types";
@@ -123,7 +123,7 @@ export async function saveAccount(command: AccountCommand) {
 }
 
 export async function saveTrade(
-  trade: Omit<Trade, "id">,
+  trade: TradeInput,
   uploads?: ReadonlyMap<string, File>,
 ) {
   return tradeSchema.parse(

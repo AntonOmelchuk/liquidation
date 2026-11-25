@@ -1,15 +1,10 @@
 import { EMPTY_VALUE } from "../../shared/constants.ts";
-import { numericTone } from "../../shared/format.ts";
 import { useLocale } from "../../shared/messages.ts";
 import { Metric } from "../../shared/ui/layout.tsx";
 import { useAccountMessages } from "./messages.ts";
 import type { AccountSummaryProps } from "./types.ts";
 
-export function AccountSummary({
-  account,
-  performance,
-  compact,
-}: AccountSummaryProps) {
+export function AccountSummary({ account, performance }: AccountSummaryProps) {
   const { t, format } = useLocale();
   const m = useAccountMessages();
   const money = (value: number) =>
@@ -18,23 +13,6 @@ export function AccountSummary({
     performance.returnRate === null
       ? EMPTY_VALUE
       : format.percentage.format(performance.returnRate);
-  if (compact)
-    return (
-      <div className="account-compact-summary">
-        <strong>{money(performance.balance)}</strong>
-        <small className={numericTone(performance.performance)}>
-          {money(performance.performance)} · {rate}
-        </small>
-        <small>
-          {m.startingBalance} · {money(account.startingBalance)}
-        </small>
-        <small>
-          {m.openRisk} · {money(performance.openRisk)}
-          {performance.riskUnknown > 0 &&
-            " · " + m.unknownRisk + " " + performance.riskUnknown}
-        </small>
-      </div>
-    );
   return (
     <>
       <section className="metrics account-metrics" aria-label={m.accounts}>

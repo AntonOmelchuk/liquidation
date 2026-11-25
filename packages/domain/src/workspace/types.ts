@@ -1,6 +1,10 @@
 import type { Trade, Position } from "../trades/types.ts";
 import type { z } from "zod";
-import type { PREPARATION_PERIODS, PERIODS } from "./constants.ts";
+import type {
+  MISSED_REASONS,
+  PREPARATION_PERIODS,
+  PERIODS,
+} from "./constants.ts";
 import type { lectureBlockSchema } from "./learning.ts";
 import type { workspaceCommand, workspaceSchema } from "./workspace.ts";
 
@@ -18,6 +22,14 @@ export type DailyThought = Workspace["thoughts"][number];
 export type WeeklyWatchlist = Workspace["watchlists"][number];
 export type WatchItem = WeeklyWatchlist["items"][number];
 export type MissedTrade = Workspace["missedTrades"][number];
+export type MissedReason = (typeof MISSED_REASONS)[number];
+
+export type CalendarDay = {
+  trades: Trade[];
+  positions: Position[];
+  net: number;
+  wins: number;
+};
 
 export type ReviewPeriodIndexSource = {
   trades: readonly Trade[];

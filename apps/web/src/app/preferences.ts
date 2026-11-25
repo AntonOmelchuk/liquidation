@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { LANGUAGE, TEXT_SIZE, THEME } from "../shared/constants.ts";
+import { DEFAULT_QUOTE_SYMBOLS } from "../features/market/constants.ts";
 import { PREFERENCES_KEY } from "./constants.ts";
 import type { Preferences } from "./types.ts";
 
@@ -11,6 +12,7 @@ export const usePreferences = create<
 >()(
   persist(
     (set) => ({
+      quoteSymbols: DEFAULT_QUOTE_SYMBOLS,
       language: LANGUAGE.ENGLISH,
       theme: THEME.DARK,
       textSize: TEXT_SIZE.NORMAL,

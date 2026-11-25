@@ -32,8 +32,14 @@ export const MISSED_REASON = {
   HESITATION: "hesitation",
   EXECUTION: "execution",
   OTHER: "other",
+  WORKED_AFTER_BE: "worked-after-be",
+  BE_SAVED_STOP: "be-saved-stop",
 } as const;
 export const MISSED_REASONS = Object.values(MISSED_REASON);
+export const BREAKEVEN_REVIEW_REASONS = [
+  MISSED_REASON.WORKED_AFTER_BE,
+  MISSED_REASON.BE_SAVED_STOP,
+] as const;
 export const LEARNING_KIND = { LESSON: "lesson", NOTE: "note" } as const;
 export const LEARNING_KINDS = Object.values(LEARNING_KIND);
 export const LECTURE_BLOCK = { TEXT: "text", IMAGE: "image" } as const;

@@ -1,4 +1,3 @@
-import { PLAN_STATUS } from "@liquidation/domain/plans/constants";
 import { TRASH_KIND } from "@liquidation/domain/journal/trash/constants";
 import { trashRecordKey } from "@liquidation/domain/journal/trash/trash";
 import { getPlanVoiding } from "@liquidation/domain/plans/plan-lifecycle";
@@ -114,8 +113,7 @@ export function PeriodReport({
         }).length
       : 0;
   const missed = plans.filter((plan) => {
-    if (plan.review.status !== PLAN_STATUS.MISSED || getPlanVoiding(plan))
-      return false;
+    if (!("outcome" in plan.review) || getPlanVoiding(plan)) return false;
     const reported = plan.review.outcome
       ? localDay(plan.review.outcome.closedAt)
       : (plan.setup.startsOn ?? localDay(plan.createdAt));

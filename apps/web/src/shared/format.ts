@@ -8,6 +8,10 @@ export function createFormatters(locale: string) {
       style: "percent",
       maximumFractionDigits: 1,
     }),
+    riskPercent: new Intl.NumberFormat(locale, {
+      style: "percent",
+      maximumFractionDigits: 4,
+    }),
     day: new Intl.DateTimeFormat(locale, {
       dateStyle: "medium",
       timeZone: "UTC",
@@ -15,6 +19,11 @@ export function createFormatters(locale: string) {
     date: new Intl.DateTimeFormat(locale, {
       dateStyle: "medium",
       timeStyle: "short",
+    }),
+    clock: new Intl.DateTimeFormat(locale, {
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23",
     }),
     integer: new Intl.NumberFormat(locale),
     price: new Intl.NumberFormat(locale, { maximumFractionDigits: 10 }),

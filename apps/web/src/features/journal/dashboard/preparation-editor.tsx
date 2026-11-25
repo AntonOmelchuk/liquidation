@@ -8,6 +8,7 @@ import {
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { useLocale } from "../../../shared/messages.ts";
+import { CheckboxField } from "../../../shared/ui/checkbox-field.tsx";
 import { formTexts } from "../../workspace/form.ts";
 import { useWorkspaceMessages } from "../../workspace/messages.ts";
 import { useWorkspaceSave } from "../../workspace/use-workspace-save.ts";
@@ -65,8 +66,7 @@ export function PreparationEditor({
           <h3>{m.tasks}</h3>
           {tasks.map((task) => (
             <div key={task.id} className="dashboard-task-row">
-              <input
-                type="checkbox"
+              <CheckboxField
                 aria-label={m.completed + " · " + (task.text || m.task)}
                 checked={task.done}
                 onChange={(event) =>

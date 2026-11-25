@@ -2,8 +2,10 @@ import type { ScreenshotDraft } from "../../../shared/screenshots/types.ts";
 import type {
   TRADE_GROUPING,
   TRADE_TABLE_MODE,
+  TRADE_PAGE_SIZES,
   TRADE_EDITOR_MODE,
 } from "./constants.ts";
+import type { PNL_CALCULATION } from "@liquidation/domain/trades/constants";
 import type { Plan } from "@liquidation/domain/plans/types";
 import type {
   Playbook,
@@ -11,8 +13,11 @@ import type {
 } from "@liquidation/domain/playbooks/types";
 import type {
   Position,
+  RiskSizing,
   Trade,
+  TradeDirection,
   TradeLinks,
+  TradePrices,
 } from "@liquidation/domain/trades/types";
 import type { EntryContext } from "../../playbooks/types.ts";
 
@@ -21,10 +26,16 @@ export type TradeTableMode =
   (typeof TRADE_TABLE_MODE)[keyof typeof TRADE_TABLE_MODE];
 export type TradeGrouping =
   (typeof TRADE_GROUPING)[keyof typeof TRADE_GROUPING];
+export type TradePageSize = (typeof TRADE_PAGE_SIZES)[number];
+export type TradePagination = {
+  pageSize: TradePageSize;
+  onPageSizeChange: (size: TradePageSize) => void;
+};
 export type TradeTableProps = {
   trades: readonly TradeRecord[];
   mode?: TradeTableMode;
   grouping?: TradeGrouping;
+  pagination?: TradePagination;
   label?: string;
 };
 export type TradeDetailsDialogProps = {
@@ -63,7 +74,29 @@ export type TradeEvidenceFieldsProps = {
 export type OpenPositionsProps = { ready: boolean; account?: string };
 
 export type TradeTagFieldsProps = { initial?: TradeLinks };
-export type TradePriceFieldsProps = { initial?: TradeLinks; closed: boolean };
+export type TradePriceFieldsProps = {
+  initial?: TradeLinks;
+  closed: boolean;
+  forceOpen?: boolean;
+  onPriceChange?: (key: keyof TradePrices, value: number | undefined) => void;
+};
+
+export type PnlMode = (typeof PNL_CALCULATION)[keyof typeof PNL_CALCULATION];
+export type TradeOutcomeFieldsProps = {
+  initial?: Position;
+  direction: TradeDirection;
+  risk: number | null;
+  currency: string;
+  automatic: boolean;
+};
+export type TradeRiskFieldsProps = {
+  value: string;
+  onChange: (value: string) => void;
+  hasAccount: boolean;
+  sizing: RiskSizing | null;
+  risk: number | null;
+  currency: string;
+};
 
 export type LinkedPlaybookRulesProps = {
   book: Playbook;
@@ -83,4 +116,6 @@ export type TradeLinkFieldsProps = {
   closing?: boolean;
   risk?: number | null;
   editingId?: string;
+  showAccount?: boolean;
+  showPrices?: boolean;
 };

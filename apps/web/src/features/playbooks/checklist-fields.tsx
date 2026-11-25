@@ -7,6 +7,7 @@ import type {
   ChecklistPhase,
 } from "@liquidation/domain/playbooks/types";
 import { useState } from "react";
+import { CheckboxField } from "../../shared/ui/checkbox-field.tsx";
 import type { ChecklistFieldsProps, ChecklistRowProps } from "./types.ts";
 
 import { usePlaybookMessages } from "./messages.ts";
@@ -42,18 +43,14 @@ function ChecklistRow({ rule, phase, answer }: ChecklistRowProps) {
   return (
     <div className="rule-check-row">
       <input type="hidden" name={ruleField(phase)} value={rule.id} />
-      <label className="rule-check">
-        <input
-          type="checkbox"
-          name={metField(phase, rule.id)}
-          checked={met}
-          onChange={(event) => setMet(event.target.checked)}
-        />
-        <span>
-          {rule.label}
-          {rule.detail && <small className="rule-detail">{rule.detail}</small>}
-        </span>
-      </label>
+      <CheckboxField
+        name={metField(phase, rule.id)}
+        checked={met}
+        onChange={(event) => setMet(event.currentTarget.checked)}
+      >
+        {rule.label}
+        {rule.detail && <small className="rule-detail">{rule.detail}</small>}
+      </CheckboxField>
       {!met && (
         <label>
           {b.reason}
@@ -92,18 +89,12 @@ export function ChecklistFields({
       {requireRecording ? (
         <p className="analytics-hint">{b.checklistRequired}</p>
       ) : (
-        <label className="rule-check">
-          <input
-            type="checkbox"
-            checked={recording}
-            onChange={(event) => setRecording(event.target.checked)}
-          />
-          <span>
-            {phase === CHECKLIST_PHASE.ENTRY
-              ? b.recordEntry
-              : b.recordManagement}
-          </span>
-        </label>
+        <CheckboxField
+          checked={recording}
+          onChange={(event) => setRecording(event.currentTarget.checked)}
+        >
+          {phase === CHECKLIST_PHASE.ENTRY ? b.recordEntry : b.recordManagement}
+        </CheckboxField>
       )}
       {(recording || requireRecording) &&
         rules.map((rule) => (

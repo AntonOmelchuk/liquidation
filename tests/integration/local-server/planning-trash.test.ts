@@ -1,5 +1,9 @@
 import { comparePlanPerformance } from "@liquidation/domain/analytics/plan-performance";
-import { JOURNAL_ROUTES } from "@liquidation/domain/journal/constants";
+import { summarizeBreakevenReviews } from "@liquidation/domain/analytics/breakeven-review";
+import {
+  HTTP_STATUS,
+  JOURNAL_ROUTES,
+} from "@liquidation/domain/journal/constants";
 import { journalSchema } from "@liquidation/domain/journal/journal";
 import { TRASH_KIND } from "@liquidation/domain/journal/trash/constants";
 import { PLAYBOOK_TEMPLATE } from "@liquidation/domain/playbooks/constants";
@@ -355,5 +359,78 @@ test("persists independent thoughts, watchlist reviews and missed trades and han
       (await post(trash, { action: "restore", id: buried.id })).status,
     ).toBe(200);
     expect((await journal.read()).workspace.learning[0].body).toBe("Saved");
+  });
+});
+
+test("saves and restores BE reviews alongside a missed entry for the same plan", async () => {
+  await withJournal(async (journal, baseUrl) => {
+    const workspace = baseUrl + JOURNAL_ROUTES.workspace;
+    const trash = baseUrl + JOURNAL_ROUTES.trash;
+    const planId = crypto.randomUUID();
+    await journal.updatePlan({
+      action: "create",
+      id: planId,
+      setup: {
+        title: "Market plan",
+        symbol: "EURUSD",
+        direction: "long",
+        entryCondition: "Study",
+      },
+    });
+    const command = {
+      record: "missed",
+      id: crypto.randomUUID(),
+      input: {
+        symbol: "EURUSD",
+        direction: "long",
+        missedAt: openedAt,
+        reason: "be-saved-stop",
+        planId,
+        notes: "",
+        outcome: { closedAt, netR: -1, risk: 25 },
+        screenshotIds: [],
+      },
+    };
+    expect(
+      (
+        await post(workspace, {
+          ...command,
+          input: { ...command.input, outcome: { closedAt, netR: 1, risk: 25 } },
+        })
+      ).status,
+    ).toBe(HTTP_STATUS.UNPROCESSABLE_CONTENT);
+    expect((await post(workspace, command)).status).toBe(200);
+    const removed = await post(trash, {
+      action: "move",
+      kind: TRASH_KIND.MISSED,
+      key: command.id,
+      revision: 1,
+    });
+    expect(removed.status).toBe(200);
+    const other = {
+      ...command,
+      id: crypto.randomUUID(),
+      input: {
+        ...command.input,
+        reason: "fear",
+        outcome: { closedAt, netR: 2, risk: 25 },
+      },
+    };
+    expect((await post(workspace, other)).status).toBe(200);
+    const entry = journalSchema.parse(removed.body).trash[0];
+    expect(
+      (await post(trash, { action: "restore", id: entry.id })).status,
+    ).toBe(200);
+    const state = await journal.read();
+    const missedTrades = state.workspace.missedTrades;
+    expect(missedTrades).toHaveLength(2);
+    expect(summarizeBreakevenReviews(missedTrades).total).toMatchObject({
+      count: 1,
+      effectR: 1,
+      effectCents: 2500,
+    });
+    expect(comparePlanPerformance({ ...state, missedTrades }).cash.missed).toBe(
+      50,
+    );
   });
 });

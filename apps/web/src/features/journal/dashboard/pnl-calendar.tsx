@@ -1,9 +1,10 @@
-import {
-  calendarMonth,
-  newestTrades,
-} from "@liquidation/domain/workspace/analytics";
+import { calendarMonth } from "@liquidation/domain/workspace/analytics";
 import { PERIOD } from "@liquidation/domain/workspace/constants";
-import { calendarDate, shiftMonth } from "@liquidation/domain/workspace/period";
+import {
+  calendarDate,
+  localDay,
+  shiftMonth,
+} from "@liquidation/domain/workspace/period";
 import { useMemo, useState } from "react";
 import { reportHref } from "../../../app/page.ts";
 import { EMPTY_VALUE, LOCALES } from "../../../shared/constants.ts";
@@ -11,18 +12,41 @@ import { numericTone } from "../../../shared/format.ts";
 import { useLocale } from "../../../shared/messages.ts";
 import { Panel } from "../../../shared/ui/layout.tsx";
 import { useWorkspaceMessages } from "../../workspace/messages.ts";
+import { useJournal } from "../data/store.ts";
+import { CalendarTradePreview } from "./calendar-trade-preview.tsx";
+import { TRADE_TABLE_MODE } from "../records/constants.ts";
 import { TradeTable } from "../records/trade-table.tsx";
 import type { CalendarProps, DailyPnlProps } from "./types.ts";
 
-export function PnlCalendar({ trades, initialMonth, today }: CalendarProps) {
+export function PnlCalendar({
+  trades,
+  positions,
+  initialMonth,
+  today,
+}: CalendarProps) {
   const { t, language, format } = useLocale();
   const m = useWorkspaceMessages();
   const [chosenMonth, setChosenMonth] = useState("");
   const [selection, setSelectedDay] = useState<string>();
   const month = chosenMonth || initialMonth;
   const selectedDay = selection?.startsWith(month) ? selection : undefined;
-  const data = useMemo(() => calendarMonth(trades, month), [trades, month]);
+  const data = useMemo(
+    () => calendarMonth(trades, month, localDay, positions),
+    [trades, positions, month],
+  );
   const locale = LOCALES[language];
+  const currency = useJournal((state) => state.currency);
+  const money = useMemo(
+    () =>
+      new Intl.NumberFormat(locale, {
+        style: "currency",
+        currency,
+        currencyDisplay: "narrowSymbol",
+        maximumFractionDigits: 2,
+        minimumFractionDigits: 2,
+      }),
+    [currency, locale],
+  );
   const monthLabel = new Intl.DateTimeFormat(locale, {
     month: "long",
     year: "numeric",
@@ -99,58 +123,76 @@ export function PnlCalendar({ trades, initialMonth, today }: CalendarProps) {
             </tr>
           </thead>
           <tbody>
-            {data.weeks.map(({ dates, net, active }) => (
+            {data.weeks.map(({ dates, net, active, closedDays }) => (
               <tr key={dates[0]}>
                 {dates.map((day) => {
                   const daily = data.days.get(day);
+                  const closed = daily?.trades.length ? daily : undefined;
+                  const openCount = daily?.positions.length ?? 0;
                   const dayNumber = calendarDate(day).getUTCDate();
-                  const label =
-                    format.day.format(calendarDate(day)) +
-                    (daily
-                      ? " · " +
-                        t.pnl +
-                        " " +
-                        format.money.format(daily.net / 100) +
-                        " · " +
-                        t.count +
-                        " " +
-                        daily.trades.length
-                      : "");
+                  const previewId = "calendar-preview-" + day;
+                  const label = [format.day.format(calendarDate(day))];
+                  if (closed)
+                    label.push(
+                      t.pnl + " " + format.money.format(closed.net / 100),
+                      t.count + " " + closed.trades.length,
+                    );
+                  if (openCount) label.push(t.openPositions + " " + openCount);
                   return (
                     <td key={day}>
                       {day.startsWith(month) && (
                         <button
-                          key={day}
                           type="button"
                           className={
                             "calendar-day " +
-                            (daily
-                              ? (numericTone(daily.net) ?? "calendar-flat")
+                            (closed
+                              ? (numericTone(closed.net) ?? "calendar-flat")
                               : "")
                           }
                           aria-current={day === today ? "date" : undefined}
                           aria-pressed={selectedDay === day}
-                          aria-label={label}
-                          title={label}
+                          aria-label={label.join(" · ")}
+                          aria-describedby={daily ? previewId : undefined}
+                          title={label.join(" · ")}
                           onClick={() =>
                             setSelectedDay((previous) =>
                               previous === day ? undefined : day,
                             )
                           }
                         >
-                          <span>{dayNumber}</span>
+                          <span className="calendar-day-heading">
+                            <span>{dayNumber}</span>
+                            {closed && (
+                              <strong className={numericTone(closed.net)}>
+                                {compact.format(closed.net / 100)}
+                              </strong>
+                            )}
+                          </span>
                           {daily && (
-                            <>
-                              <strong>{compact.format(daily.net / 100)}</strong>
-                              <span>
-                                {t.count} · {daily.trades.length}
-                              </span>
-                              <span>
-                                {format.percentage.format(
-                                  daily.wins / daily.trades.length,
-                                )}
-                              </span>
-                            </>
+                            <CalendarTradePreview
+                              id={previewId}
+                              day={daily}
+                              money={money}
+                            />
+                          )}
+                          {daily && (
+                            <span className="calendar-day-summary">
+                              {closed && (
+                                <span
+                                  title={t.count + " · " + closed.trades.length}
+                                >
+                                  {closed.trades.length} ·{" "}
+                                  {format.percentage.format(
+                                    closed.wins / closed.trades.length,
+                                  )}
+                                </span>
+                              )}
+                              {openCount > 0 && (
+                                <span className="calendar-open-count">
+                                  {m.openOnDay} · {openCount}
+                                </span>
+                              )}
+                            </span>
                           )}
                         </button>
                       )}
@@ -159,7 +201,7 @@ export function PnlCalendar({ trades, initialMonth, today }: CalendarProps) {
                 })}
                 <td className="calendar-week">
                   <strong className={numericTone(net)}>
-                    {active ? compact.format(net / 100) : EMPTY_VALUE}
+                    {closedDays ? compact.format(net / 100) : EMPTY_VALUE}
                   </strong>
                   <span>
                     {m.activeDays} · {active}
@@ -188,7 +230,25 @@ export function PnlCalendar({ trades, initialMonth, today }: CalendarProps) {
               ×
             </button>
           </div>
-          <TradeTable trades={newestTrades(selected?.trades ?? [])} />
+          {selected ? (
+            <TradeTable
+              trades={[...selected.trades, ...selected.positions]}
+              mode={
+                selected.positions.length === 0
+                  ? TRADE_TABLE_MODE.CLOSED
+                  : selected.trades.length === 0
+                    ? TRADE_TABLE_MODE.OPEN
+                    : TRADE_TABLE_MODE.MIXED
+              }
+              label={
+                m.selectedDay +
+                " " +
+                format.day.format(calendarDate(selectedDay))
+              }
+            />
+          ) : (
+            <p>{m.noDayRecords}</p>
+          )}
           {selectedDay <= today && (
             <a
               className="record-link"
@@ -207,7 +267,9 @@ export function PnlCalendar({ trades, initialMonth, today }: CalendarProps) {
 function DailyPnl({ days }: DailyPnlProps) {
   const { format } = useLocale();
   const m = useWorkspaceMessages();
-  const sorted = [...days.entries()].sort(([a], [b]) => a.localeCompare(b));
+  const sorted = [...days.entries()]
+    .filter(([, { trades }]) => trades.length > 0)
+    .sort(([a], [b]) => a.localeCompare(b));
   if (!sorted.length) return <p>{m.noCalendarTrades}</p>;
   const max = Math.max(1, ...sorted.map(([, { net }]) => Math.abs(net)));
   return (

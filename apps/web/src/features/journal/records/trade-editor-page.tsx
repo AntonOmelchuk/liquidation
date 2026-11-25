@@ -1,10 +1,16 @@
+import { entryRiskSizing } from "@liquidation/domain/accounts/entry-risk";
+import {
+  calculatedGrossProfit,
+  riskFromSizing,
+} from "@liquidation/domain/trades/financials";
+import type { TradeDirection } from "@liquidation/domain/trades/types";
 import {
   TRADE_SIDE,
   POSITION_ACTION,
 } from "@liquidation/domain/trades/constants";
 import { positionCommand } from "@liquidation/domain/trades/position";
-import { tradeInput } from "@liquidation/domain/trades/trade";
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { tradeRecordInput } from "@liquidation/domain/trades/trade";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { PAGE_HASHES } from "../../../app/constants.ts";
 import {
   isoToLocalDateTime,
@@ -17,11 +23,18 @@ import {
 } from "../../../shared/ui/instrument-picker.tsx";
 import { Panel, RecordActions } from "../../../shared/ui/layout.tsx";
 import { SelectField } from "../../../shared/ui/select-field.tsx";
+import { AccountField } from "../../accounts/account-field.tsx";
+import { useAccountSource } from "../../accounts/use-account-source.ts";
 import { MistakeReviewFields } from "../../mistakes/review-fields.tsx";
 import { JOURNAL_STATUS } from "../data/constants.ts";
 import { useJournal } from "../data/store.ts";
 import { JournalUnavailable } from "../journal-unavailable.tsx";
 import { TRADE_EDITOR_MODE } from "./constants.ts";
+import {
+  readPnlCalculation,
+  TradeOutcomeFields,
+  TradeRiskFields,
+} from "./trade-financial-fields.tsx";
 import { useTradeRecordMessages } from "./messages.ts";
 import { readTradeLinks, TradeLinkFields } from "./trade-link-fields.tsx";
 import {
@@ -63,9 +76,24 @@ function TradeEditor({ mode, position }: TradeEditorProps) {
   const update = useJournal((state) => state.updatePosition);
   const [initial] = useState(() => position);
   const [symbol, setSymbol] = useState(initial?.symbol ?? "");
-  const originalOpenTime = initial ? isoToLocalDateTime(initial.openedAt) : "";
-  const [openedAt, setOpenedAt] = useState(originalOpenTime);
-  const [risk, setRisk] = useState(initial?.risk?.toString() ?? "");
+  const [openedAt, setOpenedAt] = useState(() =>
+    mode === POSITION_ACTION.OPEN
+      ? isoToLocalDateTime(new Date().toISOString())
+      : initial
+        ? isoToLocalDateTime(initial.openedAt)
+        : "",
+  );
+  const [riskText, setRiskText] = useState(
+    initial?.riskSizing?.percent.toString() ?? "",
+  );
+  const [accountId, setAccountId] = useState(initial?.accountId ?? "");
+  const [direction, setDirection] = useState<TradeDirection>(
+    initial?.direction ?? TRADE_SIDE.LONG,
+  );
+  const accounts = useJournal((state) => state.accounts);
+  const currency = useJournal((state) => state.currency);
+  const source = useAccountSource();
+  const account = accounts.find((item) => item.id === accountId);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string>();
   const heading = useRef<HTMLHeadingElement>(null);
@@ -73,6 +101,25 @@ function TradeEditor({ mode, position }: TradeEditorProps) {
   const closing = mode === POSITION_ACTION.CLOSE;
   const recording = mode === TRADE_EDITOR_MODE.RECORD;
   const closed = closing || recording;
+  const entryAt = localDateTimeToIso(openedAt, initial?.openedAt);
+  const riskPercent = riskText
+    ? Number(riskText)
+    : initial?.riskSizing
+      ? null
+      : undefined;
+  const sizing = useMemo(
+    () =>
+      account && riskPercent != null && !closing
+        ? entryRiskSizing(account, source, entryAt, riskPercent, initial)
+        : null,
+    [account, source, entryAt, riskPercent, initial, closing],
+  );
+  const risk =
+    closing || riskPercent === undefined
+      ? (initial?.risk ?? null)
+      : sizing
+        ? riskFromSizing(sizing)
+        : null;
   const title = recording
     ? t.recordTitle
     : closing
@@ -96,27 +143,38 @@ function TradeEditor({ mode, position }: TradeEditorProps) {
       return;
     }
     const links = { ...readTradeLinks(data), ...readTradeEvidence(draft) };
+    if (!closing && riskPercent != null && risk === null) {
+      setError(m.riskInvalid);
+      return;
+    }
+    const pnlCalculation = readPnlCalculation(data);
+    const profit = pnlCalculation
+      ? calculatedGrossProfit(risk, pnlCalculation, direction, links.prices)
+      : Number(data.get("profit"));
+    if (closed && profit === null) {
+      setError(m.pnlInvalid);
+      return;
+    }
     const opening = {
       symbol: data.get("symbol"),
-      direction: data.get("direction"),
-      openedAt:
-        initial && openedAt === originalOpenTime
-          ? initial.openedAt
-          : localDateTimeToIso(data.get("openedAt")),
-      risk: risk ? Number(risk) : null,
+      direction,
+      openedAt: entryAt,
+      risk,
+      riskPercent,
       notes: data.get("notes"),
     };
     const outcome = {
       closedAt: localDateTimeToIso(data.get("closedAt")),
-      profit: Number(data.get("profit")),
+      profit,
       commission: Number(data.get("commission")),
       swap: Number(data.get("swap")),
+      pnlCalculation,
     };
     setSaving(true);
     setError(undefined);
     try {
       if (recording) {
-        const result = tradeInput.safeParse({
+        const result = tradeRecordInput.safeParse({
           ...opening,
           ...outcome,
           ...links,
@@ -184,7 +242,14 @@ function TradeEditor({ mode, position }: TradeEditorProps) {
               <SelectField
                 label={t.side}
                 name="direction"
-                defaultValue={initial?.direction ?? TRADE_SIDE.LONG}
+                value={direction}
+                onChange={(event) =>
+                  setDirection(
+                    event.currentTarget.value === TRADE_SIDE.SHORT
+                      ? TRADE_SIDE.SHORT
+                      : TRADE_SIDE.LONG,
+                  )
+                }
               >
                 <option value={TRADE_SIDE.LONG}>{t.long}</option>
                 <option value={TRADE_SIDE.SHORT}>{t.short}</option>
@@ -199,17 +264,15 @@ function TradeEditor({ mode, position }: TradeEditorProps) {
                   required
                 />
               </label>
-              <label>
-                {m.initialRisk}
-                <input
-                  type="number"
-                  name="risk"
-                  min="0.01"
-                  step="0.01"
-                  value={risk}
-                  onChange={(event) => setRisk(event.currentTarget.value)}
-                />
-              </label>
+              <AccountField initial={initial} onChange={setAccountId} />
+              <TradeRiskFields
+                value={riskText}
+                onChange={setRiskText}
+                hasAccount={Boolean(account)}
+                sizing={sizing}
+                risk={risk}
+                currency={currency}
+              />
               <label className="wide">
                 {t.notes}
                 <textarea
@@ -225,27 +288,13 @@ function TradeEditor({ mode, position }: TradeEditorProps) {
         {closed && (
           <Panel title={m.closeFields}>
             <fieldset disabled={saving}>
-              <label>
-                {t.closed}
-                <input type="datetime-local" name="closedAt" required />
-              </label>
-              <label>
-                {t.gross}
-                <input type="number" step="0.01" name="profit" required />
-              </label>
-              <label>
-                {t.commission}
-                <input
-                  type="number"
-                  step="0.01"
-                  name="commission"
-                  defaultValue={0}
-                />
-              </label>
-              <label>
-                {t.swap}
-                <input type="number" step="0.01" name="swap" defaultValue={0} />
-              </label>
+              <TradeOutcomeFields
+                initial={initial}
+                direction={direction}
+                risk={risk}
+                currency={currency}
+                automatic={Boolean(closing ? initial?.riskSizing : sizing)}
+              />
             </fieldset>
           </Panel>
         )}
@@ -257,7 +306,9 @@ function TradeEditor({ mode, position }: TradeEditorProps) {
               historic={closing}
               closed={recording}
               closing={closing}
-              risk={risk ? Number(risk) : null}
+              risk={risk}
+              showAccount={closing}
+              showPrices={!closed}
               editingId={initial?.id}
             />
           </fieldset>

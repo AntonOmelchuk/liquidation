@@ -5,6 +5,7 @@ import {
 import { TRASH_KIND } from "@liquidation/domain/journal/trash/constants";
 import { deletedPlan } from "@liquidation/domain/journal/trash/trash";
 import { localDay } from "@liquidation/domain/workspace/period";
+import { isBreakevenReviewReason } from "@liquidation/domain/workspace/planning";
 import { useMemo, useState } from "react";
 import { planHref } from "../../../app/page.ts";
 import { EMPTY_VALUE } from "../../../shared/constants.ts";
@@ -17,10 +18,12 @@ import { useJournal } from "../../journal/data/store.ts";
 import { DeleteRecord } from "../../trash/delete-record.tsx";
 import { useTrashMessages } from "../../trash/messages.ts";
 import { useWorkspaceMessages } from "../messages.ts";
+import { BreakevenReviewSummary } from "./breakeven-review-summary.tsx";
 import { MISSED_TRADES_PANEL_ID } from "./constants.ts";
 import { usePlanningMessages } from "./messages.ts";
 import { MissedEditor } from "./missed-editor.tsx";
 import type { MissedTradesPanelProps } from "./types.ts";
+import "./planning.css";
 
 export function MissedTradesShortcut({ disabled }: { disabled?: boolean }) {
   const m = usePlanningMessages();
@@ -70,7 +73,10 @@ export function MissedTradesPanel({
     [misses, from, through],
   );
   const editing = misses.find(({ id }) => id === draft?.id);
-  const assessed = visible.filter(
+  const opportunities = visible.filter(
+    ({ reason }) => !isBreakevenReviewReason(reason),
+  );
+  const assessed = opportunities.filter(
     ({ planId, outcome }) => outcome && (!planId || !linked.has(planId)),
   );
   const total = assessed.reduce((sum, { outcome }) => sum + outcome!.netR, 0);
@@ -104,50 +110,55 @@ export function MissedTradesPanel({
       )}
       {visible.length ? (
         <>
-          <section className="metrics" aria-label={m.fromJournal}>
-            <article>
-              <span>{m.fromJournal}</span>
-              <strong>{format.integer.format(visible.length)}</strong>
-            </article>
-            <article>
-              <span>{m.netR}</span>
-              <strong className={numericTone(total)}>
-                {assessed.length
-                  ? format.money.format(total) + " R"
-                  : EMPTY_VALUE}
-              </strong>
-            </article>
-            <article>
-              <span>{m.estimatedPnl}</span>
-              <strong className={numericTone(cash)}>
-                {monetary.length
-                  ? format.money.format(cash / 100)
-                  : EMPTY_VALUE}
-              </strong>
-              {monetary.length < assessed.length && (
-                <small>
-                  {m.missingRisk} · {assessed.length - monetary.length}
-                </small>
-              )}
-            </article>
-          </section>
+          {opportunities.length > 0 && (
+            <section className="metrics" aria-label={m.fromJournal}>
+              <article>
+                <span>{m.fromJournal}</span>
+                <strong>{format.integer.format(opportunities.length)}</strong>
+              </article>
+              <article>
+                <span>{m.netR}</span>
+                <strong className={numericTone(total)}>
+                  {assessed.length
+                    ? format.money.format(total) + " R"
+                    : EMPTY_VALUE}
+                </strong>
+              </article>
+              <article>
+                <span>{m.estimatedPnl}</span>
+                <strong className={numericTone(cash)}>
+                  {monetary.length
+                    ? format.money.format(cash / 100)
+                    : EMPTY_VALUE}
+                </strong>
+                {monetary.length < assessed.length && (
+                  <small>
+                    {m.missingRisk} · {assessed.length - monetary.length}
+                  </small>
+                )}
+              </article>
+            </section>
+          )}
+          <BreakevenReviewSummary records={visible} />
           <div className="table">
             <table aria-label={m.missedTrades}>
               <thead>
                 <tr>
                   <th scope="col">{t.symbol}</th>
-                  <th scope="col">{m.missedAt}</th>
+                  <th scope="col">{m.missedEventAt}</th>
                   <th scope="col">{m.reason}</th>
-                  <th scope="col">{m.netR}</th>
-                  <th scope="col">{m.estimatedPnl}</th>
+                  <th scope="col">{m.netRColumn}</th>
+                  <th scope="col">{m.estimatedCashColumn}</th>
                   <th scope="col">{t.notes}</th>
                   <th scope="col" />
                 </tr>
               </thead>
               <tbody>
                 {visible.map((miss) => {
+                  const beReview = isBreakevenReviewReason(miss.reason);
+                  const sign = beReview ? -1 : 1;
                   const excluded = Boolean(
-                    miss.planId && linked.has(miss.planId),
+                    !beReview && miss.planId && linked.has(miss.planId),
                   );
                   const plan = plans.find(({ id }) => id === miss.planId);
                   const old = deletedPlan(trash, miss.planId);
@@ -178,13 +189,13 @@ export function MissedTradesPanel({
                       <td>{m[miss.reason]}</td>
                       <td>
                         {miss.outcome
-                          ? format.money.format(miss.outcome.netR) + " R"
+                          ? format.money.format(sign * miss.outcome.netR) + " R"
                           : m.pendingOutcome}
                       </td>
                       <td>
                         {cents === null
                           ? EMPTY_VALUE
-                          : format.money.format(cents / 100)}
+                          : format.money.format((sign * cents) / 100)}
                         {excluded && <small>{m.excludeExecuted}</small>}
                       </td>
                       <td>

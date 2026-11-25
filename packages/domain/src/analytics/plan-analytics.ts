@@ -54,9 +54,7 @@ export function summarizePlanGroups(
         ({ id }) => positionsByPlan.get(id) ?? [],
       );
       const linkedMisses = cohort.plans.flatMap(({ id, review }) =>
-        review.status === PLAN_STATUS.MISSED
-          ? (missesByPlan.get(id) ?? [])
-          : [],
+        "outcome" in review ? (missesByPlan.get(id) ?? []) : [],
       );
       const result = comparePlanPerformance({
         plans: cohort.plans,
@@ -69,14 +67,16 @@ export function summarizePlanGroups(
       return {
         key,
         ...cohort,
-        worked: result.statuses.worked,
+        worked: result.worked,
         reviewed: result.decided,
         allPlanWinRate: result.allPlanWinRate,
         winRate: result.planWinRate,
         closed: linkedTrades.length,
         measured,
         realizedR: measured ? result.realized : null,
-        missed: result.statuses.missed,
+        missed:
+          result.statuses[PLAN_STATUS.MISSED] +
+          result.statuses[PLAN_STATUS.WORKED_WITHOUT_ENTRY],
         assessedMisses: result.assessedMisses,
         missedR: result.assessedMisses ? result.missed : null,
       };

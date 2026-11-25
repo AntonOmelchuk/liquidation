@@ -7,6 +7,7 @@ import type { MistakeReviewFieldsProps } from "./types.ts";
 import { ADD_MISTAKE_KEY } from "./constants.ts";
 import { useState } from "react";
 import { useLocale } from "../../shared/messages.ts";
+import { CheckboxField } from "../../shared/ui/checkbox-field.tsx";
 import { Panel } from "../../shared/ui/layout.tsx";
 import { useJournal } from "../journal/data/store.ts";
 import { mistakeLabel, useMistakeMessages } from "./messages.ts";
@@ -80,16 +81,15 @@ export function MistakeReviewFields({
     >
       <p className="analytics-hint">{m.reviewHint}</p>
       <fieldset className="mistake-review-fields" disabled={disabled}>
-        <label className="workspace-check wide">
-          <input
-            type="checkbox"
-            name="mistakesReviewed"
-            checked={reviewed || selected.size > 0}
-            disabled={selected.size > 0}
-            onChange={(event) => setReviewed(event.currentTarget.checked)}
-          />
+        <CheckboxField
+          className="mistake-review-completed wide"
+          name="mistakesReviewed"
+          checked={reviewed || selected.size > 0}
+          disabled={selected.size > 0}
+          onChange={(event) => setReviewed(event.currentTarget.checked)}
+        >
           {m.reviewed}
-        </label>
+        </CheckboxField>
         <div className="mistake-options wide">
           {[...options].map(([key, label]) => (
             <div
@@ -97,38 +97,33 @@ export function MistakeReviewFields({
               key={key}
               data-selected={selected.has(key) || undefined}
             >
-              <label className="workspace-check">
-                <input
-                  type="checkbox"
-                  name="mistakes"
-                  value={selected.get(key) ?? label}
-                  checked={selected.has(key)}
-                  disabled={full && !selected.has(key)}
-                  onChange={(event) =>
-                    toggle(label, event.currentTarget.checked)
-                  }
-                />
+              <CheckboxField
+                name="mistakes"
+                value={selected.get(key) ?? label}
+                checked={selected.has(key)}
+                disabled={full && !selected.has(key)}
+                onChange={(event) => toggle(label, event.currentTarget.checked)}
+              >
                 {mistakeLabel(label, language)}
-              </label>
+              </CheckboxField>
               {selected.has(key) && (
-                <label className="workspace-check mistake-critical">
-                  <input
-                    type="checkbox"
-                    name="criticalMistakes"
-                    value={selected.get(key) ?? label}
-                    checked={critical.has(key)}
-                    onChange={(event) => {
-                      const checked = event.currentTarget.checked;
-                      setCritical((prior) => {
-                        const next = new Set(prior);
-                        if (checked) next.add(key);
-                        else next.delete(key);
-                        return next;
-                      });
-                    }}
-                  />
+                <CheckboxField
+                  className="mistake-critical"
+                  name="criticalMistakes"
+                  value={selected.get(key) ?? label}
+                  checked={critical.has(key)}
+                  onChange={(event) => {
+                    const checked = event.currentTarget.checked;
+                    setCritical((prior) => {
+                      const next = new Set(prior);
+                      if (checked) next.add(key);
+                      else next.delete(key);
+                      return next;
+                    });
+                  }}
+                >
                   {m.critical}
-                </label>
+                </CheckboxField>
               )}
             </div>
           ))}

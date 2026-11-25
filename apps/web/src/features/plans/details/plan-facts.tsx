@@ -13,6 +13,7 @@ import { EMPTY_VALUE } from "../../../shared/constants.ts";
 import { formatCompactDay } from "../../../shared/format.ts";
 import { useLocale } from "../../../shared/messages.ts";
 import { usePlanMessages } from "../messages.ts";
+import "./plan-status.css";
 
 export function PlanStatusChip({ plan, compact = false }: PlanStatusChipProps) {
   const { format } = useLocale();
@@ -32,7 +33,7 @@ export function PlanStatusChip({ plan, compact = false }: PlanStatusChipProps) {
       {!compact && review.status === PLAN_STATUS.FAILED && (
         <small className="plan-status-detail">{review.reason}</small>
       )}
-      {!compact && review.status === PLAN_STATUS.MISSED && (
+      {!compact && "outcome" in review && (
         <small className="plan-status-detail">
           {review.outcome
             ? `${format.money.format(review.outcome.netR)} R`

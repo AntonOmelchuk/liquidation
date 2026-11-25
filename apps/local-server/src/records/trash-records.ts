@@ -11,6 +11,7 @@ import type {
   TrashEntry,
 } from "@liquidation/domain/journal/trash/types";
 import type { Journal } from "@liquidation/domain/journal/types";
+import { isBreakevenReviewReason } from "@liquidation/domain/workspace/planning";
 import { randomUUID } from "node:crypto";
 import { InvalidJournalInput, JournalConflict } from "../errors.ts";
 import { accountHasHistory, hasRecordReferences } from "./references.ts";
@@ -89,8 +90,12 @@ export function mutateTrash(journal: Journal, command: TrashCommand) {
   }
   if (
     entry.kind === TRASH_KIND.MISSED &&
+    !isBreakevenReviewReason(entry.value.reason) &&
     entry.value.planId &&
-    workspace.missedTrades.some(({ planId }) => planId === entry.value.planId)
+    workspace.missedTrades.some(
+      ({ planId, reason }) =>
+        planId === entry.value.planId && !isBreakevenReviewReason(reason),
+    )
   ) {
     throw new JournalConflict(
       "A missed opportunity already exists for this plan.",

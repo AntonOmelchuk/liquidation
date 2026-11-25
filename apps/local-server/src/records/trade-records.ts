@@ -1,7 +1,16 @@
+import { entryRiskSizing } from "@liquidation/domain/accounts/entry-risk";
+import {
+  calculatedGrossProfit,
+  riskFromSizing,
+} from "@liquidation/domain/trades/financials";
 import type { Journal } from "@liquidation/domain/journal/types";
 import { deletedPlan } from "@liquidation/domain/journal/trash/trash";
 import type {
+  PnlCalculation,
+  Position,
   PositionCommand,
+  Trade,
+  TradeInput,
   TradeLinkCommand,
   TradeLinks,
 } from "@liquidation/domain/trades/types";
@@ -11,7 +20,6 @@ import { POSITION_ACTION } from "@liquidation/domain/trades/constants";
 
 import { tradeSchema } from "@liquidation/domain/trades/trade";
 import { tradeLinksSchema } from "@liquidation/domain/trades/trade-links";
-import type { TradeInput } from "@liquidation/domain/trades/types";
 import { InvalidJournalInput, JournalConflict } from "../errors.ts";
 import { assertPlaybookLink } from "./playbook-records.ts";
 import { normalizeAccountLink } from "./account-records.ts";
@@ -46,6 +54,54 @@ function replaceTradeLinks<Entry extends TradeLinks>(
   return { ...updated, ...links };
 }
 
+function sizeTrade<T extends Pick<Position, "accountId" | "openedAt" | "risk">>(
+  journal: Journal,
+  input: T,
+  percent: number | null | undefined,
+  previous?: Position,
+) {
+  if (percent === null) return { ...input, risk: null };
+  if (percent === undefined) {
+    return previous?.riskSizing
+      ? { ...input, risk: previous.risk, riskSizing: previous.riskSizing }
+      : input;
+  }
+  const account = journal.accounts.find(({ id }) => id === input.accountId);
+  if (!account)
+    throw new InvalidJournalInput("Select an account to size the trade.");
+  const riskSizing = entryRiskSizing(
+    account,
+    journal,
+    input.openedAt,
+    percent,
+    previous,
+  );
+  const risk = riskSizing ? riskFromSizing(riskSizing) : null;
+  if (!riskSizing || risk === null)
+    throw new InvalidJournalInput(
+      "Risk needs a positive entry balance and a valid percentage.",
+    );
+  return { ...input, risk, riskSizing };
+}
+
+function tradeProfit(
+  trade: Pick<Trade, "profit" | "risk" | "direction" | "prices">,
+  calculation?: PnlCalculation,
+) {
+  if (!calculation) return trade.profit;
+  const profit = calculatedGrossProfit(
+    trade.risk,
+    calculation,
+    trade.direction,
+    trade.prices,
+  );
+  if (profit === null)
+    throw new InvalidJournalInput(
+      "The trade lacks a valid risk or result for calculating P&L.",
+    );
+  return profit;
+}
+
 export function appendTrade(
   journal: Journal,
   input: TradeInput,
@@ -54,9 +110,20 @@ export function appendTrade(
   assertScreenshotAttachments(new Set(), tradeScreenshotIds(input), uploads);
   assertPlanExists(journal, input.planId);
   assertPlaybookLink(journal, input.playbook, undefined, true);
-  const trade = { ...normalizeAccountLink(journal, input), id: randomUUID() };
-  journal.trades.unshift(trade);
-  return trade;
+  const { riskPercent, pnlCalculation, ...record } = input;
+  const sized = sizeTrade(
+    journal,
+    normalizeAccountLink(journal, record),
+    riskPercent,
+  );
+  const trade = tradeSchema.safeParse({
+    ...sized,
+    id: randomUUID(),
+    profit: tradeProfit(sized, pnlCalculation),
+  });
+  if (!trade.success) throw new InvalidJournalInput("Invalid trade.");
+  journal.trades.unshift(trade.data);
+  return trade.data;
 }
 
 export function mutatePosition(
@@ -72,8 +139,14 @@ export function mutatePosition(
     );
     assertPlanExists(journal, command.input.planId);
     assertPlaybookLink(journal, command.input.playbook);
+    const { riskPercent, ...record } = command.input;
+    const sized = sizeTrade(
+      journal,
+      normalizeAccountLink(journal, record),
+      riskPercent,
+    );
     journal.positions.unshift({
-      ...normalizeAccountLink(journal, command.input),
+      ...sized,
       id: randomUUID(),
       revision: 1,
     });
@@ -93,13 +166,20 @@ export function mutatePosition(
     );
     assertPlanExists(journal, command.input.planId, position.planId);
     assertPlaybookLink(journal, command.input.playbook, position.playbook);
+    const { riskPercent, ...record } = command.input;
+    const sized = sizeTrade(
+      journal,
+      normalizeAccountLink(journal, record, position),
+      riskPercent,
+      position,
+    );
     journal.positions[index] = {
-      ...normalizeAccountLink(journal, command.input, position),
+      ...sized,
       id: position.id,
       revision: position.revision + 1,
     };
   } else {
-    const { management, links, ...outcome } = command.input;
+    const { management, links, pnlCalculation, ...outcome } = command.input;
     const associations = normalizeAccountLink(
       journal,
       links ?? tradeLinksSchema.parse(position),
@@ -116,12 +196,14 @@ export function mutatePosition(
     }
     if (links || management)
       assertPlaybookLink(journal, playbook, position.playbook, true);
-    const trade = tradeSchema.safeParse(
-      replaceTradeLinks(
-        { ...position, ...outcome },
-        { ...associations, playbook },
-      ),
+    const draft = replaceTradeLinks(
+      { ...position, ...outcome },
+      { ...associations, playbook },
     );
+    const trade = tradeSchema.safeParse({
+      ...draft,
+      profit: tradeProfit(draft, pnlCalculation),
+    });
     if (!trade.success)
       throw new InvalidJournalInput("Invalid position close.");
     assertScreenshotAttachments(

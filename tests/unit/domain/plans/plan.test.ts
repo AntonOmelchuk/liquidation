@@ -172,9 +172,14 @@ test("values missed trades in the same currency while excluding links outside th
 
 test("reports confirmed correct plans over all saved plans separately from reviewed accuracy", () => {
   const plans = [
-    ...Array.from({ length: 12 }, (_, index) =>
+    ...Array.from({ length: 10 }, (_, index) =>
       plan(index + 1, { status: "worked" }),
     ),
+    plan(11, { status: "worked-without-entry", outcome: null }),
+    plan(12, {
+      status: "worked-without-entry",
+      outcome: { closedAt, netR: 2, risk: 25 },
+    }),
     ...Array.from({ length: 3 }, (_, index) =>
       plan(index + 13, { status: "failed", reason: "Invalidation" }),
     ),
@@ -185,9 +190,14 @@ test("reports confirmed correct plans over all saved plans separately from revie
   expect(
     comparePlanPerformance({ plans, trades: [], positions: [] }),
   ).toMatchObject({
-    statuses: { worked: 12, failed: 3, waiting: 5 },
+    statuses: { worked: 10, "worked-without-entry": 2, failed: 3, waiting: 5 },
+    worked: 12,
     decided: 15,
     allPlanWinRate: 0.6,
     planWinRate: 0.8,
+    realized: 0,
+    assessedMisses: 1,
+    missed: 2,
+    cash: { realized: 0, missed: 50 },
   });
 });

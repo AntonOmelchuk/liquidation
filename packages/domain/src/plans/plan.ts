@@ -7,6 +7,7 @@ import {
   MAX_PLAN_ANALYSIS_BLOCKS,
   PLAN_ACTION,
   PLAN_NARRATIVES,
+  PLAN_OPPORTUNITY_STATUSES,
   PLAN_STATUS,
 } from "./constants.ts";
 import {
@@ -98,7 +99,7 @@ export const planReviewSchema = z.discriminatedUnion("status", [
     reason: z.string().trim().min(1).max(4000),
   }),
   z.object({
-    status: z.literal(PLAN_STATUS.MISSED),
+    status: z.literal(PLAN_OPPORTUNITY_STATUSES),
     outcome: missedOutcomeSchema.nullable(),
   }),
 ]);

@@ -7,6 +7,7 @@ import type { PlaybookCommand } from "@liquidation/domain/playbooks/types";
 import type {
   PositionCommand,
   Trade,
+  TradeInput,
   TradeLinkCommand,
 } from "@liquidation/domain/trades/types";
 import type { WorkspaceCommand } from "@liquidation/domain/workspace/types";
@@ -48,7 +49,7 @@ export type JournalState = Omit<Journal, "version" | "trades"> & {
     uploads?: ReadonlyMap<string, File>,
   ) => Promise<void>;
   record: (
-    trade: Omit<Trade, "id">,
+    trade: TradeInput,
     uploads?: ReadonlyMap<string, File>,
   ) => Promise<void>;
 };

@@ -122,22 +122,6 @@
   border-block-start: 1px solid var(--border);
   padding-block-start: 0.65rem;
 }
-.rule-check {
-  display: flex;
-  align-items: start;
-  gap: 0.55rem;
-  min-width: 0;
-}
-.rule-check input[type="checkbox"] {
-  width: 1.05rem;
-  height: 1.05rem;
-  flex: none;
-  margin: 0.15rem 0 0;
-  accent-color: var(--accent);
-}
-.rule-check span {
-  overflow-wrap: anywhere;
-}
 .limit-frame {
   display: grid;
   gap: 0.35rem;

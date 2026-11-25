@@ -6,6 +6,12 @@ import type { Trade } from "./types.ts";
 import { moneySchema as money } from "../shared/money.ts";
 import { validPriceGeometry } from "./prices.ts";
 import { validMistakeReview } from "./mistakes.ts";
+import {
+  pnlCalculationSchema,
+  riskPercentSchema,
+  riskSizingSchema,
+  validRiskSizing,
+} from "./financials.ts";
 export const tradeInput = z
   .object({
     symbol: instrumentSymbolSchema,
@@ -32,7 +38,20 @@ export const tradeInput = z
     message: "Check the initial stop, target and excursion prices.",
   });
 
-export const tradeSchema = tradeInput.safeExtend({ id: z.uuid() });
+export const tradeRecordInput = tradeInput.safeExtend({
+  riskPercent: riskPercentSchema.nullable().optional(),
+  pnlCalculation: pnlCalculationSchema.optional(),
+});
+
+export const tradeSchema = tradeInput
+  .safeExtend({
+    id: z.uuid(),
+    riskSizing: riskSizingSchema.optional(),
+  })
+  .refine(validRiskSizing, {
+    path: ["risk"],
+    message: "Risk does not match the saved entry balance.",
+  });
 
 export function netCents(trade: Pick<Trade, "profit" | "commission" | "swap">) {
   return (

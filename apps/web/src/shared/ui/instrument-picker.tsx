@@ -5,14 +5,19 @@ import {
 import type { KeyboardEvent } from "react";
 import { useId, useState } from "react";
 import { useLocale } from "../messages.ts";
-import { KEYBOARD_KEY } from "./constants.ts";
+import { FLAG_EMOJI, KEYBOARD_KEY } from "./constants.ts";
 import type { InstrumentIconsProps, InstrumentPickerProps } from "./types.ts";
 
 export function InstrumentIcons({ symbol }: InstrumentIconsProps) {
   return (
     <span className="instrument-icons" aria-hidden="true">
       {instrumentIcons(symbol).map((icon, index) => (
-        <span key={index}>{icon}</span>
+        <span
+          key={index}
+          className={FLAG_EMOJI.test(icon) ? "instrument-flag" : undefined}
+        >
+          {icon}
+        </span>
       ))}
     </span>
   );

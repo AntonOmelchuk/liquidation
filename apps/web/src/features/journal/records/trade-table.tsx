@@ -8,7 +8,13 @@ import { useMemo, useState } from "react";
 import { EMPTY_VALUE } from "../../../shared/constants.ts";
 import { numericTone } from "../../../shared/format.ts";
 import { useLocale } from "../../../shared/messages.ts";
-import { TRADE_GROUPING, TRADE_TABLE_MODE } from "./constants.ts";
+import { SelectField } from "../../../shared/ui/select-field.tsx";
+import {
+  TRADE_GROUPING,
+  TRADE_PAGE_SIZES,
+  TRADE_TABLE_MODE,
+} from "./constants.ts";
+import { newestTradeRecord } from "./order.ts";
 import { useTradeRecordMessages } from "./messages.ts";
 import { TradeDetailsDialog } from "./trade-details-dialog.tsx";
 import { TradeRecordRows } from "./trade-record-rows.tsx";
@@ -20,21 +26,20 @@ export function TradeTable({
   mode = TRADE_TABLE_MODE.CLOSED,
   grouping = TRADE_GROUPING.ALL,
   label,
+  pagination,
 }: TradeTableProps) {
   const { t, format } = useLocale();
   const m = useTradeRecordMessages();
   const [selected, setSelected] = useState<string>();
+  const [requestedPage, setPage] = useState(0);
   const showFinancialResult = mode !== TRADE_TABLE_MODE.OPEN;
   const record = trades.find((item) => item.id === selected);
-  const rows = useMemo(
-    () =>
-      trades.toSorted((a, b) => {
-        const aAt = "closedAt" in a ? a.closedAt : a.openedAt;
-        const bAt = "closedAt" in b ? b.closedAt : b.openedAt;
-        return Date.parse(bAt) - Date.parse(aAt) || a.id.localeCompare(b.id);
-      }),
-    [trades],
-  );
+  const rows = useMemo(() => trades.toSorted(newestTradeRecord), [trades]);
+  const size = pagination?.pageSize ?? Math.max(1, rows.length);
+  const pages = Math.max(1, Math.ceil(rows.length / size));
+  const page = Math.min(requestedPage, pages - 1);
+  const start = page * size;
+  const visibleRows = pagination ? rows.slice(start, start + size) : rows;
   const groups = useMemo(
     () =>
       grouping === TRADE_GROUPING.ALL || mode !== TRADE_TABLE_MODE.CLOSED
@@ -45,6 +50,15 @@ export function TradeTable({
           ),
     [grouping, mode, rows],
   );
+  const visibleIds =
+    pagination && groups.length
+      ? new Set(visibleRows.map(({ id }) => id))
+      : undefined;
+  const visibleGroups = groups.flatMap((group) => {
+    if (!visibleIds) return [group];
+    const records = group.records.filter(({ id }) => visibleIds.has(id));
+    return records.length ? [{ ...group, records }] : [];
+  });
   const name =
     label ?? (mode === TRADE_TABLE_MODE.OPEN ? t.openPositions : t.positions);
   if (!rows.length)
@@ -100,8 +114,8 @@ export function TradeTable({
               )}
             </tr>
           </thead>
-          {groups.length && grouping !== TRADE_GROUPING.ALL ? (
-            groups.map((group) => (
+          {visibleGroups.length && grouping !== TRADE_GROUPING.ALL ? (
+            visibleGroups.map((group) => (
               <tbody key={group.key}>
                 <tr className="trade-ledger-group">
                   <th scope="rowgroup" colSpan={6}>
@@ -149,7 +163,7 @@ export function TradeTable({
           ) : (
             <tbody>
               <TradeRecordRows
-                records={rows}
+                records={visibleRows}
                 onInspect={setSelected}
                 showFinancialResult={showFinancialResult}
               />
@@ -157,6 +171,56 @@ export function TradeTable({
           )}
         </table>
       </div>
+      {pagination && (
+        <nav className="trade-pagination" aria-label={m.pagination}>
+          <SelectField
+            label={m.tradesPerPage}
+            value={size}
+            onChange={(event) => {
+              const next = TRADE_PAGE_SIZES.find(
+                (value) => value === Number(event.currentTarget.value),
+              );
+              if (!next) return;
+              pagination.onPageSizeChange(next);
+              setPage(0);
+            }}
+          >
+            {TRADE_PAGE_SIZES.map((value) => (
+              <option key={value} value={value}>
+                {value}
+              </option>
+            ))}
+          </SelectField>
+          <span role="status" className="trade-page-count">
+            {format.integer.format(start + 1)}–
+            {format.integer.format(start + visibleRows.length)} {m.of}{" "}
+            {format.integer.format(rows.length)}
+          </span>
+          <div className="trade-page-actions">
+            <button
+              type="button"
+              className="secondary"
+              aria-label={m.previousPage}
+              disabled={page === 0}
+              onClick={() => setPage(page - 1)}
+            >
+              ←
+            </button>
+            <span>
+              {m.page} {page + 1} / {pages}
+            </span>
+            <button
+              type="button"
+              className="secondary"
+              aria-label={m.nextPage}
+              disabled={page === pages - 1}
+              onClick={() => setPage(page + 1)}
+            >
+              →
+            </button>
+          </div>
+        </nav>
+      )}
       {record && (
         <TradeDetailsDialog
           key={record.id}

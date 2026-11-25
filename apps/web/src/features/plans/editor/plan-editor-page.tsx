@@ -1,4 +1,5 @@
 import { PLAN_ACTION, PLAN_STATUS } from "@liquidation/domain/plans/constants";
+import { isPlanOpportunityStatus } from "@liquidation/domain/plans/plan-lifecycle";
 import { planCommand } from "@liquidation/domain/plans/plan";
 import type { Plan, PlanTradeChange } from "@liquidation/domain/plans/types";
 import { useLayoutEffect, useRef, useState, type FormEvent } from "react";
@@ -49,13 +50,12 @@ function readReview(
   const status = data.get("status");
   if (status === PLAN_STATUS.FAILED)
     return { status, reason: data.get("reason") };
-  if (status !== PLAN_STATUS.MISSED) return { status };
+  if (!isPlanOpportunityStatus(status)) return { status };
 
   const time = data.get("missedDate");
   const netR = optionalNumber(data.get("missedNetR"));
   const risk = optionalNumber(data.get("missedRisk"));
-  const existing =
-    review?.status === PLAN_STATUS.MISSED ? review.outcome : null;
+  const existing = review && "outcome" in review ? review.outcome : null;
   const closedAt =
     existing && time === isoToLocalDateTime(existing.closedAt)
       ? existing.closedAt

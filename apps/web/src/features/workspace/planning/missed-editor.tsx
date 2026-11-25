@@ -1,11 +1,14 @@
 import { estimatedMissedCents } from "@liquidation/domain/analytics/plan-performance";
 import { TRADE_SIDE } from "@liquidation/domain/trades/constants";
 import {
+  BREAKEVEN_REVIEW_REASONS,
   MISSED_REASON,
   MISSED_REASONS,
   WORKSPACE_RECORD,
   WORKSPACE_TEXT_LIMIT,
 } from "@liquidation/domain/workspace/constants";
+import { isBreakevenReviewReason } from "@liquidation/domain/workspace/planning";
+import type { MissedReason } from "@liquidation/domain/workspace/types";
 import { useState } from "react";
 import type { FormEvent } from "react";
 import {
@@ -18,6 +21,7 @@ import {
   existingScreenshots,
 } from "../../../shared/screenshots/draft.ts";
 import { ScreenshotField } from "../../../shared/screenshots/screenshot-field.tsx";
+import { CheckboxField } from "../../../shared/ui/checkbox-field.tsx";
 import { InstrumentPicker } from "../../../shared/ui/instrument-picker.tsx";
 import { SelectField } from "../../../shared/ui/select-field.tsx";
 import { useHistoricalPlanOptions } from "../../journal/data/references.ts";
@@ -46,23 +50,47 @@ export function MissedEditor({
   const [direction, setDirection] = useState(
     entry?.direction ?? TRADE_SIDE.LONG,
   );
+  const [reason, setReason] = useState<MissedReason>(
+    entry?.reason ?? MISSED_REASON.FEAR,
+  );
   const [planId, setPlanId] = useState(entry?.planId ?? "");
   const [assessed, setAssessed] = useState(Boolean(entry?.outcome));
   const [images, setImages] = useState(() =>
     existingScreenshots(entry?.screenshotIds),
   );
-  const [netR, setNetR] = useState(entry?.outcome?.netR?.toString() ?? "");
+  const [netR, setNetR] = useState(() => {
+    if (!entry?.outcome) return "";
+    return String(
+      isBreakevenReviewReason(entry.reason)
+        ? Math.abs(entry.outcome.netR)
+        : entry.outcome.netR,
+    );
+  });
   const [risk, setRisk] = useState(entry?.outcome?.risk?.toString() ?? "");
   const { save, status, saving } = useWorkspaceSave();
   const allPlans = useHistoricalPlanOptions(entry?.planId);
   const activePlans = useJournal((state) => state.plans);
   const otherMisses = useJournal((state) => state.workspace.missedTrades);
+  const beReview = isBreakevenReviewReason(reason);
+  const savedStop = reason === MISSED_REASON.BE_SAVED_STOP;
+  const beFields = savedStop
+    ? { time: m.beStopAt, result: m.beSavedR }
+    : { time: m.beTargetAt, result: m.beForegoneR };
+  const multiple = Number(netR);
+  const outcomeR = savedStop ? -multiple : multiple;
+  const takenPlans = new Set(
+    otherMisses.flatMap((miss) =>
+      miss.planId && miss.id !== id && !isBreakevenReviewReason(miss.reason)
+        ? [miss.planId]
+        : [],
+    ),
+  );
   const plans = allPlans.filter(
     (plan) =>
-      plan.id === entry?.planId ||
-      (plan.setup.symbol === symbol.trim().toUpperCase() &&
-        plan.setup.direction === direction &&
-        !otherMisses.some((miss) => miss.id !== id && miss.planId === plan.id)),
+      (beReview || !takenPlans.has(plan.id)) &&
+      (plan.id === entry?.planId ||
+        (plan.setup.symbol === symbol.trim().toUpperCase() &&
+          plan.setup.direction === direction)),
   );
   const linked = plans.find((plan) => plan.id === planId);
   const now = isoToLocalDateTime(new Date().toISOString());
@@ -70,12 +98,13 @@ export function MissedEditor({
   const preview =
     netR.trim() &&
     risk.trim() &&
-    Number.isFinite(Number(netR)) &&
+    Number.isFinite(multiple) &&
+    (!beReview || multiple > 0) &&
     Number.isFinite(Number(risk)) &&
     Number(risk) > 0
       ? estimatedMissedCents({
           closedAt: "",
-          netR: Number(netR),
+          netR: beReview ? -outcomeR : outcomeR,
           risk: Number(risk),
         })
       : null;
@@ -87,7 +116,7 @@ export function MissedEditor({
       symbol,
       direction,
       missedAt: localDateTimeToIso(form.get("missedAt"), entry?.missedAt),
-      reason: formText(form, "reason"),
+      reason,
       notes: formText(form, "notes"),
       planId: linked?.id,
       outcome: assessed
@@ -96,7 +125,7 @@ export function MissedEditor({
               form.get("closedAt"),
               entry?.outcome?.closedAt,
             ),
-            netR: Number(netR),
+            netR: outcomeR,
             risk: risk.trim() ? Number(risk) : undefined,
           }
         : null,
@@ -130,8 +159,36 @@ export function MissedEditor({
             <option value={TRADE_SIDE.LONG}>{t.long}</option>
             <option value={TRADE_SIDE.SHORT}>{t.short}</option>
           </SelectField>
+          <SelectField
+            label={m.reason}
+            name="reason"
+            value={reason}
+            onChange={(event) => {
+              const selected = MISSED_REASONS.find(
+                (value) => value === event.currentTarget.value,
+              );
+              if (selected) setReason(selected);
+            }}
+          >
+            <optgroup label={m.missedEntry}>
+              {MISSED_REASONS.filter(
+                (value) => !isBreakevenReviewReason(value),
+              ).map((value) => (
+                <option key={value} value={value}>
+                  {m[value]}
+                </option>
+              ))}
+            </optgroup>
+            <optgroup label={m.beReview}>
+              {BREAKEVEN_REVIEW_REASONS.map((value) => (
+                <option key={value} value={value}>
+                  {m[value]}
+                </option>
+              ))}
+            </optgroup>
+          </SelectField>
           <label>
-            {m.missedAt}
+            {beReview ? m.beExitedAt : m.missedAt}
             <input
               type="datetime-local"
               name="missedAt"
@@ -139,17 +196,6 @@ export function MissedEditor({
               defaultValue={entry ? isoToLocalDateTime(entry.missedAt) : seed}
             />
           </label>
-          <SelectField
-            label={m.reason}
-            name="reason"
-            defaultValue={entry?.reason ?? MISSED_REASON.FEAR}
-          >
-            {MISSED_REASONS.map((reason) => (
-              <option key={reason} value={reason}>
-                {m[reason]}
-              </option>
-            ))}
-          </SelectField>
           <SelectField
             label={t.linkedPlan}
             value={linked?.id ?? ""}
@@ -180,18 +226,16 @@ export function MissedEditor({
           disabled={saving}
         />
         <div className="missed-estimate">
-          <label className="workspace-check">
-            <input
-              type="checkbox"
-              checked={assessed}
-              onChange={(event) => setAssessed(event.target.checked)}
-            />
-            {m.hypothetical}
-          </label>
+          <CheckboxField
+            checked={assessed}
+            onChange={(event) => setAssessed(event.target.checked)}
+          >
+            {beReview ? m.beAddEstimate : m.hypothetical}
+          </CheckboxField>
           {assessed && (
             <div className="record-field-grid">
               <label>
-                {m.hypotheticalExit}
+                {beReview ? beFields.time : m.hypotheticalExit}
                 <input
                   type="datetime-local"
                   name="closedAt"
@@ -204,18 +248,19 @@ export function MissedEditor({
                 />
               </label>
               <label>
-                {m.netR}
+                {beReview ? beFields.result : m.netR}
                 <input
                   type="number"
                   name="netR"
                   step="any"
+                  min={beReview ? 0 : undefined}
                   required
                   value={netR}
                   onChange={(event) => setNetR(event.target.value)}
                 />
               </label>
               <label>
-                {m.estimatedRisk}
+                {beReview ? m.beInitialRisk : m.estimatedRisk}
                 <input
                   type="number"
                   name="risk"
@@ -228,13 +273,13 @@ export function MissedEditor({
               </label>
               {preview !== null && Number.isSafeInteger(preview) && (
                 <div>
-                  <small>{m.estimatedPnl}</small>
+                  <small>{beReview ? m.beEffect : m.estimatedPnl}</small>
                   <strong>{format.money.format(preview / 100)}</strong>
                 </div>
               )}
             </div>
           )}
-          <p>{m.missedHint}</p>
+          <p>{beReview ? m.beHint : m.missedHint}</p>
         </div>
       </fieldset>
       <WorkspaceFeedback status={status} />

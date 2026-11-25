@@ -140,6 +140,8 @@ export function TradeLinkFields({
   closing = false,
   risk = null,
   editingId,
+  showAccount = true,
+  showPrices = true,
 }: TradeLinkFieldsProps) {
   const b = usePlaybookMessages();
   const { t } = useLocale();
@@ -177,8 +179,10 @@ export function TradeLinkFields({
           defaultValue={initial?.timeframe}
         />
       </label>
-      <AccountField initial={initial} />
-      <TradePriceFields initial={initial} closed={closed || closing} />
+      {showAccount && <AccountField initial={initial} />}
+      {showPrices && (
+        <TradePriceFields initial={initial} closed={closed || closing} />
+      )}
       <TradeTagFields initial={initial} />
       {plans.length > 0 && (
         <PlanField

@@ -2,6 +2,7 @@ import {
   PLAN_STATUS,
   PLAN_STATUSES,
 } from "@liquidation/domain/plans/constants";
+import { isPlanOpportunityStatus } from "@liquidation/domain/plans/plan-lifecycle";
 import type { PlanStatus } from "@liquidation/domain/plans/types";
 import { useState } from "react";
 import type { PlanReviewFieldsProps } from "./types.ts";
@@ -12,8 +13,7 @@ import { usePlanMessages } from "../messages.ts";
 
 export function PlanReviewFields({ review }: PlanReviewFieldsProps) {
   const p = usePlanMessages();
-  const initialOutcome =
-    review.status === PLAN_STATUS.MISSED ? review.outcome : null;
+  const initialOutcome = "outcome" in review ? review.outcome : null;
   const [status, setStatus] = useState<PlanStatus>(review.status);
   const [reason, setReason] = useState(
     review.status === PLAN_STATUS.FAILED ? review.reason : "",
@@ -59,7 +59,7 @@ export function PlanReviewFields({ review }: PlanReviewFieldsProps) {
           />
         </label>
       )}
-      {status === PLAN_STATUS.MISSED && (
+      {isPlanOpportunityStatus(status) && (
         <>
           <p className="wide plan-field-hint" id="missed-outcome-hint">
             {p.missedHint}

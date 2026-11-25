@@ -131,6 +131,11 @@ function TradeLinksEditor({ trade }: TradeLinksEditorProps) {
         />
         <Metric
           label={m.initialRisk}
+          detail={
+            trade.riskSizing
+              ? format.riskPercent.format(trade.riskSizing.percent / 100)
+              : undefined
+          }
           value={
             trade.risk === null
               ? EMPTY_VALUE
