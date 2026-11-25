@@ -1,6 +1,7 @@
 export const PLAN_COLUMN = {
   GROUP: "group",
   PLANS: "plans",
+  OVERALL_WIN_RATE: "allPlanWinRate",
   WIN_RATE: "winRate",
   REALIZED_R: "realizedR",
   MISSED: "missed",

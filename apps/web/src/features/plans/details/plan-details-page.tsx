@@ -1,4 +1,6 @@
 import { PLAN_ACTION } from "@liquidation/domain/plans/constants";
+import { TRASH_KIND } from "@liquidation/domain/journal/trash/constants";
+import { DeleteRecord } from "../../trash/delete-record.tsx";
 import { planExecution } from "@liquidation/domain/plans/plan-execution";
 import { getPlanVoiding } from "@liquidation/domain/plans/plan-lifecycle";
 import { useEffect, useRef, useState } from "react";
@@ -73,6 +75,15 @@ export function PlanDetailsPage({ id }: { id: string }) {
           </div>
         </div>
         <div className="plan-actions">
+          <DeleteRecord
+            kind={TRASH_KIND.PLAN}
+            recordKey={plan.id}
+            revision={plan.revision}
+            disabled={action !== null}
+            afterDelete={() => {
+              window.location.hash = PAGE_HASHES.plans;
+            }}
+          />
           <button
             type="button"
             className="secondary"

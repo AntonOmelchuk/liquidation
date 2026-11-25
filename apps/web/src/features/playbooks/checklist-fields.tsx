@@ -60,6 +60,8 @@ function ChecklistRow({ rule, phase, answer }: ChecklistRowProps) {
           <input
             name={reasonField(phase, rule.id)}
             maxLength={MAX_RULE_REASON}
+            required={!answer || answer.met || Boolean(answer.reason)}
+            pattern={String.raw`.*\S.*`}
             value={reason}
             onChange={(event) => setReason(event.target.value)}
           />
@@ -74,6 +76,7 @@ export function ChecklistFields({
   rules,
   initial,
   recordByDefault = false,
+  requireRecording = false,
 }: ChecklistFieldsProps) {
   const b = usePlaybookMessages();
   const [recording, setRecording] = useState(
@@ -86,17 +89,23 @@ export function ChecklistFields({
   return (
     <div className="wide rule-checklist" role="group" aria-label={title}>
       <strong>{title}</strong>
-      <label className="rule-check">
-        <input
-          type="checkbox"
-          checked={recording}
-          onChange={(event) => setRecording(event.target.checked)}
-        />
-        <span>
-          {phase === CHECKLIST_PHASE.ENTRY ? b.recordEntry : b.recordManagement}
-        </span>
-      </label>
-      {recording &&
+      {requireRecording ? (
+        <p className="analytics-hint">{b.checklistRequired}</p>
+      ) : (
+        <label className="rule-check">
+          <input
+            type="checkbox"
+            checked={recording}
+            onChange={(event) => setRecording(event.target.checked)}
+          />
+          <span>
+            {phase === CHECKLIST_PHASE.ENTRY
+              ? b.recordEntry
+              : b.recordManagement}
+          </span>
+        </label>
+      )}
+      {(recording || requireRecording) &&
         rules.map((rule) => (
           <ChecklistRow
             key={rule.id}

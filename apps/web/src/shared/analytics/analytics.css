@@ -24,26 +24,6 @@
   font-size: 0.85rem;
 }
 
-.analytics-factor-list {
-  display: grid;
-  gap: 0.55rem;
-  margin-bottom: 1rem;
-}
-
-.analytics-factor-section {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1rem;
-  align-items: center;
-}
-
-.analytics-factor-section > span {
-  width: 7.25rem;
-  font-size: 0.84rem;
-  font-weight: 650;
-  color: var(--muted);
-}
-
 .analytics-factors {
   display: flex;
   align-items: center;
@@ -113,11 +93,4 @@
 
 .analytics-details h3 {
   margin: 0;
-  font-size: 1rem;
-}
-
-@media (max-width: 700px) {
-  .analytics-factor-section > span {
-    width: 100%;
-  }
 }

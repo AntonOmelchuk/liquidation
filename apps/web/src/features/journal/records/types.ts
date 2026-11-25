@@ -1,24 +1,43 @@
+import type { ScreenshotDraft } from "../../../shared/screenshots/types.ts";
+import type {
+  TRADE_GROUPING,
+  TRADE_TABLE_MODE,
+  TRADE_EDITOR_MODE,
+} from "./constants.ts";
 import type { Plan } from "@liquidation/domain/plans/types";
 import type {
   Playbook,
   PlaybookLink,
 } from "@liquidation/domain/playbooks/types";
-import type { POSITION_ACTION } from "@liquidation/domain/trades/constants";
 import type {
   Position,
   Trade,
   TradeLinks,
 } from "@liquidation/domain/trades/types";
-import type { RefObject } from "react";
 import type { EntryContext } from "../../playbooks/types.ts";
 
-export type TradeTableProps = { trades: readonly Trade[] };
+export type TradeRecord = Trade | Position;
+export type TradeTableMode =
+  (typeof TRADE_TABLE_MODE)[keyof typeof TRADE_TABLE_MODE];
+export type TradeGrouping =
+  (typeof TRADE_GROUPING)[keyof typeof TRADE_GROUPING];
+export type TradeTableProps = {
+  trades: readonly TradeRecord[];
+  mode?: TradeTableMode;
+  grouping?: TradeGrouping;
+  label?: string;
+};
+export type TradeDetailsDialogProps = {
+  record: TradeRecord;
+  onClose: () => void;
+};
+export type TradeRecordRowsProps = {
+  records: readonly TradeRecord[];
+  onInspect: (id: string) => void;
+  showFinancialResult: boolean;
+};
 
 export type TradeLinksEditorProps = { trade: Trade };
-
-export type TradeDialogProps = {
-  dialog: RefObject<HTMLDialogElement | null>;
-};
 
 export type PlanFieldProps = {
   options: readonly Plan[];
@@ -26,21 +45,25 @@ export type PlanFieldProps = {
   onChange: (value: string) => void;
 };
 
-export type PositionFormAction =
-  | { action: typeof POSITION_ACTION.OPEN }
-  | {
-      action: typeof POSITION_ACTION.EDIT | typeof POSITION_ACTION.CLOSE;
-      position: Position;
-    };
-
-export type PositionFormProps = {
-  selection: PositionFormAction;
-  finish: () => void;
+export type TradeEditorMode =
+  (typeof TRADE_EDITOR_MODE)[keyof typeof TRADE_EDITOR_MODE];
+export type TradeEditorPageProps = { mode: TradeEditorMode; id?: string };
+export type TradeEditorProps = { mode: TradeEditorMode; position?: Position };
+export type TradeEvidenceDraft = {
+  entry: ScreenshotDraft[];
+  exit: ScreenshotDraft[];
+};
+export type TradeEvidenceFieldsProps = {
+  draft: TradeEvidenceDraft;
+  onChange: (next: TradeEvidenceDraft) => void;
+  closed: boolean;
+  disabled: boolean;
 };
 
-export type OpenPositionsProps = { ready: boolean };
+export type OpenPositionsProps = { ready: boolean; account?: string };
 
 export type TradeTagFieldsProps = { initial?: TradeLinks };
+export type TradePriceFieldsProps = { initial?: TradeLinks; closed: boolean };
 
 export type LinkedPlaybookRulesProps = {
   book: Playbook;

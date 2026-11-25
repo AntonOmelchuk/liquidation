@@ -1,0 +1,65 @@
+.planning-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+}
+.planning-fields textarea {
+  width: 100%;
+  line-height: 1.6;
+}
+.watch-assets {
+  display: grid;
+  gap: 1rem;
+}
+.watch-asset {
+  display: grid;
+  gap: 1rem;
+  padding: clamp(1rem, 1.5vw, 1.5rem);
+  border: 1px solid var(--border);
+  border-radius: 0.8rem;
+}
+.watch-asset h3 {
+  margin: 0;
+}
+.watch-plan-options {
+  display: grid;
+  gap: 0.55rem;
+}
+.watch-plan-options summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.watch-asset-review {
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+}
+.watch-summary-list {
+  display: grid;
+  gap: 0.8rem;
+  padding: 0;
+  list-style: none;
+}
+.watch-summary-list li {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.8rem;
+}
+.watch-summary-list li:last-child {
+  border-bottom: 0;
+}
+.watch-summary-list p {
+  white-space: pre-wrap;
+  margin: 0.35rem 0 0;
+}
+.missed-estimate {
+  padding: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+}
+.missed-trade-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+.journal-missed {
+  margin-block-start: 1rem;
+}

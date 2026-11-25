@@ -12,6 +12,7 @@ export type AnalyticsOption = { key: string; label: string };
 
 export type AnalyticsSelectProps = {
   label: string;
+  title?: string;
   all: string;
   value?: string;
   options: readonly AnalyticsOption[];
@@ -39,4 +40,11 @@ export type SortableHeaderProps = {
   direction?: SortDirection;
   onSort: () => void;
   title?: string;
+};
+
+export type SeriesChartProps = {
+  values: readonly number[];
+  label: string;
+  empty: string;
+  unit?: string;
 };

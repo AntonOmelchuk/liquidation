@@ -127,8 +127,13 @@ const en = {
   tradeLinkHint:
     "Saving moves any selected trade linked to another plan to this plan.",
   allPlans: "All plans",
-  planWinRate: "Plan win rate",
-  planWinRateHint: "Worked ÷ (worked + did not work)",
+  planWinRate: "Overall plan win rate",
+  reviewedWinRate: "Reviewed plan win rate",
+  reviewedWinRateHint: "Worked ÷ (worked + did not work)",
+  confirmedPlans: "Marked as worked",
+  awaitingDecision: "Awaiting a worked / failed decision",
+  executionWinRate: "Realized plan win rate",
+  planWinRateHint: "Worked ÷ all saved plans",
   analyticsTitle: "Plan performance",
   analyticsFrom: "Plan date from",
   analyticsThrough: "Plan date through",
@@ -162,13 +167,16 @@ const en = {
   rComparisonHint:
     "Scenario adds assessed missed trades, including estimated losses. Results are expressed in R.",
   cashComparisonEmpty:
-    "Record a closed trade or add estimated risk to a missed plan to see the monetary comparison.",
+    "Record a closed trade or add estimated risk to a missed opportunity to see the monetary comparison.",
   cashComparisonHint:
-    "Scenario uses the estimated R and initial risk entered in the plan review. Amounts use journal currency.",
+    "Scenario uses estimated R and initial risk from missed trade entries and plan reviews. Amounts use journal currency.",
   cashMissingRisk: "Assessed misses without estimated initial risk",
   unitR: "R multiples",
   unitCash: "Journal currency",
   excludedLinked: "Assessed misses with a linked position excluded",
+  recordedMisses: "Assessed missed trade entries included",
+  replacedPlanMisses:
+    "Plan estimates superseded by linked missed trade entries",
   loadError: "Could not load plans.",
 };
 
@@ -297,8 +305,13 @@ const uk: Record<keyof typeof en, string> = {
   tradeLinkHint:
     "Після збереження вибрані угоди з іншого плану будуть прив’язані до цього.",
   allPlans: "Усі плани",
-  planWinRate: "Win rate планів",
-  planWinRateHint: "Відпрацювало ÷ (відпрацювало + не відпрацювало)",
+  planWinRate: "Загальний win rate всіх планів",
+  reviewedWinRate: "Win rate оцінених планів",
+  reviewedWinRateHint: "Відпрацювало ÷ (відпрацювало + не відпрацювало)",
+  confirmedPlans: "Позначено «Відпрацювало»",
+  awaitingDecision: "Очікують підсумку відпрацювання",
+  executionWinRate: "Win rate виконаних планів",
+  planWinRateHint: "Відпрацювало ÷ усі збережені плани",
   analyticsTitle: "Аналітика виконання планів",
   analyticsFrom: "Дата плану від",
   analyticsThrough: "Дата плану до",
@@ -331,14 +344,17 @@ const uk: Record<keyof typeof en, string> = {
   rComparisonHint:
     "Сценарій додає оцінені пропущені угоди, зокрема можливі збитки. Результати показано в R.",
   cashComparisonEmpty:
-    "Запиши закриту угоду або додай оцінку початкового ризику до пропущеного плану, щоб побачити грошове порівняння.",
+    "Запиши закриту угоду або додай оцінку початкового ризику до пропущеної можливості, щоб побачити грошове порівняння.",
   cashComparisonHint:
-    "Грошовий сценарій використовує оцінку R та початковий ризик із рев’ю плану. Суми у валюті журналу.",
+    "Грошовий сценарій використовує оцінку R та початковий ризик із записів пропущених угод і рев’ю планів. Суми у валюті журналу.",
   cashMissingRisk: "Оцінені пропуски без початкового ризику",
   unitR: "Множники R",
   unitCash: "Валюта журналу",
   missingRisk: "Закриті угоди без початкового ризику",
   excludedLinked: "Виключено перевірених пропусків із пов’язаною позицією",
+  recordedMisses: "Враховано оцінені записи пропущених угод",
+  replacedPlanMisses:
+    "Оцінки планів замінено пов’язаними записами пропущених угод",
   loadError: "Не вдалося завантажити плани.",
 };
 

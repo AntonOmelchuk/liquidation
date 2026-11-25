@@ -3,6 +3,7 @@ import type { AnalyticsSelectProps, DateRangeFieldsProps } from "./types.ts";
 
 export function AnalyticsSelect({
   label,
+  title,
   all,
   value,
   options,
@@ -11,6 +12,7 @@ export function AnalyticsSelect({
   return (
     <SelectField
       label={label}
+      title={title}
       value={value === undefined ? "" : `=${value}`}
       onChange={(event) => {
         const key = event.currentTarget.value;

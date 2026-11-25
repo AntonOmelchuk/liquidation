@@ -10,6 +10,8 @@ import { SelectField } from "../../shared/ui/select-field.tsx";
 import { JournalRequestError } from "../journal/data/api.ts";
 import { JOURNAL_STATUS } from "../journal/data/constants.ts";
 import { useJournal } from "../journal/data/store.ts";
+import { useHistoricalPlaybookOptions } from "../journal/data/references.ts";
+import { useTrashMessages } from "../trash/messages.ts";
 import { JournalUnavailable } from "../journal/journal-unavailable.tsx";
 import { useBacktestMessages } from "./messages.ts";
 import type { BacktestEditorProps } from "./types.ts";
@@ -36,7 +38,9 @@ function BacktestEditor({ run }: BacktestEditorProps) {
   const { t } = useLocale();
   const b = useBacktestMessages();
   const saveRun = useJournal((state) => state.updateBacktest);
-  const playbooks = useJournal((state) => state.playbooks);
+  const playbooks = useHistoricalPlaybookOptions(run?.playbook?.id);
+  const active = useJournal((state) => state.playbooks);
+  const deleted = useTrashMessages().deleted;
   const [id] = useState(() => run?.id ?? crypto.randomUUID());
   const [revision] = useState(() => run?.revision);
   const [saving, setSaving] = useState(false);
@@ -121,7 +125,15 @@ function BacktestEditor({ run }: BacktestEditorProps) {
             >
               <option value="">{b.noPlaybook}</option>
               {books.map((book) => (
-                <optgroup key={book.id} label={book.title}>
+                <optgroup
+                  key={book.id}
+                  label={
+                    book.title +
+                    (active.some(({ id }) => id === book.id)
+                      ? ""
+                      : " · " + deleted)
+                  }
+                >
                   {book.versions.toReversed().map(({ number }) => (
                     <option key={number} value={`${book.id}/${number}`}>
                       v{number}

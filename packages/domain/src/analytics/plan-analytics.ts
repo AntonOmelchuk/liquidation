@@ -1,5 +1,7 @@
 import type { Plan } from "../plans/types.ts";
+import { PLAN_STATUS } from "../plans/constants.ts";
 import type { Position, Trade } from "../trades/types.ts";
+import type { MissedTrade } from "../workspace/types.ts";
 
 import { comparePlanPerformance } from "./plan-performance.ts";
 
@@ -11,10 +13,12 @@ export function summarizePlanGroups(
     plans,
     trades,
     positions,
+    missedTrades = [],
   }: {
     plans: readonly Plan[];
     trades: readonly Trade[];
     positions: readonly Position[];
+    missedTrades?: readonly MissedTrade[];
   },
   grouping: PlanAnalyticsGrouping,
 ) {
@@ -40,6 +44,7 @@ export function summarizePlanGroups(
 
   const tradesByPlan = Map.groupBy(trades, (trade) => trade.planId);
   const positionsByPlan = Map.groupBy(positions, (position) => position.planId);
+  const missesByPlan = Map.groupBy(missedTrades, (miss) => miss.planId);
   return [...cohorts]
     .map(([key, cohort]) => {
       const linkedTrades = cohort.plans.flatMap(
@@ -48,10 +53,16 @@ export function summarizePlanGroups(
       const linkedPositions = cohort.plans.flatMap(
         ({ id }) => positionsByPlan.get(id) ?? [],
       );
+      const linkedMisses = cohort.plans.flatMap(({ id, review }) =>
+        review.status === PLAN_STATUS.MISSED
+          ? (missesByPlan.get(id) ?? [])
+          : [],
+      );
       const result = comparePlanPerformance({
         plans: cohort.plans,
         trades: linkedTrades,
         positions: linkedPositions,
+        missedTrades: linkedMisses,
       });
       const measured = linkedTrades.length - result.tradesWithoutRisk;
 
@@ -60,6 +71,7 @@ export function summarizePlanGroups(
         ...cohort,
         worked: result.statuses.worked,
         reviewed: result.decided,
+        allPlanWinRate: result.allPlanWinRate,
         winRate: result.planWinRate,
         closed: linkedTrades.length,
         measured,

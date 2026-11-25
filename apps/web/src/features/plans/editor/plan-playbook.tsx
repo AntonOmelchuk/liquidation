@@ -1,4 +1,5 @@
 import { PLAYBOOK_STATUS } from "@liquidation/domain/playbooks/constants";
+import { deletedPlaybook } from "@liquidation/domain/journal/trash/trash";
 import type { PlaybookReference } from "@liquidation/domain/playbooks/types";
 import { useState } from "react";
 import type { PlanPlaybookFieldProps, PlanPlaybookLinkProps } from "./types.ts";
@@ -6,6 +7,8 @@ import type { PlanPlaybookFieldProps, PlanPlaybookLinkProps } from "./types.ts";
 import { playbookHref } from "../../../app/page.ts";
 import { EMPTY_VALUE } from "../../../shared/constants.ts";
 import { useJournal } from "../../journal/data/store.ts";
+import { useHistoricalPlaybookOptions } from "../../journal/data/references.ts";
+import { useTrashMessages } from "../../trash/messages.ts";
 import { usePlaybookMessages } from "../../playbooks/messages.ts";
 import { PlaybookSelect } from "../../playbooks/playbook-select.tsx";
 
@@ -22,7 +25,9 @@ export function readPlanPlaybook(data: FormData) {
 
 export function PlanPlaybookField({ initial }: PlanPlaybookFieldProps) {
   const b = usePlaybookMessages();
-  const books = useJournal((state) => state.playbooks);
+  const books = useHistoricalPlaybookOptions(initial?.id);
+  const active = useJournal((state) => state.playbooks);
+  const deleted = useTrashMessages().deleted;
   const [value, setValue] = useState(initial ? optionValue(initial) : "");
   const available = books.filter(
     (book) =>
@@ -46,6 +51,7 @@ export function PlanPlaybookField({ initial }: PlanPlaybookFieldProps) {
           >
             {book.title} · v{number}
             {book.status === PLAYBOOK_STATUS.RETIRED && ` · ${b.retired}`}
+            {!active.some(({ id }) => id === book.id) && " · " + deleted}
           </option>
         )),
       )}
@@ -57,7 +63,19 @@ export function PlanPlaybookLink({ reference }: PlanPlaybookLinkProps) {
   const book = useJournal((state) =>
     state.playbooks.find((item) => item.id === reference?.id),
   );
-  if (!book || !reference) return EMPTY_VALUE;
+  const old = useJournal((state) =>
+    deletedPlaybook(state.trash, reference?.id),
+  );
+  const deleted = useTrashMessages().deleted;
+  if (!reference) return EMPTY_VALUE;
+  if (!book)
+    return old ? (
+      <span>
+        {old.title} · v{reference.version} · {deleted}
+      </span>
+    ) : (
+      EMPTY_VALUE
+    );
   return (
     <a className="record-link" href={playbookHref(book.id)}>
       {book.title} <span className="subdued">v{reference.version}</span>

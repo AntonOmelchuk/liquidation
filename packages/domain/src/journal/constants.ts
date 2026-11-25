@@ -1,10 +1,14 @@
 export const JOURNAL_ROUTES = {
   trades: "/api/trades",
+  aiReview: "/api/ai-review",
   positions: "/api/positions",
   plans: "/api/plans",
   playbooks: "/api/playbooks",
   backtests: "/api/backtests",
   tradeLinks: "/api/trade-links",
+  workspace: "/api/workspace",
+  accounts: "/api/accounts",
+  trash: "/api/trash",
   planScreenshot: "/api/plan-screenshots/",
 } as const;
 export const JOURNAL_VERSION = 1;

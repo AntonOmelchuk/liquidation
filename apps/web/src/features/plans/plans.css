@@ -61,14 +61,13 @@
   white-space: pre-wrap;
 }
 .plans-table table {
-  min-width: 55rem;
+  min-width: 48rem;
   border-collapse: separate;
   border-spacing: 0;
 }
 .plan-table-group th {
   color: var(--muted);
   font-size: 0.81rem;
-  padding-block: 0.6rem;
   background: color-mix(in srgb, var(--border) 28%, var(--surface));
 }
 .plan-table-group span {
@@ -79,7 +78,7 @@
   background: color-mix(in srgb, var(--border) 15%, var(--surface));
 }
 .plan-name {
-  min-width: 12rem;
+  min-width: 10.5rem;
   overflow-wrap: anywhere;
 }
 .plans-table td {
@@ -88,24 +87,38 @@
 .plan-row-market {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem 0.5rem;
+  gap: 0.2rem 0.4rem;
   align-items: center;
-  margin-top: 0.35rem;
+  margin-top: 0.18rem;
+  max-width: none;
   color: var(--muted);
 }
 .plans-table .instrument-label {
+  gap: 0.35rem;
   white-space: nowrap;
+}
+.plan-row-market .instrument-icons > span {
+  width: 1.25rem;
+  height: 1.25rem;
+  font-size: 0.56rem;
 }
 .plan-table-playbook {
-  min-width: 8rem;
+  min-width: 7rem;
   overflow-wrap: anywhere;
 }
-.plan-table-values {
-  display: grid;
-  gap: 0.25rem;
+.plan-table-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.45rem;
+  font-size: 0.86rem;
 }
-.plan-table-values small {
+.plan-table-counts span,
+.plan-table-result,
+.plans-table .plan-dates {
   white-space: nowrap;
+}
+.plans-table .plan-dates {
+  font-size: 0.9rem;
 }
 .plan-status-link {
   display: inline-block;
@@ -120,12 +133,16 @@
   inset-inline-end: 0;
   background: var(--surface);
   text-align: end;
+  width: 1%;
   z-index: 1;
   border-inline-start: 1px solid var(--border);
+  white-space: nowrap;
 }
-.plan-table-actions .action-link {
-  padding: 0.4rem 0.65rem;
-  font-size: 0.83rem;
+.plan-row-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  vertical-align: middle;
 }
 .plan-price-fields {
   display: grid;
@@ -279,7 +296,6 @@
 .plan-analysis-block h3,
 .plan-alignment h3 {
   margin: 0;
-  font-size: 1rem;
 }
 .plan-analysis-block p,
 .plan-prose,
@@ -427,10 +443,25 @@
 
 .plan-analytics-details h3 {
   margin: 0;
-  font-size: 1rem;
   overflow-wrap: anywhere;
 }
 
 .plan-analysis-factors {
   margin: 0.9rem 0;
+}
+
+.metrics.plan-metrics {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  gap: 0.65rem;
+}
+.metrics.plan-metrics article {
+  padding: 0.75rem 1rem;
+}
+.metrics.plan-metrics strong {
+  font-size: clamp(1.1rem, 1.55vw, 1.65rem);
+  margin-top: 0.35rem;
+}
+.plans-table th,
+.plans-table td {
+  padding: 0.42rem 0.55rem;
 }

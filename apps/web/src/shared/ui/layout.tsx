@@ -1,8 +1,8 @@
 import type { MetricProps, PanelProps, RecordActionsProps } from "./types.ts";
 
-export function Panel({ title, detail, children }: PanelProps) {
+export function Panel({ id, title, detail, children }: PanelProps) {
   return (
-    <section className="panel">
+    <section className="panel" id={id}>
       <div className="panel-heading">
         <h2>{title}</h2>
         {detail != null && <div className="panel-detail">{detail}</div>}

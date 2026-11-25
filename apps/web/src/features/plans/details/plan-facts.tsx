@@ -9,6 +9,8 @@ import type {
   PlanStatusChipProps,
 } from "./types.ts";
 
+import { EMPTY_VALUE } from "../../../shared/constants.ts";
+import { formatCompactDay } from "../../../shared/format.ts";
 import { useLocale } from "../../../shared/messages.ts";
 import { usePlanMessages } from "../messages.ts";
 
@@ -41,20 +43,27 @@ export function PlanStatusChip({ plan, compact = false }: PlanStatusChipProps) {
   );
 }
 
-export function PlanSpan({ setup }: PlanSpanProps) {
+export function PlanSpan({ setup, compact = false }: PlanSpanProps) {
   const { format } = useLocale();
   const p = usePlanMessages();
   const { startsOn, endsOn } = setup;
-  if (!startsOn) return <span>{p.noPeriod}</span>;
+  if (!startsOn) {
+    return compact ? (
+      <span title={p.noPeriod}>{EMPTY_VALUE}</span>
+    ) : (
+      <span>{p.noPeriod}</span>
+    );
+  }
+  const label = (day: string) =>
+    compact ? formatCompactDay(day) : format.day.format(Date.parse(day));
 
   return (
     <span className="plan-dates">
-      <time dateTime={startsOn}>{format.day.format(Date.parse(startsOn))}</time>
+      <time dateTime={startsOn}>{label(startsOn)}</time>
       {endsOn && endsOn !== startsOn && (
         <>
           {" "}
-          –{" "}
-          <time dateTime={endsOn}>{format.day.format(Date.parse(endsOn))}</time>
+          – <time dateTime={endsOn}>{label(endsOn)}</time>
         </>
       )}
     </span>

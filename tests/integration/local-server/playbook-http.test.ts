@@ -113,6 +113,21 @@ test("keeps plan and pinned playbook checklists through edits, close and reload"
         },
       },
     };
+    const unexplained = await post(JOURNAL_ROUTES.positions, {
+      ...open,
+      input: {
+        ...open.input,
+        playbook: {
+          ...open.input.playbook,
+          entry: [
+            { ruleId: entryId, met: true },
+            { ruleId: filterId, met: false },
+          ],
+        },
+      },
+    });
+    expect(unexplained.status).toBe(422);
+    await unexplained.text();
     const foreignCheck = await post(JOURNAL_ROUTES.positions, {
       ...open,
       input: {
