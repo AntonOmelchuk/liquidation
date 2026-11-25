@@ -169,3 +169,25 @@ test("values missed trades in the same currency while excluding links outside th
     },
   });
 });
+
+test("reports confirmed correct plans over all saved plans separately from reviewed accuracy", () => {
+  const plans = [
+    ...Array.from({ length: 12 }, (_, index) =>
+      plan(index + 1, { status: "worked" }),
+    ),
+    ...Array.from({ length: 3 }, (_, index) =>
+      plan(index + 13, { status: "failed", reason: "Invalidation" }),
+    ),
+    ...Array.from({ length: 5 }, (_, index) =>
+      plan(index + 16, { status: "waiting" }),
+    ),
+  ];
+  expect(
+    comparePlanPerformance({ plans, trades: [], positions: [] }),
+  ).toMatchObject({
+    statuses: { worked: 12, failed: 3, waiting: 5 },
+    decided: 15,
+    allPlanWinRate: 0.6,
+    planWinRate: 0.8,
+  });
+});

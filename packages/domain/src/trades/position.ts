@@ -3,16 +3,27 @@ import { checklistSchema } from "../playbooks/playbook.ts";
 import { POSITION_ACTION } from "./constants.ts";
 import { tradeLinksSchema } from "./trade-links.ts";
 import { tradeInput } from "./trade.ts";
+import { validPriceGeometry } from "./prices.ts";
+import { validMistakeReview } from "./mistakes.ts";
 
-export const positionInput = z.object({
-  symbol: tradeInput.shape.symbol,
-  direction: tradeInput.shape.direction,
-  openedAt: tradeInput.shape.openedAt,
-  risk: tradeInput.shape.risk,
-  notes: tradeInput.shape.notes,
-  ...tradeLinksSchema.shape,
-});
-export const positionSchema = positionInput.extend({
+export const positionInput = z
+  .object({
+    symbol: tradeInput.shape.symbol,
+    direction: tradeInput.shape.direction,
+    openedAt: tradeInput.shape.openedAt,
+    risk: tradeInput.shape.risk,
+    notes: tradeInput.shape.notes,
+    ...tradeLinksSchema.shape,
+  })
+  .refine(validMistakeReview, {
+    path: ["criticalMistakes"],
+    message: "Critical mistakes must be recorded on the trade.",
+  })
+  .refine(({ direction, prices }) => validPriceGeometry(direction, prices), {
+    path: ["prices"],
+    message: "Check the initial stop, target and excursion prices.",
+  });
+export const positionSchema = positionInput.safeExtend({
   id: z.uuid(),
   revision: z.number().int().positive(),
 });

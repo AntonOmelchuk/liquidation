@@ -21,7 +21,11 @@ export function createFormatters(locale: string) {
   };
 }
 
-export function localDateTimeToIso(value: FormDataEntryValue | null) {
+export function localDateTimeToIso(
+  value: FormDataEntryValue | null,
+  original?: string,
+) {
+  if (original && value === isoToLocalDateTime(original)) return original;
   const date = new Date(String(value));
   return Number.isNaN(date.getTime()) ? "" : date.toISOString();
 }
@@ -33,6 +37,15 @@ export function isoToLocalDateTime(value: string) {
     .slice(0, 16);
 }
 
+export function formatCompactDay(day: string) {
+  const [year, month, date] = day.split("-");
+  return `${date}.${month}.${year.slice(-2)}`;
+}
+
 export function numericTone(value: number) {
   return value > 0 ? "positive" : value < 0 ? "negative" : undefined;
+}
+
+export function capitalizeFirst(value: string, locale: string) {
+  return value.charAt(0).toLocaleUpperCase(locale) + value.slice(1);
 }

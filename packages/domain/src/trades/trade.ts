@@ -1,21 +1,14 @@
 import { z } from "zod";
+import { instrumentSymbolSchema } from "../instruments/symbol.ts";
 import { TRADE_SIDE } from "./constants.ts";
 import { tradeLinksSchema } from "./trade-links.ts";
 import type { Trade } from "./types.ts";
-
-const money = z
-  .number()
-  .min(-1_000_000_000)
-  .max(1_000_000_000)
-  .multipleOf(0.01);
+import { moneySchema as money } from "../shared/money.ts";
+import { validPriceGeometry } from "./prices.ts";
+import { validMistakeReview } from "./mistakes.ts";
 export const tradeInput = z
   .object({
-    symbol: z
-      .string()
-      .trim()
-      .min(1)
-      .max(24)
-      .transform((value) => value.toUpperCase()),
+    symbol: instrumentSymbolSchema,
     direction: z.enum(TRADE_SIDE),
     openedAt: z.iso.datetime(),
     closedAt: z.iso.datetime(),
@@ -29,6 +22,14 @@ export const tradeInput = z
   .refine((trade) => Date.parse(trade.openedAt) <= Date.parse(trade.closedAt), {
     path: ["closedAt"],
     message: "Closing time must follow opening time.",
+  })
+  .refine(validMistakeReview, {
+    path: ["criticalMistakes"],
+    message: "Critical mistakes must be recorded on the trade.",
+  })
+  .refine(({ direction, prices }) => validPriceGeometry(direction, prices), {
+    path: ["prices"],
+    message: "Check the initial stop, target and excursion prices.",
   });
 
 export const tradeSchema = tradeInput.safeExtend({ id: z.uuid() });

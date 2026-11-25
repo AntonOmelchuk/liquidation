@@ -1,0 +1,297 @@
+.trade-ledger table {
+  min-width: 62rem;
+  font-size: 0.9rem;
+}
+.trade-ledger th,
+.trade-ledger td {
+  padding: 0.5rem 0.65rem;
+  vertical-align: middle;
+  white-space: nowrap;
+  text-transform: none;
+}
+.trade-ledger .trade-number {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+.trade-ledger-clip {
+  max-width: 14rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.trade-ledger-row {
+  cursor: pointer;
+}
+.trade-ledger-row:hover,
+.trade-ledger-row:focus-within {
+  background: color-mix(in srgb, var(--accent) 7%, var(--surface));
+}
+.trade-ledger-symbol {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0;
+  min-height: 1.65rem;
+  border: 0;
+  background: transparent;
+  border-radius: 0.3rem;
+  color: inherit;
+  font-weight: 700;
+  text-align: start;
+}
+.trade-ledger-symbol:hover {
+  color: var(--section-accent);
+  text-decoration: underline;
+}
+.trade-ledger-symbol .instrument-icons > span {
+  width: 1.45rem;
+  height: 1.45rem;
+}
+.trade-ledger-group {
+  background: color-mix(in srgb, var(--border) 35%, var(--surface));
+  font-size: 0.82rem;
+}
+.trade-ledger-group th span + span {
+  margin-inline-start: 0.6rem;
+}
+.trade-side,
+.trade-outcome {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 1.65rem;
+  padding: 0.12rem 0.48rem;
+  border-radius: 0.35rem;
+  border: 1px solid var(--border);
+  font-size: 0.82rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+.trade-side[data-side="long"],
+.trade-outcome[data-outcome="win"],
+.trade-outcome[data-outcome="be"] {
+  color: #83e6c1;
+  background: #142a28;
+  border-color: #31534a;
+}
+.trade-side[data-side="short"],
+.trade-outcome[data-outcome="loss"] {
+  color: #ffaaa5;
+  background: #30202b;
+  border-color: #603741;
+}
+.trade-outcome[data-outcome="flat"] {
+  color: #e7c481;
+  background: #312b21;
+}
+.trade-outcome[data-outcome="open"] {
+  color: #a8c8fa;
+  background: #202b44;
+}
+[data-theme="light"]
+  :is(
+    .trade-side[data-side="long"],
+    .trade-outcome[data-outcome="win"],
+    .trade-outcome[data-outcome="be"]
+  ) {
+  color: #106d53;
+  background: #e2f3ec;
+  border-color: #a7cbbb;
+}
+[data-theme="light"]
+  :is(.trade-side[data-side="short"], .trade-outcome[data-outcome="loss"]) {
+  color: #9f2433;
+  background: #fff0f1;
+  border-color: #e3bfc4;
+}
+[data-theme="light"] .trade-outcome[data-outcome="flat"] {
+  color: #785219;
+  background: #fcf0d8;
+}
+[data-theme="light"] .trade-outcome[data-outcome="open"] {
+  color: #31538c;
+  background: #e7eefb;
+}
+dialog.trade-details-dialog {
+  width: min(68rem, calc(100vw - 2rem));
+  overflow: auto;
+  padding: 0;
+}
+.trade-detail-header,
+.trade-detail-footer {
+  position: sticky;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.9rem 1.15rem;
+  background: var(--surface);
+}
+.trade-detail-header {
+  top: 0;
+  border-bottom: 1px solid var(--border);
+}
+.trade-detail-header h2 {
+  margin: 0.25rem 0 0;
+}
+.trade-detail-footer {
+  bottom: 0;
+  justify-content: flex-end;
+  border-top: 1px solid var(--border);
+}
+.trade-details-content {
+  padding: 1rem 1.15rem;
+}
+.trade-detail-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: 0.85rem 1.4rem;
+  margin: 0;
+}
+.trade-detail-facts dt {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 0.25rem;
+}
+.trade-detail-facts dd {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.trade-tag {
+  display: inline-block;
+  margin: 0.2rem 0.35rem 0.2rem 0;
+  border: 1px solid var(--border);
+  border-radius: 0.35rem;
+  padding: 0.2rem 0.4rem;
+  font-size: 0.85rem;
+}
+.trade-checklists {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+.trade-checklists h3 {
+  margin: 0 0 0.55rem;
+}
+.trade-checklist {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+.trade-checklist li {
+  display: flex;
+  gap: 0.5rem;
+  line-height: 1.5;
+}
+.trade-checklist p {
+  margin: 0.2rem 0 0;
+}
+.trade-list-toolbar {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  align-items: end;
+}
+.trade-list-toolbar .select-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.trade-ledger[data-mode="open"] table {
+  min-width: 49rem;
+}
+
+.record-editor.trade-editor {
+  max-width: 100%;
+}
+.trade-editor form.layout {
+  gap: 1rem;
+}
+.trade-editor .panel fieldset {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+}
+.trade-editor .panel fieldset > .wide {
+  grid-column: 1/-1;
+}
+.trade-evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 30rem), 1fr));
+  gap: 1rem 1.4rem;
+  align-items: start;
+}
+.trade-evidence-grid > section {
+  min-width: 0;
+}
+.trade-evidence-grid h3 {
+  margin: 0 0 0.65rem;
+}
+.trade-editor .screenshot-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+}
+.trade-editor .rule-checklist {
+  grid-template-columns: minmax(0, 1fr);
+}
+.trade-editor .rule-check-row {
+  padding: 0.8rem 1rem;
+}
+.mistake-review-fields .mistake-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  align-items: start;
+  gap: 0.55rem;
+}
+.mistake-option {
+  border: 1px solid var(--border);
+  border-radius: 0.55rem;
+  padding: 0.7rem;
+  display: grid;
+  gap: 0.5rem;
+}
+.mistake-option[data-selected="true"] {
+  border-color: var(--section-accent);
+  background: color-mix(in srgb, var(--accent) 7%, var(--surface));
+}
+.mistake-option .mistake-critical {
+  color: var(--muted);
+  margin-left: 1.5rem;
+  font-size: 0.85rem;
+}
+.mistake-custom {
+  display: flex;
+  gap: 0.65rem;
+  align-items: end;
+  flex-wrap: wrap;
+}
+.mistake-custom label {
+  flex: 1 1 16rem;
+}
+.trade-tag-critical {
+  color: #fca5a5;
+  border-color: #a9474c;
+}
+[data-theme="light"] .trade-tag-critical {
+  color: #a12035;
+  border-color: #d59c9c;
+}
+
+.metrics.trade-review-metrics {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+}
+.trade-review-metrics article {
+  padding: 0.8rem 1rem;
+}
+.trade-review-metrics strong {
+  font-size: clamp(1.05rem, 1.7vw, 1.6rem);
+}
+.trade-editor > .panel {
+  margin-bottom: 1rem;
+}

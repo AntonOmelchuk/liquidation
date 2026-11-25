@@ -1,0 +1,247 @@
+import {
+  ENTRY_HOUR_SIDE,
+  REVIEW_GROUP,
+  REVIEW_MODEL_STATUS,
+  REVIEW_PERIOD,
+  REVIEW_RULE,
+} from "@liquidation/domain/review/constants";
+import { LANGUAGE } from "../../shared/constants.ts";
+import { useLocale } from "../../shared/messages.ts";
+
+const en = {
+  title: "AI Review",
+  periods: {
+    [REVIEW_PERIOD.WEEK]: "Last 7 days",
+    [REVIEW_PERIOD.MONTH]: "Last 30 days",
+    [REVIEW_PERIOD.QUARTER]: "Last 90 days",
+    [REVIEW_PERIOD.CUSTOM]: "Custom",
+  },
+  dateScope: "Closing dates · device time zone",
+  missingDates: "Select both dates for the review.",
+  empty: "There are no closed trades in this period.",
+  download: "Download Markdown",
+  overview: "Overview",
+  open: "Positions currently open",
+  account: "Account",
+  allAccounts: "All accounts",
+  invalidRule: "Check the values for this rule.",
+  unassigned: "No account label",
+  byAccount: "Accounts",
+  metrics: "Key metrics",
+  metric: "Metric",
+  value: "Result",
+  winLossFlat: "Wins / losses / flat",
+  actualRR: "Actual average RR",
+  expectancy: "Expectancy per trade",
+  expectancyR: "Expectancy in R",
+  averageWin: "Average win",
+  averageLoss: "Average loss",
+  largestWin: "Largest win",
+  largestLoss: "Largest loss",
+  maxDrawdown: "Realized max drawdown",
+  lowest: "Lowest cumulative P&L",
+  longestWin: "Longest winning streak",
+  longestLoss: "Longest losing streak",
+  avgHold: "Average holding time (h)",
+  medHold: "Median holding time (h)",
+  winHold: "Winning trades · average / median (h)",
+  lossHold: "Losing trades · average / median (h)",
+  nearBreakEven: "Near break-even",
+  breakEvenHint:
+    "Near break-even includes flat trades and absolute net P&L below 0.1R. When risk is missing, the threshold is 10% of the average loss.",
+  drawdownHint:
+    "Realized drawdown and cumulative P&L start at zero. All monetary values use the journal currency.",
+  measuredRisk: "Trades with initial risk",
+  sample: "Sample",
+  small: "Small sample",
+  smallHint: "Treat patterns from fewer than 20 trades as hypotheses.",
+  dimensions: "Trade breakdowns",
+  groups: {
+    [REVIEW_GROUP.SYMBOLS]: "Symbols",
+    [REVIEW_GROUP.SIDES]: "Long / Short",
+    [REVIEW_GROUP.SYMBOL_SIDES]: "Side by symbol",
+    [REVIEW_GROUP.WEEKDAYS]: "Entry weekday",
+    [REVIEW_GROUP.HOURS]: "Entry hour",
+    [REVIEW_GROUP.MONTHS]: "Closing month",
+    [REVIEW_GROUP.DURATIONS]: "Holding time",
+  },
+  observations: "Observations",
+  modelTitle: "Local model",
+  modelDescription:
+    "The model proposes hypotheses in Ukrainian from aggregate journal metrics.",
+  modelAction: "Generate hypotheses",
+  modelRunning: "Generating…",
+  stale:
+    "The journal changed. Reload this page before generating hypotheses again.",
+  modelStatuses: {
+    [REVIEW_MODEL_STATUS.DISABLED]:
+      "Local generation is disabled. Set up llama.cpp as described in the README.",
+    [REVIEW_MODEL_STATUS.EMPTY]:
+      "The model needs closed trades in the selected period.",
+    [REVIEW_MODEL_STATUS.UNAVAILABLE]:
+      "The local model is unavailable. Check that llama-server is ready on port 17840.",
+    [REVIEW_MODEL_STATUS.BUSY]:
+      "The local model is processing another review. Try again when it finishes.",
+    [REVIEW_MODEL_STATUS.INVALID]:
+      "The local model returned an invalid review. You can generate it again.",
+  },
+  explore: "What if?",
+  followUps: "Questions to test",
+  rule: "Rule",
+  rules: {
+    [REVIEW_RULE.SYMBOLS]: "Trade selected symbols",
+    [REVIEW_RULE.ENTRY_HOUR]: "Filter by entry hour",
+    [REVIEW_RULE.MINIMUM_HOLD]: "Set a minimum holding time",
+    [REVIEW_RULE.DAILY_LOSS]: "Stop after the first daily loss",
+    [REVIEW_RULE.LOSING_STREAK]: "Trades entered after two or more losses",
+  },
+  onlySymbols: "What if I only traded",
+  entryBefore: "What happened before",
+  entryAfter: "What happened from",
+  fewerHours: "How did trades held at least four hours perform?",
+  dailyQuestion: "What if I stopped trading after the first loss each day?",
+  streakQuestion: "How did trades entered after consecutive losses perform?",
+  hourSides: {
+    [ENTRY_HOUR_SIDE.BEFORE]: "Before",
+    [ENTRY_HOUR_SIDE.AFTER]: "At or after",
+  },
+  compared: "Scenario comparison",
+  actual: "As traded",
+  simulated: "With the rule",
+  hour: "Entry hour",
+  minimumHours: "Minimum hours",
+  firstSymbol: "First symbol",
+  secondSymbol: "Second symbol",
+  oneSymbol: "One symbol",
+  run: "Apply rule",
+  excluded: "Excluded trades",
+  noneExcluded: "Every trade matched this rule.",
+  manyExcluded: "Select a narrower period to inspect individual exclusions.",
+  dailyScope:
+    "A loss counts when it closed before the next entry. The rule runs separately for each account and local day.",
+  streakScope:
+    "The preceding losses come from the original trades in this review, in closing order per account.",
+  hindsight:
+    "This is a retrospective comparison. A result from a small sample may be due to chance.",
+};
+
+const uk: typeof en = {
+  title: "AI Review",
+  periods: {
+    [REVIEW_PERIOD.WEEK]: "Останні 7 днів",
+    [REVIEW_PERIOD.MONTH]: "Останні 30 днів",
+    [REVIEW_PERIOD.QUARTER]: "Останні 90 днів",
+    [REVIEW_PERIOD.CUSTOM]: "Власний період",
+  },
+  dateScope: "Дати закриття · часовий пояс пристрою",
+  missingDates: "Вибери обидві дати для звіту.",
+  empty: "За цей період немає закритих угод.",
+  download: "Завантажити Markdown",
+  overview: "Загальна картина",
+  open: "Зараз відкрито позицій",
+  account: "Рахунок",
+  allAccounts: "Усі рахунки",
+  invalidRule: "Перевір параметри правила.",
+  unassigned: "Без мітки рахунку",
+  byAccount: "Рахунки",
+  metrics: "Основні метрики",
+  metric: "Показник",
+  value: "Результат",
+  winLossFlat: "Прибуткові / збиткові / нульові",
+  actualRR: "Фактичний середній RR",
+  expectancy: "Очікування на угоду",
+  expectancyR: "Очікування в R",
+  averageWin: "Середній прибуток",
+  averageLoss: "Середній збиток",
+  largestWin: "Найбільший прибуток",
+  largestLoss: "Найбільший збиток",
+  maxDrawdown: "Максимальна просадка за закритими угодами",
+  lowest: "Найнижчий накопичений P&L",
+  longestWin: "Найдовша серія прибуткових",
+  longestLoss: "Найдовша серія збиткових",
+  avgHold: "Середній час у позиції (год)",
+  medHold: "Медіанний час у позиції (год)",
+  winHold: "Прибуткові угоди · середнє / медіана (год)",
+  lossHold: "Збиткові угоди · середнє / медіана (год)",
+  nearBreakEven: "Близькі до беззбитку",
+  breakEvenHint:
+    "Близькі до беззбитку угоди мають нульовий P&L або |P&L| нижче 0,1R. Якщо ризик не записаний, поріг становить 10% середнього збитку.",
+  drawdownHint:
+    "Просадка й накопичений P&L починаються з нуля. Усі суми наведено у валюті журналу.",
+  measuredRisk: "Угоди з початковим ризиком",
+  sample: "Вибірка",
+  small: "Мала вибірка",
+  smallHint: "Закономірності з вибірки до 20 угод розглядай як гіпотези.",
+  dimensions: "Розбивки угод",
+  groups: {
+    [REVIEW_GROUP.SYMBOLS]: "Інструменти",
+    [REVIEW_GROUP.SIDES]: "Лонг / Шорт",
+    [REVIEW_GROUP.SYMBOL_SIDES]: "Напрямок за інструментом",
+    [REVIEW_GROUP.WEEKDAYS]: "День тижня входу",
+    [REVIEW_GROUP.HOURS]: "Година входу",
+    [REVIEW_GROUP.MONTHS]: "Місяць закриття",
+    [REVIEW_GROUP.DURATIONS]: "Час у позиції",
+  },
+  observations: "Спостереження",
+  modelTitle: "Локальна модель",
+  modelDescription:
+    "Модель формулює гіпотези українською за зведеними метриками журналу.",
+  modelAction: "Згенерувати гіпотези",
+  modelRunning: "Генерація…",
+  stale: "Журнал змінився. Перезавантаж сторінку перед наступною генерацією.",
+  modelStatuses: {
+    [REVIEW_MODEL_STATUS.DISABLED]:
+      "Генерацію вимкнено. Налаштуй llama.cpp за інструкцією в README.",
+    [REVIEW_MODEL_STATUS.EMPTY]:
+      "Моделі потрібні закриті угоди за вибраний період.",
+    [REVIEW_MODEL_STATUS.UNAVAILABLE]:
+      "Локальна модель недоступна. Перевір готовність llama-server на порту 17840.",
+    [REVIEW_MODEL_STATUS.BUSY]:
+      "Локальна модель обробляє інший звіт. Повтори запит після завершення.",
+    [REVIEW_MODEL_STATUS.INVALID]:
+      "Відповідь локальної моделі має неправильний формат. Можна повторити генерацію.",
+  },
+  explore: "Що було б, якби?",
+  followUps: "Питання для перевірки",
+  rule: "Правило",
+  rules: {
+    [REVIEW_RULE.SYMBOLS]: "Торгувати вибраними інструментами",
+    [REVIEW_RULE.ENTRY_HOUR]: "Фільтрувати за часом входу",
+    [REVIEW_RULE.MINIMUM_HOLD]: "Задати мінімальний час у позиції",
+    [REVIEW_RULE.DAILY_LOSS]: "Зупинитися після першого збитку за день",
+    [REVIEW_RULE.LOSING_STREAK]: "Угоди після двох або більше збитків поспіль",
+  },
+  onlySymbols: "Який був би результат лише по",
+  entryBefore: "Які результати для входів до",
+  entryAfter: "Які результати для входів з",
+  fewerHours: "Який результат угод, утриманих щонайменше чотири години?",
+  dailyQuestion:
+    "Що змінилося б, якби я зупинявся після першого збитку за день?",
+  streakQuestion: "Які результати угод після серії збитків?",
+  hourSides: {
+    [ENTRY_HOUR_SIDE.BEFORE]: "До",
+    [ENTRY_HOUR_SIDE.AFTER]: "Починаючи з",
+  },
+  compared: "Порівняння сценарію",
+  actual: "Як було",
+  simulated: "З правилом",
+  hour: "Година входу",
+  minimumHours: "Мінімум годин",
+  firstSymbol: "Перший інструмент",
+  secondSymbol: "Другий інструмент",
+  oneSymbol: "Один інструмент",
+  run: "Застосувати правило",
+  excluded: "Виключені угоди",
+  noneExcluded: "Усі угоди відповідають правилу.",
+  manyExcluded: "Звузь період, щоб переглянути окремі виключені угоди.",
+  dailyScope:
+    "Збиток враховується, якщо його закрито до наступного входу. Правило застосовується окремо до кожного рахунку та локального дня.",
+  streakScope:
+    "Серію визначено за всіма угодами звіту в порядку закриття для кожного рахунку.",
+  hindsight:
+    "Це ретроспективне порівняння. На малій вибірці результат може бути випадковим.",
+};
+
+export function useReviewMessages() {
+  return useLocale().language === LANGUAGE.UKRAINIAN ? uk : en;
+}

@@ -1,4 +1,5 @@
 import type { Journal } from "@liquidation/domain/journal/types";
+import { TRASH_KIND } from "@liquidation/domain/journal/trash/constants";
 import {
   PLAN_ACTION,
   PLAN_EVENT,
@@ -19,6 +20,7 @@ import type { PlanEdit } from "./types.ts";
 import { InvalidJournalInput, JournalConflict } from "../errors.ts";
 import { assertPlaybookLink } from "./playbook-records.ts";
 import { assertScreenshotAttachments } from "./screenshot-attachments.ts";
+import { assertNewIdentity } from "./trash-records.ts";
 
 function editPlan(plan: Plan, command: PlanEdit, now: string): Plan {
   const updated = { ...plan, updatedAt: now, revision: plan.revision + 1 };
@@ -165,6 +167,8 @@ export function mutatePlan(
   command: PlanCommand,
   uploads: ReadonlyMap<string, Uint8Array>,
 ) {
+  if (command.action === PLAN_ACTION.CREATE)
+    assertNewIdentity(journal, TRASH_KIND.PLAN, command.id);
   const index = journal.plans.findIndex(({ id }) => id === command.id);
   const previous = journal.plans[index];
   const plan = nextPlan(previous, command, new Date().toISOString());

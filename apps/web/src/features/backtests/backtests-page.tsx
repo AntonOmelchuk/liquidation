@@ -1,3 +1,6 @@
+import { TRASH_KIND } from "@liquidation/domain/journal/trash/constants";
+import { deletedPlaybook } from "@liquidation/domain/journal/trash/trash";
+import { useTrashMessages } from "../trash/messages.ts";
 import {
   backtestResults,
   sampleResult,
@@ -14,6 +17,7 @@ import { InstrumentIcons } from "../../shared/ui/instrument-picker.tsx";
 import { Metric, Panel } from "../../shared/ui/layout.tsx";
 import { JOURNAL_STATUS } from "../journal/data/constants.ts";
 import { useJournal } from "../journal/data/store.ts";
+import { DeleteRecord } from "../trash/delete-record.tsx";
 import { JournalUnavailable } from "../journal/journal-unavailable.tsx";
 import { BacktestSampleForm } from "./backtest-sample-form.tsx";
 import { useBacktestMessages } from "./messages.ts";
@@ -163,6 +167,10 @@ export function BacktestDetailsPage({ id }: { id: string }) {
   const book = useJournal((state) =>
     state.playbooks.find((entry) => entry.id === run?.playbook?.id),
   );
+  const oldBook = useJournal((state) =>
+    deletedPlaybook(state.trash, run?.playbook?.id),
+  );
+  const deleted = useTrashMessages().deleted;
   const trades = useJournal((state) => state.trades);
   const [editing, setEditing] = useState<string | null>(null);
   const finish = () => setEditing(null);
@@ -195,10 +203,26 @@ export function BacktestDetailsPage({ id }: { id: string }) {
               {book.title} · v{attached.version}
             </a>
           )}
+          {!book && oldBook && attached && (
+            <span>
+              {oldBook.title} · v{attached.version} · {deleted}
+            </span>
+          )}
         </div>
-        <a className="action-link" href={backtestHref(id, true)}>
-          {b.edit}
-        </a>
+        <div className="workspace-actions">
+          <DeleteRecord
+            kind={TRASH_KIND.BACKTEST}
+            recordKey={id}
+            revision={run.revision}
+            disabled={editing !== null}
+            afterDelete={() => {
+              window.location.hash = PAGE_HASHES.backtests;
+            }}
+          />
+          <a className="action-link" href={backtestHref(id, true)}>
+            {b.edit}
+          </a>
+        </div>
       </header>
       <BacktestMetrics samples={run.samples} />
       <div className="layout">

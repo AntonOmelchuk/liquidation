@@ -1,0 +1,41 @@
+.guide-workflow,
+.guide-factor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 28rem), 1fr));
+  gap: 1.2rem 2rem;
+}
+.guide-workflow-item {
+  min-width: 0;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.75rem;
+}
+.guide-workflow-item h3,
+.guide-factor-grid h3 {
+  margin: 0;
+}
+.guide-workflow-item p,
+.guide-steps li {
+  line-height: 1.65;
+  font-size: 0.95rem;
+}
+.guide-workflow-item p {
+  margin: 0.5rem 0 0;
+}
+.guide-steps {
+  padding-inline-start: 1.4rem;
+  margin: 0.5rem 0 0;
+}
+.guide-steps li + li {
+  margin-top: 0.7rem;
+}
+.guide-factor-grid {
+  margin-top: 1.1rem;
+}
+.guide-factor-grid section {
+  border: 1px solid var(--border);
+  border-radius: 0.65rem;
+  padding: 0.9rem 1rem;
+}
+.guide-factor-grid .statistics-metric-glossary {
+  grid-template-columns: minmax(0, 1fr);
+}

@@ -142,7 +142,10 @@ export function PlanPerformancePanel({
           {unit === SCENARIO_UNIT.R ? p.rComparisonHint : p.cashComparisonHint}
         </p>
       )}
-      {(missing > 0 || data.linkedMisses > 0) && (
+      {(missing > 0 ||
+        data.linkedMisses > 0 ||
+        data.replacedPlanMisses > 0 ||
+        data.recordedMisses > 0) && (
         <ul className="comparison-exclusions">
           {missing > 0 && (
             <li>
@@ -153,6 +156,17 @@ export function PlanPerformancePanel({
           {data.linkedMisses > 0 && (
             <li>
               {p.excludedLinked} · {format.integer.format(data.linkedMisses)}
+            </li>
+          )}
+          {data.recordedMisses > 0 && (
+            <li>
+              {p.recordedMisses} · {format.integer.format(data.recordedMisses)}
+            </li>
+          )}
+          {data.replacedPlanMisses > 0 && (
+            <li>
+              {p.replacedPlanMisses} ·{" "}
+              {format.integer.format(data.replacedPlanMisses)}
             </li>
           )}
         </ul>

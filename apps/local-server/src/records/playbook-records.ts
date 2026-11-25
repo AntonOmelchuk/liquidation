@@ -1,4 +1,7 @@
 import type { Journal } from "@liquidation/domain/journal/types";
+import { deletedPlaybook } from "@liquidation/domain/journal/trash/trash";
+import { TRASH_KIND } from "@liquidation/domain/journal/trash/constants";
+import { getPlaybookTemplate } from "@liquidation/domain/playbooks/strategy";
 import {
   PLAYBOOK_ACTION,
   PLAYBOOK_STATUS,
@@ -15,16 +18,20 @@ import {
   currentVersion,
   entryRules,
   linkedVersion,
+  playbookScreenshotIds,
 } from "@liquidation/domain/playbooks/playbook";
 import { InvalidJournalInput, JournalConflict } from "../errors.ts";
 import { assertScreenshotAttachments } from "./screenshot-attachments.ts";
+import { assertNewIdentity } from "./trash-records.ts";
 
 function rulesOf({
   setups,
   filters,
   management,
+  strategy,
+  screenshotIds,
 }: ReturnType<typeof currentVersion>) {
-  return { setups, filters, management };
+  return { setups, filters, management, strategy, screenshotIds };
 }
 
 function editPlaybook(
@@ -39,6 +46,12 @@ function editPlaybook(
   };
   if (command.action === PLAYBOOK_ACTION.EDIT) {
     const latest = currentVersion(previous);
+    if (
+      getPlaybookTemplate(latest.strategy) !==
+      getPlaybookTemplate(command.rules.strategy)
+    ) {
+      throw new InvalidJournalInput("The playbook template cannot be changed.");
+    }
     const changed =
       JSON.stringify(rulesOf(latest)) !== JSON.stringify(command.rules);
     return {
@@ -118,23 +131,19 @@ function nextPlaybook(
   return editPlaybook(previous, command, at);
 }
 
-function reviewScreenshots(playbook?: Playbook) {
-  return new Set(
-    playbook?.reviews.flatMap(({ screenshotIds }) => screenshotIds),
-  );
-}
-
 export function mutatePlaybook(
   journal: Journal,
   command: PlaybookCommand,
   uploads: ReadonlyMap<string, Uint8Array>,
 ) {
+  if (command.action === PLAYBOOK_ACTION.CREATE)
+    assertNewIdentity(journal, TRASH_KIND.PLAYBOOK, command.id);
   const index = journal.playbooks.findIndex(({ id }) => id === command.id);
   const previous = journal.playbooks[index];
   const book = nextPlaybook(previous, command, new Date().toISOString());
   assertScreenshotAttachments(
-    reviewScreenshots(previous),
-    reviewScreenshots(book),
+    playbookScreenshotIds(previous),
+    playbookScreenshotIds(book),
     uploads,
   );
   if (index < 0) journal.playbooks.unshift(book);
@@ -152,6 +161,20 @@ function matchesRules(
   );
 }
 
+function reasonsRecorded(answers: Checklist | undefined, previous?: Checklist) {
+  return (
+    !answers ||
+    answers.every(
+      (answer) =>
+        answer.met ||
+        Boolean(answer.reason) ||
+        previous?.some(
+          (old) => old.ruleId === answer.ruleId && !old.met && !old.reason,
+        ),
+    )
+  );
+}
+
 export function assertPlaybookLink(
   journal: Journal,
   link: PlaybookLink | undefined,
@@ -159,7 +182,11 @@ export function assertPlaybookLink(
   closed = false,
 ) {
   if (!link) return;
-  const book = journal.playbooks.find(({ id }) => id === link.id);
+  const book =
+    journal.playbooks.find(({ id }) => id === link.id) ??
+    (previous?.id === link.id
+      ? deletedPlaybook(journal.trash, link.id)
+      : undefined);
   if (
     !book ||
     (book.status === PLAYBOOK_STATUS.RETIRED && book.id !== previous?.id)
@@ -172,6 +199,24 @@ export function assertPlaybookLink(
     );
   }
   if (link.version === undefined) return;
+  const sameVersion =
+    previous?.id === link.id && previous.version === link.version;
+  if (
+    !reasonsRecorded(
+      link.entry,
+      sameVersion && previous.setupId === link.setupId
+        ? previous.entry
+        : undefined,
+    ) ||
+    !reasonsRecorded(
+      link.management,
+      sameVersion ? previous.management : undefined,
+    )
+  ) {
+    throw new InvalidJournalInput(
+      "Explain each rule exception in the checklist.",
+    );
+  }
   const version = linkedVersion(book, link);
   if (
     !version ||

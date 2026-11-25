@@ -8,39 +8,53 @@ import type { TradeTagFieldsProps } from "./types.ts";
 
 import { useLocale } from "../../../shared/messages.ts";
 import { SelectField } from "../../../shared/ui/select-field.tsx";
-
-function mistakeLabels(value: string) {
-  return value
-    .split(/\r?\n/)
-    .map((label) => label.trim())
-    .filter(Boolean);
-}
+import { useJournal } from "../data/store.ts";
 
 export function readTradeTags(data: FormData) {
-  const mistakes = mistakeLabels(String(data.get("mistakes") ?? ""));
+  const mistakes = data.getAll("mistakes").map(String);
+  const criticalMistakes = data.getAll("criticalMistakes").map(String);
   return {
-    account: String(data.get("account") ?? "").trim() || undefined,
+    style: String(data.get("style") ?? "").trim() || undefined,
     session: data.get("session") || undefined,
     entryType: data.get("entryType") || undefined,
     mistakes: mistakes.length ? mistakes : undefined,
+    criticalMistakes: criticalMistakes.length ? criticalMistakes : undefined,
+    mistakesReviewed:
+      mistakes.length || data.has("mistakesReviewed") ? true : undefined,
+    reviewNotes: String(data.get("reviewNotes") ?? "").trim() || undefined,
   };
 }
 
 export function TradeTagFields({ initial }: TradeTagFieldsProps) {
   const { t } = useLocale();
   const hint = useId();
+  const trades = useJournal((state) => state.trades);
+  const positions = useJournal((state) => state.positions);
+  const styles = [
+    ...new Set(
+      [...(trades ?? []), ...positions].flatMap((record) =>
+        record.style ? [record.style] : [],
+      ),
+    ),
+  ].sort();
   return (
     <details className="trade-tags wide">
       <summary>{t.tradeTags}</summary>
       <div className="trade-tag-fields">
         <label>
-          {t.account}
+          {t.style}
           <input
-            name="account"
-            maxLength={TRADE_TAG_LIMITS.account}
-            defaultValue={initial?.account}
+            name="style"
+            list={hint + "-styles"}
+            maxLength={TRADE_TAG_LIMITS.style}
+            defaultValue={initial?.style}
           />
         </label>
+        <datalist id={hint + "-styles"}>
+          {styles.map((style) => (
+            <option key={style} value={style} />
+          ))}
+        </datalist>
         <SelectField
           label={t.session}
           name="session"
@@ -65,35 +79,6 @@ export function TradeTagFields({ initial }: TradeTagFieldsProps) {
             </option>
           ))}
         </SelectField>
-        <label className="wide">
-          {t.mistakes}
-          <textarea
-            rows={3}
-            name="mistakes"
-            maxLength={
-              TRADE_TAG_LIMITS.mistakes * (TRADE_TAG_LIMITS.mistake + 1)
-            }
-            defaultValue={initial?.mistakes?.join("\n")}
-            aria-describedby={hint}
-            onInput={(event) => {
-              const field = event.currentTarget;
-              const tags = mistakeLabels(field.value);
-              const valid =
-                tags.length <= TRADE_TAG_LIMITS.mistakes &&
-                tags.every((tag) => tag.length <= TRADE_TAG_LIMITS.mistake);
-              field.setCustomValidity(valid ? "" : t.invalidMistakes);
-            }}
-            onInvalid={(event) => {
-              // Expand the disclosure so the browser can focus the invalid field.
-              const details = event.currentTarget.closest("details");
-              if (details) details.open = true;
-            }}
-          />
-          <small id={hint}>
-            {t.mistakeInstructions} · ≤ {TRADE_TAG_LIMITS.mistakes} ×{" "}
-            {TRADE_TAG_LIMITS.mistake}
-          </small>
-        </label>
       </div>
     </details>
   );

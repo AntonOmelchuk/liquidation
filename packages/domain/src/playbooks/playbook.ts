@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { planNoteSchema } from "../plans/plan-evidence.ts";
+import { screenshotIdsSchema } from "../evidence/screenshots.ts";
 import {
   MAX_PLAYBOOK_RULES,
   MAX_PLAYBOOK_SETUPS,
@@ -8,6 +9,7 @@ import {
   PLAYBOOK_STATUSES,
 } from "./constants.ts";
 import type { Playbook, PlaybookLink, PlaybookRules } from "./types.ts";
+import { playbookStrategySchema, strategyScreenshotIds } from "./strategy.ts";
 
 const shortText = z.string().trim().min(1).max(120);
 const description = z.string().trim().max(4000);
@@ -22,6 +24,7 @@ const setupSchema = z.object({
   name: z.string().trim().max(120),
   description,
   rules: ruleList,
+  screenshotIds: screenshotIdsSchema.optional(),
 });
 
 export const playbookRulesSchema = z
@@ -29,6 +32,8 @@ export const playbookRulesSchema = z
     setups: z.array(setupSchema).min(1).max(MAX_PLAYBOOK_SETUPS),
     filters: ruleList,
     management: ruleList,
+    strategy: playbookStrategySchema.optional(),
+    screenshotIds: screenshotIdsSchema.optional(),
   })
   .superRefine(({ setups, filters, management }, context) => {
     const names = setups.map(({ name }) => name.toLowerCase());
@@ -164,4 +169,19 @@ export function entryRules(
 ) {
   const setup = version.setups.find(({ id }) => id === setupId);
   return [...(setup?.rules ?? []), ...version.filters];
+}
+
+export function playbookRulesScreenshotIds(rules: PlaybookRules) {
+  return [
+    ...(rules.screenshotIds ?? []),
+    ...rules.setups.flatMap((setup) => setup.screenshotIds ?? []),
+    ...strategyScreenshotIds(rules.strategy),
+  ];
+}
+
+export function playbookScreenshotIds(book?: Playbook) {
+  return new Set([
+    ...(book?.reviews.flatMap((review) => review.screenshotIds) ?? []),
+    ...(book?.versions.flatMap(playbookRulesScreenshotIds) ?? []),
+  ]);
 }

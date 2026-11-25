@@ -1,7 +1,7 @@
-import type { Journal } from "../journal/types.ts";
 import { PLAN_STATUS, PLAN_STATUSES } from "../plans/constants.ts";
 import type { PlanStatus } from "../plans/types.ts";
-import type { ChartEvent, TimeWindow } from "./types.ts";
+import type { ChartEvent, OpportunitySource, TimeWindow } from "./types.ts";
+import type { MissedTrade } from "../workspace/types.ts";
 
 import { netCents, realizedR } from "../trades/trade.ts";
 
@@ -31,21 +31,35 @@ function cumulative(events: ChartEvent[], units: number) {
   };
 }
 
+export function estimatedMissedCents(
+  outcome: NonNullable<MissedTrade["outcome"]>,
+) {
+  return outcome.risk === undefined
+    ? null
+    : Math.sign(outcome.netR) *
+        Math.round(Math.abs(outcome.netR) * Math.round(outcome.risk * 100));
+}
+
+export function executedPlanIds({
+  trades,
+  positions,
+}: Pick<OpportunitySource, "trades" | "positions">) {
+  return new Set(
+    [...trades, ...positions].flatMap(({ planId }) => (planId ? [planId] : [])),
+  );
+}
+
 export function comparePlanPerformance(
-  { plans, positions, trades }: Pick<Journal, "plans" | "positions" | "trades">,
+  { plans, positions, trades, missedTrades = [] }: OpportunitySource,
   { start = -Infinity, end = Infinity }: TimeWindow = {},
 ) {
-  const linkedPlans = new Set<string>();
+  const linkedPlans = executedPlanIds({ trades, positions });
   const events: ChartEvent[] = [];
   const cashEvents: ChartEvent[] = [];
   let tradesWithoutRisk = 0;
   let missesWithoutRisk = 0;
 
-  for (const position of positions) {
-    if (position.planId) linkedPlans.add(position.planId);
-  }
   for (const trade of trades) {
-    if (trade.planId) linkedPlans.add(trade.planId);
     const timestamp = Date.parse(trade.closedAt);
     if (timestamp < start || timestamp >= end) continue;
     const result = realizedR(trade);
@@ -60,37 +74,57 @@ export function comparePlanPerformance(
   let assessedMisses = 0;
   let winningMisses = 0;
   let linkedMisses = 0;
+  const explicitPlans = new Set(
+    missedTrades.flatMap(({ planId }) => (planId ? [planId] : [])),
+  );
+  let replacedPlanMisses = 0;
+  let recordedMisses = 0;
+
+  function addMiss(
+    outcome: NonNullable<MissedTrade["outcome"]>,
+    planId?: string,
+  ) {
+    const timestamp = Date.parse(outcome.closedAt);
+    if (timestamp < start || timestamp >= end) return false;
+    if (planId && linkedPlans.has(planId)) {
+      linkedMisses++;
+      return false;
+    }
+    assessedMisses++;
+    if (outcome.netR > 0) winningMisses++;
+    events.push({ timestamp, realized: 0, missed: outcome.netR });
+    const cents = estimatedMissedCents(outcome);
+    if (cents === null) missesWithoutRisk++;
+    else cashEvents.push({ timestamp, realized: 0, missed: cents });
+    return true;
+  }
+
   for (const { id, review } of plans) {
     statuses[review.status]++;
     if (review.status !== PLAN_STATUS.MISSED || review.outcome === null)
       continue;
-    const { closedAt, netR, risk } = review.outcome;
-    const timestamp = Date.parse(closedAt);
-    if (timestamp < start || timestamp >= end) continue;
-    if (linkedPlans.has(id)) {
-      linkedMisses++;
+    if (explicitPlans.has(id)) {
+      const at = Date.parse(review.outcome.closedAt);
+      if (at >= start && at < end) replacedPlanMisses++;
       continue;
     }
-
-    assessedMisses++;
-    if (netR > 0) winningMisses++;
-    events.push({ timestamp, realized: 0, missed: netR });
-    if (risk === undefined) missesWithoutRisk++;
-    else {
-      const cents =
-        Math.sign(netR) * Math.round(Math.abs(netR) * Math.round(risk * 100));
-      cashEvents.push({ timestamp, realized: 0, missed: cents });
-    }
+    addMiss(review.outcome, id);
+  }
+  for (const { outcome, planId } of missedTrades) {
+    if (outcome && addMiss(outcome, planId)) recordedMisses++;
   }
 
   const decided = statuses.worked + statuses.failed;
   return {
     statuses,
     decided,
+    allPlanWinRate: plans.length ? statuses.worked / plans.length : null,
     planWinRate: decided ? statuses.worked / decided : null,
     missedWinRate: assessedMisses ? winningMisses / assessedMisses : null,
     assessedMisses,
     linkedMisses,
+    replacedPlanMisses,
+    recordedMisses,
     tradesWithoutRisk,
     missesWithoutRisk,
     ...cumulative(events, 1),

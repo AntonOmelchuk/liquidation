@@ -1,0 +1,69 @@
+.dashboard-accounts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: 0.75rem;
+  margin-bottom: 0.8rem;
+}
+.account-tile.panel {
+  padding: 0.75rem 1rem;
+}
+.account-compact-summary {
+  display: grid;
+  gap: 0.2rem;
+  margin-top: 0.3rem;
+}
+.account-compact-summary strong {
+  font-size: 1.35rem;
+  font-variant-numeric: tabular-nums;
+}
+.dashboard-account-empty {
+  margin-bottom: 0.8rem;
+}
+.metrics.account-metrics {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  gap: 0.65rem;
+}
+.metrics.account-metrics article {
+  padding: 0.7rem 0.85rem;
+}
+.metrics.account-metrics strong {
+  font-size: clamp(1.05rem, 1.5vw, 1.55rem);
+  margin-top: 0.4rem;
+}
+.account-limit-field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.55rem;
+  align-items: end;
+}
+.account-rules {
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  padding: 0.85rem;
+  display: grid;
+  gap: 0.8rem;
+}
+.account-rule-progress dd {
+  overflow-wrap: anywhere;
+}
+.account-rule-progress small {
+  display: block;
+  margin: 0.25rem 0;
+}
+.account-field {
+  display: grid;
+  gap: 0.35rem;
+}
+.account-field a {
+  font-size: 0.8rem;
+}
+.account-movement-fields {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  align-items: end;
+}
+.account-balance-facts {
+  margin-bottom: 0;
+}
+.account-details .series-chart {
+  height: clamp(10rem, 22vh, 18rem);
+}

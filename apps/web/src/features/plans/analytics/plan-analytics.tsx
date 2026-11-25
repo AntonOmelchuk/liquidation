@@ -22,6 +22,7 @@ import {
 import { EMPTY_VALUE, LOCALES } from "../../../shared/constants.ts";
 import { useLocale } from "../../../shared/messages.ts";
 import { Panel } from "../../../shared/ui/layout.tsx";
+import { useAllKnownPlaybooks } from "../../journal/data/references.ts";
 import { useJournal } from "../../journal/data/store.ts";
 import { usePlaybookMessages } from "../../playbooks/messages.ts";
 import { usePlanMessages } from "../messages.ts";
@@ -39,7 +40,8 @@ export function PlanAnalytics({
   const { t, language } = useLocale();
   const p = usePlanMessages();
   const b = usePlaybookMessages();
-  const playbooks = useJournal((state) => state.playbooks);
+  const playbooks = useAllKnownPlaybooks();
+  const missedTrades = useJournal((state) => state.workspace.missedTrades);
   const [grouping, setGrouping] = useState<PlanAnalyticsGrouping>(
     PLAN_GROUPING.COMBINED,
   );
@@ -55,8 +57,12 @@ export function PlanAnalytics({
     [filters, invalid, plans],
   );
   const groups = useMemo(
-    () => summarizePlanGroups({ plans: matching, trades, positions }, grouping),
-    [grouping, matching, positions, trades],
+    () =>
+      summarizePlanGroups(
+        { plans: matching, trades, positions, missedTrades },
+        grouping,
+      ),
+    [grouping, matching, positions, trades, missedTrades],
   );
   const options = useMemo(() => {
     const names = new Map(playbooks.map(({ id, title }) => [id, title]));

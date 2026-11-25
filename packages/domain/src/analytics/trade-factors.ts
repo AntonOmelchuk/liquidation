@@ -1,4 +1,5 @@
-import { tradeTagKey } from "../trades/trade-tags.ts";
+import { mistakeKeys } from "../trades/mistakes.ts";
+import { tradeAccountKey, tradeTagKey } from "../trades/trade-tags.ts";
 import { netCents } from "../trades/trade.ts";
 import type { Trade } from "../trades/types.ts";
 import {
@@ -51,12 +52,8 @@ export function tradeFactorKeys(trade: Trade, factor: TradeFactor): string[] {
       return [String(new Date(trade.openedAt).getDay() || 7)];
     case TRADE_FACTOR.HOUR:
       return [String(new Date(trade.openedAt).getHours()).padStart(2, "0")];
-    case TRADE_FACTOR.MONTH: {
-      const date = new Date(trade.closedAt);
-      return [
-        `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`,
-      ];
-    }
+    case TRADE_FACTOR.MONTH:
+      return [String(new Date(trade.closedAt).getMonth() + 1).padStart(2, "0")];
     case TRADE_FACTOR.YEAR:
       return [String(new Date(trade.closedAt).getFullYear())];
     case TRADE_FACTOR.DURATION:
@@ -72,15 +69,15 @@ export function tradeFactorKeys(trade: Trade, factor: TradeFactor): string[] {
       ];
     }
     case TRADE_FACTOR.ACCOUNT:
-      return [trade.account ? tradeTagKey(trade.account) : ""];
+      return [tradeAccountKey(trade)];
+    case TRADE_FACTOR.STYLE:
+      return [tradeTagKey(trade.style ?? "")];
     case TRADE_FACTOR.SESSION:
       return [trade.session ?? ""];
     case TRADE_FACTOR.ENTRY_TYPE:
       return [trade.entryType ?? ""];
     case TRADE_FACTOR.MISTAKE:
-      return trade.mistakes?.length
-        ? [...new Set(trade.mistakes.map(tradeTagKey))]
-        : [""];
+      return trade.mistakes?.length ? mistakeKeys(trade) : [""];
   }
 }
 
@@ -104,8 +101,12 @@ export function filterStatisticTrades(
   });
 }
 
-export function tradeBreakdown(trades: readonly Trade[], factor: TradeFactor) {
-  const groups = new Map<string, Trade[]>();
+export function tradeBreakdown(
+  trades: readonly Trade[],
+  factor: TradeFactor,
+  knownKeys: readonly string[] = [],
+) {
+  const groups = new Map<string, Trade[]>(knownKeys.map((key) => [key, []]));
   for (const trade of trades) {
     for (const key of tradeFactorKeys(trade, factor)) {
       const records = groups.get(key);

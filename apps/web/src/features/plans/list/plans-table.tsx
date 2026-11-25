@@ -1,3 +1,5 @@
+import { TRASH_KIND } from "@liquidation/domain/journal/trash/constants";
+import { DeleteRecord } from "../../trash/delete-record.tsx";
 import { PAGE_VIEW } from "../../../app/constants.ts";
 import type { PlanRowProps, PlansTableProps } from "./types.ts";
 
@@ -5,6 +7,7 @@ import { planHref } from "../../../app/page.ts";
 import { EMPTY_VALUE } from "../../../shared/constants.ts";
 import { numericTone } from "../../../shared/format.ts";
 import { useLocale } from "../../../shared/messages.ts";
+import { PencilIcon } from "../../../shared/ui/action-icons.tsx";
 import { InstrumentIcons } from "../../../shared/ui/instrument-picker.tsx";
 import { usePlaybookMessages } from "../../playbooks/messages.ts";
 import {
@@ -20,6 +23,7 @@ function PlanRow({ plan, actual }: PlanRowProps) {
   const { t, format } = useLocale();
   const { id, setup } = plan;
   const count = (number: number) => format.integer.format(number);
+  const totalR = actual?.totalR ?? null;
   return (
     <tr className="plan-row">
       <th scope="row" className="plan-name">
@@ -34,7 +38,7 @@ function PlanRow({ plan, actual }: PlanRowProps) {
         </small>
       </th>
       <td>
-        <PlanSpan setup={setup} />
+        <PlanSpan setup={setup} compact />
       </td>
       <td>
         <a
@@ -50,46 +54,56 @@ function PlanRow({ plan, actual }: PlanRowProps) {
       </td>
       <td>
         {actual?.count ? (
-          <div className="plan-table-values">
-            <span>
-              {p.closedState} · {count(actual.closed)}
-            </span>
+          <div className="plan-table-counts">
+            {actual.closed > 0 && (
+              <span>
+                {p.closedState} · {count(actual.closed)}
+              </span>
+            )}
             {actual.open > 0 && (
-              <small>
+              <span>
                 {p.openState} · {count(actual.open)}
-              </small>
+              </span>
             )}
           </div>
         ) : (
           EMPTY_VALUE
         )}
       </td>
-      <td>
-        {actual?.closed ? (
-          <div className="plan-table-values">
-            <strong className={numericTone(actual.net)}>
-              {format.money.format(actual.net)}
-            </strong>
-            <small>
-              {actual.totalR === null
-                ? EMPTY_VALUE
-                : `${format.money.format(actual.totalR)} R`}
-              {actual.winRate !== null &&
-                ` · WR ${format.percentage.format(actual.winRate)}`}
-            </small>
-          </div>
-        ) : (
+      <td
+        className="plan-table-result"
+        title={
+          actual?.missingRisk
+            ? p.missingRisk + " · " + count(actual.missingRisk)
+            : undefined
+        }
+      >
+        {totalR === null ? (
           EMPTY_VALUE
+        ) : (
+          <strong className={numericTone(totalR)}>
+            {format.money.format(totalR)} R
+          </strong>
         )}
       </td>
       <td className="plan-table-actions">
-        <a
-          className="action-link secondary"
-          href={planHref(id, PAGE_VIEW.EDIT)}
-          aria-label={`${p.edit} · ${setup.title}`}
-        >
-          {p.editShort}
-        </a>
+        <div className="plan-row-actions">
+          <a
+            className="action-link secondary icon-action"
+            href={planHref(id, PAGE_VIEW.EDIT)}
+            aria-label={`${p.edit} · ${setup.title}`}
+            title={p.editShort}
+          >
+            <PencilIcon />
+          </a>
+          <DeleteRecord
+            kind={TRASH_KIND.PLAN}
+            recordKey={id}
+            revision={plan.revision}
+            iconOnly
+            recordLabel={setup.title}
+          />
+        </div>
       </td>
     </tr>
   );

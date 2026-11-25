@@ -18,17 +18,17 @@ export function PlaybookSelect({
 }: ComponentProps<typeof SelectField> & { empty: boolean }) {
   const b = usePlaybookMessages();
   const { t } = useLocale();
-  const refreshPlaybooks = useJournal((state) => state.refreshPlaybooks);
+  const refreshJournal = useJournal((state) => state.refreshJournal);
   const openedCreation = useRef(false);
   const [failed, setFailed] = useState(false);
   const reload = useCallback(async () => {
     try {
-      await refreshPlaybooks();
+      await refreshJournal();
       setFailed(false);
     } catch {
       setFailed(true);
     }
-  }, [refreshPlaybooks]);
+  }, [refreshJournal]);
 
   useEffect(() => {
     if (!empty) return;

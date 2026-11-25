@@ -10,7 +10,6 @@ export function StatisticsSummary({ metrics }: StatisticsSummaryProps) {
   const decimal = (value: number | null) =>
     value === null ? EMPTY_VALUE : format.money.format(value);
   const facts = [
-    [t.profitFactor, decimal(metrics.profitFactor)],
     [s.avgRR, decimal(metrics.payoff)],
     [s.expectancy, decimal(metrics.expectancy)],
     [s.expectancyR, decimal(metrics.expectancyR)],
@@ -33,6 +32,8 @@ export function StatisticsSummary({ metrics }: StatisticsSummaryProps) {
           value={decimal(metrics.net)}
           detail={`${t.count} · ${format.integer.format(metrics.count)}`}
         />
+        <Metric label={t.profitFactor} value={decimal(metrics.profitFactor)} />
+        <Metric label={s.expectancy} value={decimal(metrics.expectancy)} />
         <Metric
           label={t.win}
           value={

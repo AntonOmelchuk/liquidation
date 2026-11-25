@@ -119,5 +119,10 @@ export function createScreenshotStorage(dataDirectory: string) {
     return rollback;
   }
 
-  return { read, write };
+  async function remove(ids: readonly string[]) {
+    for (const id of ids)
+      await rm(join(directory, screenshotIdSchema.parse(id)), { force: true });
+  }
+
+  return { read, write, remove };
 }

@@ -5,6 +5,8 @@ export type InstrumentIconsProps = { symbol: string };
 export type InstrumentPickerProps = {
   value: string;
   onChange: (value: string) => void;
+  required?: boolean;
+  label?: string;
 };
 
 export type SelectFieldProps = ComponentProps<"select"> & {
@@ -13,6 +15,7 @@ export type SelectFieldProps = ComponentProps<"select"> & {
 };
 
 export type PanelProps = {
+  id?: string;
   title: string;
   detail?: ReactNode;
   children: ReactNode;
@@ -31,3 +34,5 @@ export type RecordActionsProps = {
   saving: boolean;
   error?: string;
 };
+
+export type InfoTipProps = { label: string; text: string };

@@ -1,4 +1,5 @@
 import type { BacktestCommand } from "@liquidation/domain/backtests/types";
+import type { AccountCommand } from "@liquidation/domain/accounts/types";
 import {
   HTTP_METHOD,
   JOURNAL_ROUTES,
@@ -12,6 +13,8 @@ import type {
   Trade,
   TradeLinkCommand,
 } from "@liquidation/domain/trades/types";
+import type { WorkspaceCommand } from "@liquidation/domain/workspace/types";
+import type { TrashCommand } from "@liquidation/domain/journal/trash/types";
 
 import { journalSchema } from "@liquidation/domain/journal/journal";
 
@@ -48,22 +51,33 @@ export async function loadJournal() {
   return journalSchema.parse(await request(JOURNAL_ROUTES.positions));
 }
 
-export async function savePosition(command: PositionCommand) {
-  return journalSchema.parse(await request(JOURNAL_ROUTES.positions, command));
-}
-
-async function saveRecord(
-  route: string,
-  command: PlanCommand | PlaybookCommand | BacktestCommand,
+export function savePosition(
+  command: PositionCommand,
   uploads?: ReadonlyMap<string, File>,
 ) {
-  if (!uploads?.size) return journalSchema.parse(await request(route, command));
+  return saveRecord(JOURNAL_ROUTES.positions, command, uploads);
+}
+
+function evidenceRequest(
+  route: string,
+  command: unknown,
+  uploads?: ReadonlyMap<string, File>,
+) {
+  if (!uploads?.size) return request(route, command);
 
   const form = new FormData();
   form.set(MULTIPART_FIELD.COMMAND, JSON.stringify(command));
   for (const [id, file] of uploads)
     form.append(`${MULTIPART_FIELD.SCREENSHOT_PREFIX}${id}`, file);
-  return journalSchema.parse(await request(route, form));
+  return request(route, form);
+}
+
+async function saveRecord(
+  route: string,
+  command: unknown,
+  uploads?: ReadonlyMap<string, File>,
+) {
+  return journalSchema.parse(await evidenceRequest(route, command, uploads));
 }
 
 export function savePlan(
@@ -87,10 +101,32 @@ export function saveBacktest(
   return saveRecord(JOURNAL_ROUTES.backtests, command, uploads);
 }
 
-export async function saveTradeLinks(command: TradeLinkCommand) {
-  return journalSchema.parse(await request(JOURNAL_ROUTES.tradeLinks, command));
+export function saveTradeLinks(
+  command: TradeLinkCommand,
+  uploads?: ReadonlyMap<string, File>,
+) {
+  return saveRecord(JOURNAL_ROUTES.tradeLinks, command, uploads);
 }
 
-export async function saveTrade(trade: Omit<Trade, "id">) {
-  return tradeSchema.parse(await request(JOURNAL_ROUTES.trades, trade));
+export function saveWorkspace(
+  command: WorkspaceCommand,
+  uploads?: ReadonlyMap<string, File>,
+) {
+  return saveRecord(JOURNAL_ROUTES.workspace, command, uploads);
+}
+export async function saveTrash(command: TrashCommand) {
+  return journalSchema.parse(await request(JOURNAL_ROUTES.trash, command));
+}
+
+export async function saveAccount(command: AccountCommand) {
+  return journalSchema.parse(await request(JOURNAL_ROUTES.accounts, command));
+}
+
+export async function saveTrade(
+  trade: Omit<Trade, "id">,
+  uploads?: ReadonlyMap<string, File>,
+) {
+  return tradeSchema.parse(
+    await evidenceRequest(JOURNAL_ROUTES.trades, trade, uploads),
+  );
 }

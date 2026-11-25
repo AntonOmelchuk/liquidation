@@ -1,4 +1,10 @@
+import { useMistakeMessages } from "../features/mistakes/messages.ts";
 import { useEffect, useRef } from "react";
+import { useGuideMessages } from "../features/guide/messages.ts";
+import { useWorkspaceMessages } from "../features/workspace/messages.ts";
+import { usePlanningMessages } from "../features/workspace/planning/messages.ts";
+import { useTrashMessages } from "../features/trash/messages.ts";
+import { useAccountMessages } from "../features/accounts/messages.ts";
 import {
   LANGUAGE,
   TEXT_SIZE,
@@ -15,8 +21,33 @@ import { usePreferences } from "./preferences.ts";
 
 export function Header({ page }: HeaderProps) {
   const { t } = useLocale();
+  const m = useWorkspaceMessages();
+  const planning = usePlanningMessages();
+  const trash = useTrashMessages();
+  const accounts = useAccountMessages();
+  const guide = useGuideMessages();
+  const mistakes = useMistakeMessages();
   const dialog = useRef<HTMLDialogElement>(null);
   const { language, theme, textSize, update } = usePreferences();
+  const navigation = [
+    [PAGE.JOURNAL, t.journalNav],
+    [PAGE.THOUGHTS, planning.thoughts],
+    [PAGE.WATCHLIST, planning.watchlist],
+    [PAGE.PLANS, t.plansNav],
+    [PAGE.PLAYBOOKS, t.playbooksNav],
+    [PAGE.STATISTICS, t.statisticsNav],
+    [PAGE.MISTAKES, mistakes.nav],
+    [PAGE.BACKTESTS, t.backtestsNav],
+    [PAGE.BEST_TRADES, m.bestTrades],
+    [PAGE.CARDS, m.cards],
+    [PAGE.REPORTS, m.reportShelf],
+    [PAGE.REVIEW, t.reviewNav],
+    [PAGE.LECTURES, m.lectures],
+    [PAGE.NOTES, m.notesPage],
+    [PAGE.ACCOUNTS, accounts.accounts],
+    [PAGE.TRASH, trash.trash],
+    [PAGE.GUIDE, guide.nav],
+  ] as const;
 
   useEffect(() => {
     const root = document.documentElement;
@@ -31,36 +62,15 @@ export function Header({ page }: HeaderProps) {
         <span aria-hidden="true">◈</span> Liquidation
       </a>
       <nav className="primary-nav" aria-label={t.navigation}>
-        <a
-          href={PAGE_HASHES.journal}
-          aria-current={page === PAGE.JOURNAL ? "page" : undefined}
-        >
-          {t.journalNav}
-        </a>
-        <a
-          href={PAGE_HASHES.plans}
-          aria-current={page === PAGE.PLANS ? "page" : undefined}
-        >
-          {t.plansNav}
-        </a>
-        <a
-          href={PAGE_HASHES.playbooks}
-          aria-current={page === PAGE.PLAYBOOKS ? "page" : undefined}
-        >
-          {t.playbooksNav}
-        </a>
-        <a
-          href={PAGE_HASHES.statistics}
-          aria-current={page === PAGE.STATISTICS ? "page" : undefined}
-        >
-          {t.statisticsNav}
-        </a>
-        <a
-          href={PAGE_HASHES.backtests}
-          aria-current={page === PAGE.BACKTESTS ? "page" : undefined}
-        >
-          {t.backtestsNav}
-        </a>
+        {navigation.map(([target, label]) => (
+          <a
+            key={target}
+            href={PAGE_HASHES[target]}
+            aria-current={page === target ? "page" : undefined}
+          >
+            {label}
+          </a>
+        ))}
       </nav>
       <div className="preferences">
         <span className="local">

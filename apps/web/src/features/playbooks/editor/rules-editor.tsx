@@ -8,6 +8,7 @@ import type {
 } from "@liquidation/domain/playbooks/types";
 import type { RuleFieldsProps, SetupFieldsProps } from "./types.ts";
 
+import { ScreenshotField } from "../../../shared/screenshots/screenshot-field.tsx";
 import { usePlaybookMessages } from "../messages.ts";
 
 export function emptySetup(): PlaybookSetup {
@@ -73,7 +74,12 @@ export function RuleFields({ rules, onChange }: RuleFieldsProps) {
   );
 }
 
-export function SetupFields({ setups, onChange }: SetupFieldsProps) {
+export function SetupFields({
+  setups,
+  onChange,
+  screenshots,
+  onScreenshots,
+}: SetupFieldsProps) {
   const b = usePlaybookMessages();
 
   function update(id: string, change: Partial<Omit<PlaybookSetup, "id">>) {
@@ -86,7 +92,7 @@ export function SetupFields({ setups, onChange }: SetupFieldsProps) {
 
   return (
     <div className="rules-editor">
-      {setups.map(({ id, name, description, rules }, index) => (
+      {setups.map(({ id, name, description, rules, screenshotIds }, index) => (
         <section className="setup-editor" key={id}>
           <div className="setup-editor-head">
             <label>
@@ -123,6 +129,22 @@ export function SetupFields({ setups, onChange }: SetupFieldsProps) {
               }
             />
           </label>
+          <div>
+            <h4>{b.setupImages}</h4>
+            <ScreenshotField
+              value={(screenshotIds ?? []).map(
+                (id) => screenshots.get(id) ?? { id },
+              )}
+              onChange={(shots) => {
+                onScreenshots(shots);
+                update(id, {
+                  screenshotIds: shots.length
+                    ? shots.map(({ id }) => id)
+                    : undefined,
+                });
+              }}
+            />
+          </div>
           <RuleFields
             rules={rules}
             onChange={(value) => update(id, { rules: value })}

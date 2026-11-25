@@ -13,6 +13,7 @@ export type InstrumentBreakdownProps = { trades: readonly Trade[] };
 
 export type TradeFilters = {
   query: string;
+  account?: string;
   side: string;
   from: string;
   through: string;
