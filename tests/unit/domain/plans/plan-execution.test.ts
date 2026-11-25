@@ -5,6 +5,7 @@ import {
 import {
   canLinkPlan,
   getPlanPeriod,
+  isOpenPlan,
 } from "@liquidation/domain/plans/plan-lifecycle";
 import type { Plan } from "@liquidation/domain/plans/types";
 import type { Trade } from "@liquidation/domain/trades/types";
@@ -120,4 +121,21 @@ test("uses inclusive plan dates and respects void and restore events", () => {
   };
   expect(canLinkPlan(restored, "2026-11-24")).toBe(true);
   expect(getPlanPeriod(restored, "2026-11-24")).toBe("current");
+});
+
+test("moves a worked plan out of the active group before its end date", () => {
+  const day = "2026-11-24";
+  expect(isOpenPlan(plan)).toBe(true);
+  const reviews: Plan["review"][] = [
+    { status: "worked" },
+    { status: "worked-without-entry", outcome: null },
+    { status: "failed", reason: "Invalidation" },
+    { status: "missed", outcome: null },
+  ];
+  for (const review of reviews) {
+    const reviewed = { ...plan, review };
+    expect(isOpenPlan(reviewed)).toBe(false);
+    expect(getPlanPeriod(reviewed, day)).toBe("past");
+    expect(canLinkPlan(reviewed, day)).toBe(true);
+  }
 });

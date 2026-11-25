@@ -6,6 +6,7 @@ import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { FILE_ERROR } from "../constants.ts";
 import { createScreenshotStorage } from "./screenshot-storage.ts";
+import { journalScreenshotIds } from "../records/screenshot-references.ts";
 
 export function createJournalStorage(directory: string) {
   const path = join(directory, "journal.json");
@@ -25,9 +26,13 @@ export function createJournalStorage(directory: string) {
   function write<Result>(
     mutate: (journal: Journal) => Result,
     uploads?: ReadonlyMap<string, Uint8Array>,
+    purgeScreenshots = false,
   ) {
     const operation = pending.then(async () => {
       const journal = await read();
+      const before = purgeScreenshots
+        ? journalScreenshotIds(journal)
+        : undefined;
       const result = mutate(journal);
       await mkdir(directory, { recursive: true, mode: 0o700 });
       const temporary = join(directory, `.journal-${randomUUID()}.tmp`);
@@ -43,6 +48,17 @@ export function createJournalStorage(directory: string) {
         await rollback?.();
         await rm(temporary, { force: true }).catch(() => undefined);
         throw error;
+      }
+      if (before) {
+        const after = journalScreenshotIds(journal);
+        await screenshots
+          .remove([...before].filter((id) => !after.has(id)))
+          .catch((error) =>
+            console.error(
+              "Could not remove unreferenced screenshots after deleting the record.",
+              error,
+            ),
+          );
       }
       return result;
     });

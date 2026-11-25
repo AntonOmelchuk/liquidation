@@ -7,6 +7,7 @@ import {
   MAX_PLAN_ANALYSIS_BLOCKS,
   PLAN_ACTION,
   PLAN_NARRATIVES,
+  PLAN_OPPORTUNITY_STATUSES,
   PLAN_STATUS,
 } from "./constants.ts";
 import {
@@ -73,6 +74,22 @@ export const planSetupSchema = z
     },
   );
 
+export const missedOutcomeSchema = z
+  .object({
+    closedAt: z.iso.datetime(),
+    netR: z.number().gte(-Number.MAX_SAFE_INTEGER).lte(Number.MAX_SAFE_INTEGER),
+    risk: tradeInput.shape.risk.unwrap().optional(),
+  })
+  .refine(
+    ({ netR, risk }) =>
+      risk === undefined ||
+      Number.isSafeInteger(Math.round(Math.abs(netR) * Math.round(risk * 100))),
+    {
+      path: ["risk"],
+      message: "The estimated monetary result is out of range.",
+    },
+  );
+
 export const planReviewSchema = z.discriminatedUnion("status", [
   z.object({ status: z.literal(PLAN_STATUS.WAITING) }),
   z.object({ status: z.literal(PLAN_STATUS.IN_PROGRESS) }),
@@ -82,28 +99,8 @@ export const planReviewSchema = z.discriminatedUnion("status", [
     reason: z.string().trim().min(1).max(4000),
   }),
   z.object({
-    status: z.literal(PLAN_STATUS.MISSED),
-    outcome: z
-      .object({
-        closedAt: z.iso.datetime(),
-        netR: z
-          .number()
-          .gte(-Number.MAX_SAFE_INTEGER)
-          .lte(Number.MAX_SAFE_INTEGER),
-        risk: tradeInput.shape.risk.unwrap().optional(),
-      })
-      .refine(
-        ({ netR, risk }) =>
-          risk === undefined ||
-          Number.isSafeInteger(
-            Math.round(Math.abs(netR) * Math.round(risk * 100)),
-          ),
-        {
-          path: ["risk"],
-          message: "The estimated monetary result is out of range.",
-        },
-      )
-      .nullable(),
+    status: z.literal(PLAN_OPPORTUNITY_STATUSES),
+    outcome: missedOutcomeSchema.nullable(),
   }),
 ]);
 

@@ -1,0 +1,79 @@
+.report-editor,
+.report-editor-sections,
+.report-text-stack {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(0.75rem, 1.2vw, 1.15rem);
+  min-width: 0;
+}
+.report-editor .panel {
+  padding: clamp(0.9rem, 1.3vw, 1.3rem);
+}
+.report-editor .panel-heading {
+  flex-wrap: wrap;
+}
+.report-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 16rem));
+  align-items: end;
+  gap: 0.85rem 1.35rem;
+}
+.report-editor label {
+  gap: 0.55rem;
+}
+.report-editor :is(input, select, .report-net) {
+  min-height: 2.75rem;
+}
+.report-net {
+  display: flex;
+  align-items: center;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  font-variant-numeric: tabular-nums;
+  font-size: 1rem;
+  font-weight: 650;
+}
+.report-trade-count {
+  margin: 0.7rem 0 0;
+}
+.report-text-field > span {
+  font-weight: 650;
+}
+.report-text-field textarea,
+.report-assessments textarea {
+  width: 100%;
+  min-width: 0;
+  line-height: 1.6;
+  resize: vertical;
+}
+.report-text-field textarea {
+  min-height: 5.5rem;
+}
+.report-trade-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(1rem, 1.6vw, 1.5rem);
+}
+.report-assessments {
+  min-width: 33rem;
+}
+.report-assessments input {
+  width: 6rem;
+}
+.report-assessments textarea {
+  min-width: 11rem;
+  min-height: 3rem;
+}
+.report-additional summary {
+  cursor: pointer;
+  font-weight: 650;
+}
+.report-additional .report-text-stack {
+  margin-top: 1.1rem;
+}
+@media (min-width: 88rem) {
+  .report-trade-grid {
+    grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
+  }
+}

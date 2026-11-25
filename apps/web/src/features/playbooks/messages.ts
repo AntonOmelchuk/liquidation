@@ -3,6 +3,8 @@ import { useLocale } from "../../shared/messages.ts";
 
 const en = {
   title: "Playbooks",
+  images: "Playbook images",
+  setupImages: "Setup examples",
   new: "New playbook",
   createInNewTab: "Create playbook in a new tab",
   reloadOptions: "Refresh playbooks",
@@ -14,6 +16,8 @@ const en = {
   name: "Playbook name",
   strategy: "Trading idea",
   status: "Status",
+  allStatuses: "All statuses",
+  search: "Search playbooks",
   experiment: "Experiment",
   active: "Active",
   retired: "Retired",
@@ -51,6 +55,8 @@ const en = {
   none: "No playbook",
   version: "Rules version",
   unversioned: "Linked without a checklist",
+  checklistRequired:
+    "Check every rule you followed. Explain each unchecked rule.",
   entryChecklist: "Entry checklist",
   managementChecklist: "Management checklist",
   recordEntry: "Record the entry checklist",
@@ -85,6 +91,8 @@ const en = {
 
 const uk: Record<keyof typeof en, string> = {
   title: "Плейбуки",
+  images: "Зображення плейбука",
+  setupImages: "Приклади сетапу",
   new: "Новий плейбук",
   createInNewTab: "Створити плейбук у новій вкладці",
   reloadOptions: "Оновити список",
@@ -96,6 +104,8 @@ const uk: Record<keyof typeof en, string> = {
   name: "Назва плейбука",
   strategy: "Торгова ідея",
   status: "Статус",
+  allStatuses: "Усі статуси",
+  search: "Пошук плейбуків",
   experiment: "Експеримент",
   active: "Активний",
   retired: "Архівний",
@@ -133,6 +143,8 @@ const uk: Record<keyof typeof en, string> = {
   none: "Без плейбука",
   version: "Версія правил",
   unversioned: "Прив’язано без чекліста",
+  checklistRequired:
+    "Познач кожне виконане правило. Поясни кожне непозначене правило.",
   entryChecklist: "Чекліст входу",
   managementChecklist: "Чекліст супроводу",
   recordEntry: "Записати чекліст входу",

@@ -42,7 +42,8 @@ export function PlanCohortTable({
   const columns = {
     [PLAN_COLUMN.GROUP]: heading,
     [PLAN_COLUMN.PLANS]: p.analyticsPlanCount,
-    [PLAN_COLUMN.WIN_RATE]: p.planWinRate,
+    [PLAN_COLUMN.OVERALL_WIN_RATE]: p.planWinRate,
+    [PLAN_COLUMN.WIN_RATE]: p.reviewedWinRate,
     [PLAN_COLUMN.REALIZED_R]: `${p.realized} (R)`,
     [PLAN_COLUMN.MISSED]: p.analyticsMissed,
     [PLAN_COLUMN.MISSED_R]: p.analyticsMissedR,
@@ -76,9 +77,11 @@ export function PlanCohortTable({
                   key={column}
                   label={columns[column]}
                   title={
-                    column === PLAN_COLUMN.WIN_RATE
+                    column === PLAN_COLUMN.OVERALL_WIN_RATE
                       ? p.planWinRateHint
-                      : undefined
+                      : column === PLAN_COLUMN.WIN_RATE
+                        ? p.reviewedWinRateHint
+                        : undefined
                   }
                   direction={
                     sort.column === column ? sort.direction : undefined
@@ -119,6 +122,16 @@ export function PlanCohortTable({
                     </button>
                   </th>
                   <td>{count(group.plans.length)}</td>
+                  <td>
+                    <strong>
+                      {group.allPlanWinRate === null
+                        ? EMPTY_VALUE
+                        : format.percentage.format(group.allPlanWinRate)}
+                    </strong>
+                    <small>
+                      {count(group.worked)} / {count(group.plans.length)}
+                    </small>
+                  </td>
                   <td>
                     <strong>
                       {group.winRate === null

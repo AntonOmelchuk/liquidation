@@ -1,8 +1,7 @@
-import { isJournalRoute } from "@liquidation/domain/journal/journal";
 import react from "@vitejs/plugin-react";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
-import { journalHandler } from "./apps/local-server/src/http/journal-handler.ts";
+import { localApiHandler } from "./apps/local-server/src/http/local-api.ts";
 
 export default defineConfig({
   root: fileURLToPath(new URL("./apps/web/", import.meta.url)),
@@ -13,15 +12,11 @@ export default defineConfig({
   plugins: [
     react(),
     {
-      name: "liquidation-local-journal",
+      name: "liquidation-local-api",
       configureServer(server) {
-        const handleJournal = journalHandler();
+        const handleApi = localApiHandler();
         server.middlewares.use((request, response, next) => {
-          if (isJournalRoute(request.url?.split("?", 1)[0])) {
-            void handleJournal(request, response);
-          } else {
-            next();
-          }
+          if (!handleApi(request, response)) next();
         });
       },
     },

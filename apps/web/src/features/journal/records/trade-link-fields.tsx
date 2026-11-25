@@ -23,7 +23,17 @@ import {
 import { usePlaybookMessages } from "../../playbooks/messages.ts";
 import { PlaybookFrame } from "../../playbooks/playbook-frame.tsx";
 import { PlaybookSelect } from "../../playbooks/playbook-select.tsx";
+import {
+  useHistoricalPlanOptions,
+  useHistoricalPlaybookOptions,
+} from "../data/references.ts";
 import { useJournal } from "../data/store.ts";
+import { useTrashMessages } from "../../trash/messages.ts";
+import {
+  AccountField,
+  readAccountLink,
+} from "../../accounts/account-field.tsx";
+import { TradePriceFields, readTradePrices } from "./trade-price-fields.tsx";
 import { PlanField } from "./plan-field.tsx";
 import { readTradeTags, TradeTagFields } from "./trade-tag-fields.tsx";
 
@@ -39,6 +49,9 @@ export function readTradeLinks(data: FormData) {
       : undefined;
   return {
     ...readTradeTags(data),
+    ...readAccountLink(data),
+    prices: readTradePrices(data),
+    breakeven: data.has("breakeven") || undefined,
     timeframe: String(data.get("timeframe") ?? "").trim() || undefined,
     planId: data.get("planId") || undefined,
     playbook: id ? { id, version, setupId, entry, management } : undefined,
@@ -63,9 +76,7 @@ function LinkedPlaybookRules({
     currentVersion(book);
   const [setupId, setSetupId] = useState(
     initial?.setupId ??
-      (!initial && !historic && version.setups.length === 1
-        ? version.setups[0].id
-        : ""),
+      (!initial && version.setups.length === 1 ? version.setups[0].id : ""),
   );
   const rules = setupId ? entryRules(version, setupId) : [];
   const pinned =
@@ -98,14 +109,23 @@ function LinkedPlaybookRules({
         phase={CHECKLIST_PHASE.ENTRY}
         rules={rules}
         initial={initial?.entry}
-        recordByDefault={!historic && !initial}
+        recordByDefault={Boolean(setupId)}
+        requireRecording={
+          !historic ||
+          !initial ||
+          setupId !== (initial.setupId ?? "") ||
+          Boolean(initial.entry)
+        }
       />
       {closed && (
         <ChecklistFields
           phase={CHECKLIST_PHASE.MANAGEMENT}
           rules={version.management}
           initial={initial?.management}
-          recordByDefault={(closing && pinned) || (!historic && !initial)}
+          recordByDefault
+          requireRecording={
+            closing || !historic || !initial || Boolean(initial.management)
+          }
         />
       )}
     </>
@@ -120,11 +140,15 @@ export function TradeLinkFields({
   closing = false,
   risk = null,
   editingId,
+  showAccount = true,
+  showPrices = true,
 }: TradeLinkFieldsProps) {
   const b = usePlaybookMessages();
   const { t } = useLocale();
-  const plans = useJournal((state) => state.plans);
-  const playbooks = useJournal((state) => state.playbooks);
+  const deleted = useTrashMessages().deleted;
+  const plans = useHistoricalPlanOptions(initial?.planId);
+  const playbooks = useHistoricalPlaybookOptions(initial?.playbook?.id);
+  const activeBooks = useJournal((state) => state.playbooks);
   const [planId, setPlanId] = useState(initial?.planId ?? "");
   const [bookId, setBookId] = useState<string>();
   const entryDay = (
@@ -155,6 +179,10 @@ export function TradeLinkFields({
           defaultValue={initial?.timeframe}
         />
       </label>
+      {showAccount && <AccountField initial={initial} />}
+      {showPrices && (
+        <TradePriceFields initial={initial} closed={closed || closing} />
+      )}
       <TradeTagFields initial={initial} />
       {plans.length > 0 && (
         <PlanField
@@ -176,6 +204,7 @@ export function TradeLinkFields({
             {status === PLAYBOOK_STATUS.RETIRED
               ? `${title} · ${b.retired}`
               : title}
+            {!activeBooks.some((book) => book.id === id) && " · " + deleted}
           </option>
         ))}
       </PlaybookSelect>

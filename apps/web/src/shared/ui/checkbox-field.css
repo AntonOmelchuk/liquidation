@@ -1,0 +1,85 @@
+.checkbox-field {
+  --checkbox-accent: var(--section-accent);
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  column-gap: 0.62rem;
+  line-height: 1.35;
+  cursor: pointer;
+}
+.checkbox-field:not(:has(.checkbox-text)) {
+  grid-template-columns: auto;
+}
+.checkbox-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.checkbox-box {
+  display: grid;
+  place-items: center;
+  inline-size: 1.15rem;
+  block-size: 1.15rem;
+  margin-block-start: 0.04rem;
+  border: 1px solid color-mix(in srgb, var(--muted) 65%, var(--border));
+  border-radius: 0.3rem;
+  background: color-mix(in srgb, var(--border) 25%, var(--surface));
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease;
+}
+.checkbox-box::after {
+  content: "";
+  inline-size: 0.32rem;
+  block-size: 0.62rem;
+  margin-block-start: -0.13rem;
+  border: solid var(--surface);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  visibility: hidden;
+}
+.checkbox-field input:checked + .checkbox-box {
+  border-color: var(--checkbox-accent);
+  background-color: var(--checkbox-accent);
+}
+.checkbox-field input:checked + .checkbox-box::after {
+  visibility: visible;
+}
+.checkbox-field:hover:has(input:enabled) .checkbox-box {
+  border-color: var(--checkbox-accent);
+  box-shadow: 0 0 0 3px
+    color-mix(in srgb, var(--checkbox-accent) 16%, transparent);
+}
+.checkbox-field input:focus-visible + .checkbox-box {
+  outline: 2px solid var(--checkbox-accent);
+  outline-offset: 3px;
+}
+.checkbox-field:has(input:disabled) {
+  cursor: default;
+}
+.checkbox-field input:disabled + .checkbox-box {
+  opacity: 0.55;
+}
+@media (prefers-reduced-motion: reduce) {
+  .checkbox-box {
+    transition: none;
+  }
+}
+@media (forced-colors: active) {
+  .checkbox-box {
+    forced-color-adjust: none;
+    color: CanvasText;
+    border-color: CanvasText;
+    background: Canvas;
+  }
+  .checkbox-field input:checked + .checkbox-box {
+    border-color: Highlight;
+    background: Highlight;
+  }
+  .checkbox-box::after {
+    border-color: HighlightText;
+  }
+  .checkbox-field input:focus-visible + .checkbox-box {
+    outline-color: Highlight;
+  }
+}

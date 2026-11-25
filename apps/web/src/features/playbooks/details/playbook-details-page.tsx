@@ -1,4 +1,7 @@
 import { currentVersion } from "@liquidation/domain/playbooks/playbook";
+import { getPlaybookTemplate } from "@liquidation/domain/playbooks/strategy";
+import { TRASH_KIND } from "@liquidation/domain/journal/trash/constants";
+import { DeleteRecord } from "../../trash/delete-record.tsx";
 import {
   adherence,
   playbookResults,
@@ -8,6 +11,7 @@ import { PAGE_HASHES } from "../../../app/constants.ts";
 import { playbookHref } from "../../../app/page.ts";
 import { EMPTY_VALUE } from "../../../shared/constants.ts";
 import { useLocale } from "../../../shared/messages.ts";
+import { ScreenshotGallery } from "../../../shared/screenshots/screenshot-gallery.tsx";
 import { Metric, Panel } from "../../../shared/ui/layout.tsx";
 import { SelectField } from "../../../shared/ui/select-field.tsx";
 import { useJournal } from "../../journal/data/store.ts";
@@ -15,6 +19,8 @@ import { JournalUnavailable } from "../../journal/journal-unavailable.tsx";
 import { TradeTable } from "../../journal/records/trade-table.tsx";
 import { LIMIT_NAMES } from "../limits.ts";
 import { usePlaybookMessages } from "../messages.ts";
+import { useStrategyMessages } from "../strategy/messages.ts";
+import { StrategyDetails } from "../strategy/strategy-details.tsx";
 import { RuleResults, SetupResults } from "./playbook-results.tsx";
 import { PlaybookReviews } from "./playbook-reviews.tsx";
 import type { RulesListProps } from "./types.ts";
@@ -34,8 +40,9 @@ function RulesList({ rules }: RulesListProps) {
   );
 }
 
-export function PlaybookDetailsPage({ id }: { id: string }) {
+export default function PlaybookDetailsPage({ id }: { id: string }) {
   const b = usePlaybookMessages();
+  const s = useStrategyMessages();
   const { t, format } = useLocale();
   const book = useJournal((state) =>
     state.playbooks.find((item) => item.id === id),
@@ -76,6 +83,19 @@ export function PlaybookDetailsPage({ id }: { id: string }) {
   const rate = (value: number | null) =>
     value === null ? EMPTY_VALUE : format.percentage.format(value);
   const limits = LIMIT_NAMES.filter((name) => book.limits[name] !== undefined);
+  const setups = version.setups.map((setup) => (
+    <section className="setup-editor" key={setup.id}>
+      <h4>{setup.name || b.onlySetup}</h4>
+      {setup.description && <p className="record-prose">{setup.description}</p>}
+      {Boolean(setup.screenshotIds?.length) && (
+        <div>
+          <h4>{b.setupImages}</h4>
+          <ScreenshotGallery ids={setup.screenshotIds} />
+        </div>
+      )}
+      <RulesList rules={setup.rules} />
+    </section>
+  ));
 
   return (
     <main className="playbook-detail-page">
@@ -92,11 +112,22 @@ export function PlaybookDetailsPage({ id }: { id: string }) {
               {b[book.status]}
             </span>
             <span>v{latest.number}</span>
+            <span>{s[getPlaybookTemplate(latest.strategy)]}</span>
           </div>
         </div>
-        <a className="action-link" href={playbookHref(id, true)}>
-          {b.edit}
-        </a>
+        <div className="workspace-actions">
+          <DeleteRecord
+            kind={TRASH_KIND.PLAYBOOK}
+            recordKey={id}
+            revision={book.revision}
+            afterDelete={() => {
+              window.location.hash = PAGE_HASHES.playbooks;
+            }}
+          />
+          <a className="action-link" href={playbookHref(id, true)}>
+            {b.edit}
+          </a>
+        </div>
       </div>
       <section className="metrics playbook-metrics" aria-label={b.checklists}>
         <Metric
@@ -140,29 +171,42 @@ export function PlaybookDetailsPage({ id }: { id: string }) {
             </SelectField>
           }
         >
-          <div className="playbook-rule-columns">
-            <div>
-              <h3>{b.setups}</h3>
-              {version.setups.map((setup) => (
-                <section className="setup-editor" key={setup.id}>
-                  <h4>{setup.name || b.onlySetup}</h4>
-                  {setup.description && (
-                    <p className="record-prose">{setup.description}</p>
-                  )}
-                  <RulesList rules={setup.rules} />
-                </section>
-              ))}
+          {Boolean(version.screenshotIds?.length) && (
+            <div className="playbook-overview-images">
+              <h3>{b.images}</h3>
+              <ScreenshotGallery ids={version.screenshotIds} />
             </div>
-            <div>
-              <h3>{b.filters}</h3>
-              <RulesList rules={version.filters} />
+          )}
+          {!version.strategy && (
+            <div className="playbook-rule-columns">
+              <div>
+                <h3>{b.setups}</h3>
+                {setups}
+              </div>
+              <div>
+                <h3>{b.filters}</h3>
+                <RulesList rules={version.filters} />
+              </div>
+              <div>
+                <h3>{b.management}</h3>
+                <RulesList rules={version.management} />
+              </div>
             </div>
-            <div>
-              <h3>{b.management}</h3>
-              <RulesList rules={version.management} />
-            </div>
-          </div>
+          )}
         </Panel>
+        {version.strategy && (
+          <StrategyDetails
+            strategy={version.strategy}
+            setups={
+              <div>
+                <h3>{b.setups}</h3>
+                {setups}
+              </div>
+            }
+            technical={<RulesList rules={version.filters} />}
+            management={<RulesList rules={version.management} />}
+          />
+        )}
         {limits.length > 0 && (
           <Panel title={b.limits}>
             <dl className="playbook-facts">

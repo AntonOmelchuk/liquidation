@@ -22,7 +22,7 @@ export type PlanStatusChipProps = {
   compact?: boolean;
 };
 
-export type PlanSpanProps = { setup: PlanSetup };
+export type PlanSpanProps = { setup: PlanSetup; compact?: boolean };
 
 export type PlanNarrativeLabelProps = { setup: PlanSetup };
 

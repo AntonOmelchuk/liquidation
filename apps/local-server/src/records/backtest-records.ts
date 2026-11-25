@@ -4,10 +4,12 @@ import type {
   BacktestCommand,
 } from "@liquidation/domain/backtests/types";
 import type { Journal } from "@liquidation/domain/journal/types";
+import { TRASH_KIND } from "@liquidation/domain/journal/trash/constants";
 
 import { InvalidJournalInput, JournalConflict } from "../errors.ts";
 import { assertPlaybookLink } from "./playbook-records.ts";
 import { assertScreenshotAttachments } from "./screenshot-attachments.ts";
+import { assertNewIdentity } from "./trash-records.ts";
 
 function nextBacktest(
   journal: Journal,
@@ -78,6 +80,8 @@ export function mutateBacktest(
   command: BacktestCommand,
   uploads: ReadonlyMap<string, Uint8Array>,
 ) {
+  if (command.action === BACKTEST_ACTION.CREATE)
+    assertNewIdentity(journal, TRASH_KIND.BACKTEST, command.id);
   const index = journal.backtests.findIndex(({ id }) => id === command.id);
   const previous = journal.backtests[index];
   const run = nextBacktest(journal, previous, command);

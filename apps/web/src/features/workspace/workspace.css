@@ -1,0 +1,86 @@
+.workspace-actions,
+.workspace-tabs,
+.workspace-check {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+.workspace-tabs {
+  margin-bottom: 1rem;
+}
+.workspace-actions button[aria-pressed="true"],
+.workspace-tabs [aria-current="page"] {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 13%, var(--surface));
+}
+.workspace-notes {
+  display: grid;
+  gap: 0.65rem;
+  margin: 0.85rem 0;
+}
+.workspace-notes:empty {
+  display: none;
+}
+.workspace-notes dt {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.workspace-notes dd {
+  margin: 0.25rem 0 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.workspace-page .workspace-comparison {
+  min-width: 31rem;
+}
+.workspace-page h2,
+.workspace-page h3 {
+  overflow-wrap: anywhere;
+}
+.report-assessments input {
+  min-width: 5.5rem;
+}
+.workspace-history {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.workspace-history li {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 0.55rem;
+}
+.workspace-example-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: 0.8rem;
+}
+.workspace-example {
+  border: 1px solid var(--border);
+  padding: 0.85rem;
+  border-radius: 0.7rem;
+}
+.workspace-example h3 {
+  margin: 0;
+}
+.workspace-example button,
+.learning-entry .workspace-actions {
+  margin-top: 0.6rem;
+}
+.highlight-editor-fields {
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
+}
+.learning-entry .panel-heading {
+  align-items: flex-start;
+}
+.learning-entry p {
+  overflow-wrap: anywhere;
+}

@@ -24,12 +24,20 @@ const bySymbol = new Map(
   instruments.map((instrument) => [instrument.symbol, instrument]),
 );
 
+export function currencyFlag(code: string) {
+  const currency = code.trim().toUpperCase();
+  return Object.hasOwn(currencies, currency)
+    ? currencies[currency as Currency][1]
+    : undefined;
+}
+
 export function instrumentIcons(symbol: string): readonly string[] {
   const normalized = symbol.trim().toUpperCase();
   const base = normalized.split(/[._]/, 1)[0];
+  const flag = currencyFlag(normalized);
   return (
     bySymbol.get(normalized)?.icons ??
-    bySymbol.get(base)?.icons ?? [normalized.slice(0, 2) || "?"]
+    bySymbol.get(base)?.icons ?? [flag ?? (normalized.slice(0, 2) || "?")]
   );
 }
 

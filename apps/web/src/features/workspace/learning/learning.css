@@ -1,0 +1,121 @@
+.learning-document {
+  max-width: 88rem;
+  margin-inline: auto;
+}
+.learning-document .page-heading {
+  margin-block-start: 0.9rem;
+}
+.learning-heading h1 {
+  overflow-wrap: anywhere;
+}
+.learning-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.85rem;
+  margin: 0.6rem 0 0;
+}
+.learning-fields {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
+}
+.learning-fields textarea,
+.lecture-block textarea {
+  width: 100%;
+  line-height: 1.55;
+}
+.lecture-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+.lecture-group summary {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  color: inherit;
+  cursor: pointer;
+  font-size: 1.15rem;
+  font-weight: 650;
+  list-style: none;
+  overflow-wrap: anywhere;
+}
+.lecture-group summary::before {
+  content: "▸";
+  color: var(--muted);
+}
+.lecture-group[open] summary::before {
+  content: "▾";
+}
+.lecture-group summary small {
+  margin-inline-start: auto;
+}
+.lecture-group-list {
+  display: grid;
+  gap: 0.45rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.lecture-group-list li {
+  padding: 0.65rem 0.2rem;
+  border-top: 1px solid var(--border);
+  overflow-wrap: anywhere;
+}
+.lecture-group-list small {
+  display: block;
+  margin-block-start: 0.2rem;
+}
+.lecture-blocks,
+.lecture-document {
+  display: grid;
+  gap: 1.15rem;
+}
+.lecture-block {
+  display: grid;
+  gap: 0.8rem;
+  padding: clamp(0.85rem, 2vw, 1.35rem);
+  border: 1px solid var(--border);
+  border-radius: 0.8rem;
+  min-width: 0;
+}
+.lecture-block-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.6rem;
+  align-items: center;
+}
+.lecture-block-bar h3,
+.lecture-document p,
+.lecture-image-block {
+  margin: 0;
+}
+.lecture-image-block .screenshot-grid {
+  grid-template-columns: minmax(0, 1fr);
+  margin: 0;
+}
+.lecture-image-block .screenshot-thumb {
+  display: block;
+  aspect-ratio: auto;
+  min-height: 0;
+}
+.lecture-image-block .screenshot-thumb img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 65vh;
+  object-fit: contain;
+}
+.lecture-image-block figcaption {
+  color: var(--muted);
+  margin-block-start: 0.6rem;
+}
+.note-excerpt {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  overflow: hidden;
+}

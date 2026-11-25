@@ -16,6 +16,7 @@ export type ChecklistFieldsProps = {
   rules: readonly PlaybookRule[];
   initial?: Checklist;
   recordByDefault?: boolean;
+  requireRecording?: boolean;
 };
 
 export type EntryContext = {

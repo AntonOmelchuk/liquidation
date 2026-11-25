@@ -1,10 +1,14 @@
 export const JOURNAL_ROUTES = {
   trades: "/api/trades",
+  aiReview: "/api/ai-review",
   positions: "/api/positions",
   plans: "/api/plans",
   playbooks: "/api/playbooks",
   backtests: "/api/backtests",
   tradeLinks: "/api/trade-links",
+  workspace: "/api/workspace",
+  accounts: "/api/accounts",
+  trash: "/api/trash",
   planScreenshot: "/api/plan-screenshots/",
 } as const;
 export const JOURNAL_VERSION = 1;
@@ -30,4 +34,5 @@ export const HTTP_STATUS = {
   UNSUPPORTED_MEDIA_TYPE: 415,
   UNPROCESSABLE_CONTENT: 422,
   INTERNAL_SERVER_ERROR: 500,
+  SERVICE_UNAVAILABLE: 503,
 } as const;

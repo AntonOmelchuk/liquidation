@@ -2,10 +2,15 @@ export const PLAN_STATUS = {
   WAITING: "waiting",
   IN_PROGRESS: "in-progress",
   WORKED: "worked",
+  WORKED_WITHOUT_ENTRY: "worked-without-entry",
   FAILED: "failed",
   MISSED: "missed",
 } as const;
 export const PLAN_STATUSES = Object.values(PLAN_STATUS);
+export const PLAN_OPPORTUNITY_STATUSES = [
+  PLAN_STATUS.MISSED,
+  PLAN_STATUS.WORKED_WITHOUT_ENTRY,
+] as const;
 
 export const PLAN_NARRATIVE = {
   BULLISH: "bullish",

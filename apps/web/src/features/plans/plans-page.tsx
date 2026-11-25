@@ -30,12 +30,18 @@ import "./plans.css";
 export function PlansPage() {
   const { t, format } = useLocale();
   const p = usePlanMessages();
-  const { plans, trades, positions, status, load } = useJournal();
+  const { plans, trades, positions, workspace, status, load } = useJournal();
   const [filters, setFilters] = useState<PlanFilters>(DEFAULT_PLAN_FILTERS);
   const ready = status === JOURNAL_STATUS.READY;
   const data = useMemo(
-    () => comparePlanPerformance({ plans, trades: trades ?? [], positions }),
-    [plans, trades, positions],
+    () =>
+      comparePlanPerformance({
+        plans,
+        trades: trades ?? [],
+        positions,
+        missedTrades: workspace.missedTrades,
+      }),
+    [plans, trades, positions, workspace.missedTrades],
   );
   const visiblePlans = useMemo(
     () => filterPlans(plans, filters),
@@ -54,6 +60,11 @@ export function PlansPage() {
     const actual = execution.get(id)?.actual;
     return actual?.closed ? [actual] : [];
   });
+  const executed = plans.flatMap(({ id }) => {
+    const actual = execution.get(id)?.actual;
+    return actual?.closed ? [actual] : [];
+  });
+  const positivePlans = executed.filter(({ net }) => net > 0).length;
   const profitable = pastResults.filter(({ net }) => net > 0).length;
   const measuredPast = pastResults.filter(({ totalR }) => totalR !== null);
   const pastR = measuredPast.length
@@ -85,6 +96,70 @@ export function PlansPage() {
         <p role="status">{t.loading}</p>
       ) : (
         <div className="layout">
+          <section aria-label={p.allPlans} className="plan-overall">
+            <div className="metrics plan-metrics">
+              <Metric
+                label={p.allPlans}
+                value={count(plans.length)}
+                detail={
+                  p.reviewed +
+                  " · " +
+                  count(data.decided) +
+                  " · " +
+                  p.awaitingDecision +
+                  " " +
+                  count(plans.length - data.decided)
+                }
+              />
+              <Metric
+                label={p.planWinRate}
+                value={showRate(data.allPlanWinRate)}
+                detail={
+                  count(data.worked) +
+                  "/" +
+                  count(plans.length) +
+                  " · " +
+                  p.confirmedPlans
+                }
+              />
+              <Metric
+                label={p.reviewedWinRate}
+                value={showRate(data.planWinRate)}
+                detail={
+                  count(data.worked) +
+                  "/" +
+                  count(data.decided) +
+                  " · " +
+                  p.reviewedWinRateHint
+                }
+              />
+              <Metric
+                label={p.executionWinRate}
+                value={showRate(
+                  executed.length ? positivePlans / executed.length : null,
+                )}
+                detail={
+                  count(positivePlans) +
+                  "/" +
+                  count(executed.length) +
+                  " · " +
+                  p.pastTotals
+                }
+              />
+              <Metric
+                label={p.missedWinRate}
+                value={showRate(data.missedWinRate)}
+                detail={p.assessed + " · " + count(data.assessedMisses)}
+              />
+            </div>
+            <ul className="plan-status-summary" aria-label={p.status}>
+              {PLAN_STATUSES.map((value) => (
+                <li key={value} className="plan-status" data-status={value}>
+                  {p[value]} <strong>{count(data.statuses[value])}</strong>
+                </li>
+              ))}
+            </ul>
+          </section>
           <Panel
             title={p.allPlans}
             detail={format.integer.format(visiblePlans.length)}
@@ -166,33 +241,6 @@ export function PlansPage() {
               </p>
             )}
           </Panel>
-          <section aria-label={p.allPlans}>
-            <div className="metrics plan-metrics">
-              <Metric
-                label={p.planWinRate}
-                value={showRate(data.planWinRate)}
-                detail={p.planWinRateHint}
-              />
-              <Metric
-                label={p.reviewed}
-                value={format.integer.format(data.decided)}
-                detail={`${p.allPlans} · ${format.integer.format(plans.length)}`}
-              />
-              <Metric
-                label={p.missedWinRate}
-                value={showRate(data.missedWinRate)}
-                detail={`${p.assessed} · ${format.integer.format(data.assessedMisses)}`}
-              />
-            </div>
-            <ul className="plan-status-summary" aria-label={p.status}>
-              {PLAN_STATUSES.map((value) => (
-                <li key={value} className="plan-status" data-status={value}>
-                  {p[value]}{" "}
-                  <strong>{format.integer.format(data.statuses[value])}</strong>
-                </li>
-              ))}
-            </ul>
-          </section>
           <PlanAnalytics
             plans={plans}
             trades={trades ?? []}

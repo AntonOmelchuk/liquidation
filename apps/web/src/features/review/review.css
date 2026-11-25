@@ -1,0 +1,105 @@
+.review-page h3,
+.review-page h4 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.review-dates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+}
+
+.review-kpis {
+  margin-bottom: 0;
+}
+
+.review-note {
+  margin: 0.65rem 0 0;
+  font-size: 0.86rem;
+}
+
+.review-report-grid,
+.review-breakdowns {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+  align-content: start;
+}
+
+.review-table {
+  margin-top: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.review-table td {
+  white-space: nowrap;
+}
+
+.review-model {
+  display: flex;
+  align-items: start;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.review-findings,
+.review-exclusions {
+  list-style: none;
+  display: grid;
+  gap: 0.55rem;
+  padding: 0;
+  margin: 0.85rem 0 0;
+}
+
+.review-findings li {
+  border: 1px solid var(--border);
+  border-radius: 0.7rem;
+  padding: 0.75rem;
+}
+
+.review-findings small {
+  display: block;
+  margin-top: 0.2rem;
+}
+
+.review-findings p {
+  margin: 0.55rem 0 0;
+}
+
+.review-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin: 0.65rem 0 1rem;
+}
+
+.review-suggestions button {
+  max-width: 100%;
+  text-align: start;
+}
+
+.review-rule-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.75rem;
+}
+
+.review-scenario {
+  border-top: 1px solid var(--border);
+  margin-top: 1rem;
+  padding-top: 1rem;
+}
+
+.review-scenario h4 {
+  margin-top: 0.9rem;
+}
+
+@media (min-width: 76rem) {
+  .review-report-grid {
+    grid-template-columns: minmax(20rem, 0.85fr) minmax(0, 1.6fr);
+  }
+}

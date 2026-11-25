@@ -169,3 +169,30 @@ test("groups each mistake once per trade and classifies outcomes using net P&L",
     zero,
   ]);
 });
+
+test("includes configured empty groups without inventing trades or metrics", () => {
+  const rows = tradeBreakdown([record], "direction", ["long", "short", "long"]);
+  expect(rows).toMatchObject([
+    {
+      key: "long",
+      records: [record],
+      metrics: { count: 1, net: 100, winRate: 1 },
+    },
+    {
+      key: "short",
+      records: [],
+      metrics: {
+        count: 0,
+        net: 0,
+        winRate: null,
+        payoff: null,
+        profitFactor: null,
+        totalR: null,
+      },
+    },
+  ]);
+  expect(
+    tradeBreakdown([record], "direction", ["short"]).map(({ key }) => key),
+  ).toEqual(["short", "long"]);
+  expect(tradeBreakdown([], "direction", ["short"])[0].metrics.count).toBe(0);
+});

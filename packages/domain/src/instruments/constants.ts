@@ -14,6 +14,7 @@ export const currencies = {
   MXN: ["Mexican peso", "🇲🇽"],
   ZAR: ["South African rand", "🇿🇦"],
   SGD: ["Singapore dollar", "🇸🇬"],
+  CNY: ["Chinese yuan", "🇨🇳"],
 } as const;
 
 export const forexPairs = {

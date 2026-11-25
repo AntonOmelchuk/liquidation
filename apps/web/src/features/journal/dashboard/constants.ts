@@ -1,0 +1,1 @@
+export const CALENDAR_TRADE_PREVIEW_LIMIT = 3;

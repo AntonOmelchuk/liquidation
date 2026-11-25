@@ -7,6 +7,7 @@ import type {
   ChecklistPhase,
 } from "@liquidation/domain/playbooks/types";
 import { useState } from "react";
+import { CheckboxField } from "../../shared/ui/checkbox-field.tsx";
 import type { ChecklistFieldsProps, ChecklistRowProps } from "./types.ts";
 
 import { usePlaybookMessages } from "./messages.ts";
@@ -42,24 +43,22 @@ function ChecklistRow({ rule, phase, answer }: ChecklistRowProps) {
   return (
     <div className="rule-check-row">
       <input type="hidden" name={ruleField(phase)} value={rule.id} />
-      <label className="rule-check">
-        <input
-          type="checkbox"
-          name={metField(phase, rule.id)}
-          checked={met}
-          onChange={(event) => setMet(event.target.checked)}
-        />
-        <span>
-          {rule.label}
-          {rule.detail && <small className="rule-detail">{rule.detail}</small>}
-        </span>
-      </label>
+      <CheckboxField
+        name={metField(phase, rule.id)}
+        checked={met}
+        onChange={(event) => setMet(event.currentTarget.checked)}
+      >
+        {rule.label}
+        {rule.detail && <small className="rule-detail">{rule.detail}</small>}
+      </CheckboxField>
       {!met && (
         <label>
           {b.reason}
           <input
             name={reasonField(phase, rule.id)}
             maxLength={MAX_RULE_REASON}
+            required={!answer || answer.met || Boolean(answer.reason)}
+            pattern={String.raw`.*\S.*`}
             value={reason}
             onChange={(event) => setReason(event.target.value)}
           />
@@ -74,6 +73,7 @@ export function ChecklistFields({
   rules,
   initial,
   recordByDefault = false,
+  requireRecording = false,
 }: ChecklistFieldsProps) {
   const b = usePlaybookMessages();
   const [recording, setRecording] = useState(
@@ -86,17 +86,17 @@ export function ChecklistFields({
   return (
     <div className="wide rule-checklist" role="group" aria-label={title}>
       <strong>{title}</strong>
-      <label className="rule-check">
-        <input
-          type="checkbox"
+      {requireRecording ? (
+        <p className="analytics-hint">{b.checklistRequired}</p>
+      ) : (
+        <CheckboxField
           checked={recording}
-          onChange={(event) => setRecording(event.target.checked)}
-        />
-        <span>
+          onChange={(event) => setRecording(event.currentTarget.checked)}
+        >
           {phase === CHECKLIST_PHASE.ENTRY ? b.recordEntry : b.recordManagement}
-        </span>
-      </label>
-      {recording &&
+        </CheckboxField>
+      )}
+      {(recording || requireRecording) &&
         rules.map((rule) => (
           <ChecklistRow
             key={rule.id}

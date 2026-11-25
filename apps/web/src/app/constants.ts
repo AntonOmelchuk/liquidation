@@ -3,7 +3,19 @@ export const PAGE = {
   PLANS: "plans",
   PLAYBOOKS: "playbooks",
   STATISTICS: "statistics",
+  REVIEW: "review",
   BACKTESTS: "backtests",
+  REPORTS: "reports",
+  LECTURES: "lectures",
+  NOTES: "notes",
+  BEST_TRADES: "best-trades",
+  THOUGHTS: "thoughts",
+  WATCHLIST: "watchlist",
+  TRASH: "trash",
+  ACCOUNTS: "accounts",
+  CARDS: "cards",
+  GUIDE: "guide",
+  MISTAKES: "mistakes",
 } as const;
 
 export const PAGE_VIEW = {
@@ -14,6 +26,8 @@ export const PAGE_VIEW = {
   REVIEW: "review",
   TRADES: "trades",
   LINKS: "links",
+  OPEN: "open",
+  CLOSE: "close",
 } as const;
 
 export const PAGE_HASHES = {
@@ -21,9 +35,25 @@ export const PAGE_HASHES = {
   [PAGE.PLANS]: "#plans",
   [PAGE.PLAYBOOKS]: "#playbooks",
   [PAGE.STATISTICS]: "#statistics",
+  [PAGE.REVIEW]: "#review",
   [PAGE.BACKTESTS]: "#backtests",
+  [PAGE.REPORTS]: "#reports",
+  [PAGE.LECTURES]: "#lectures",
+  [PAGE.NOTES]: "#notes",
+  [PAGE.BEST_TRADES]: "#best-trades",
+  [PAGE.THOUGHTS]: "#thoughts",
+  [PAGE.WATCHLIST]: "#watchlist",
+  [PAGE.TRASH]: "#trash",
+  [PAGE.ACCOUNTS]: "#accounts",
+  [PAGE.CARDS]: "#cards",
+  [PAGE.GUIDE]: "#guide",
+  [PAGE.MISTAKES]: "#mistakes",
 } as const;
+export const LEGACY_LEARNING_HREF = "#learning";
 
+export const RECENT_REVIEW_HREF = PAGE_HASHES.reports + "/recent";
+export const NEW_TRADE_HREF = PAGE_HASHES.journal + "/" + PAGE_VIEW.NEW;
+export const OPEN_POSITION_HREF = PAGE_HASHES.journal + "/" + PAGE_VIEW.OPEN;
 export const NEW_PLAN_HREF = `${PAGE_HASHES.plans}/${PAGE_VIEW.NEW}`;
 export const NEW_PLAYBOOK_HREF = `${PAGE_HASHES.playbooks}/${PAGE_VIEW.NEW}`;
 export const NEW_BACKTEST_HREF = `${PAGE_HASHES.backtests}/${PAGE_VIEW.NEW}`;

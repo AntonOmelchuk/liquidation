@@ -1,5 +1,11 @@
 import { TRADE_SIDE } from "../trades/constants.ts";
-import { PLAN_EVENT, PLAN_NARRATIVE, PLAN_PERIOD } from "./constants.ts";
+import {
+  PLAN_EVENT,
+  PLAN_NARRATIVE,
+  PLAN_OPPORTUNITY_STATUSES,
+  PLAN_PERIOD,
+  PLAN_STATUS,
+} from "./constants.ts";
 import type { Plan, PlanSetup } from "./types.ts";
 
 export function getPlanNarrative(setup: PlanSetup) {
@@ -16,8 +22,20 @@ export function getPlanVoiding(plan: Plan) {
   return event?.kind === PLAN_EVENT.VOID ? event : undefined;
 }
 
+export function isOpenPlan(plan: Plan) {
+  const { status } = plan.review;
+  return (
+    (status === PLAN_STATUS.WAITING || status === PLAN_STATUS.IN_PROGRESS) &&
+    !getPlanVoiding(plan)
+  );
+}
+
+export function isPlanOpportunityStatus(status: unknown) {
+  return PLAN_OPPORTUNITY_STATUSES.some((value) => value === status);
+}
+
 export function getPlanPeriod(plan: Plan, today: string) {
-  if (getPlanVoiding(plan)) return PLAN_PERIOD.PAST;
+  if (!isOpenPlan(plan)) return PLAN_PERIOD.PAST;
   const end = plan.setup.endsOn ?? plan.setup.startsOn;
   return end && end < today ? PLAN_PERIOD.PAST : PLAN_PERIOD.CURRENT;
 }

@@ -54,6 +54,7 @@ function parseJson(text: string): unknown {
 export async function readJournalBody(
   request: IncomingMessage,
   acceptsScreenshots: boolean,
+  jsonLimit = acceptsScreenshots ? EVIDENCE_JSON_LIMIT : JOURNAL_JSON_LIMIT,
 ) {
   const type = request.headers["content-type"] ?? "";
   const mediaType = type.split(";", 1)[0].trim().toLowerCase();
@@ -119,9 +120,6 @@ export async function readJournalBody(
       "Expected JSON.",
     );
   }
-  const bytes = await readBytes(
-    request,
-    acceptsScreenshots ? EVIDENCE_JSON_LIMIT : JOURNAL_JSON_LIMIT,
-  );
+  const bytes = await readBytes(request, jsonLimit);
   return { input: parseJson(bytes.toString("utf8")), uploads };
 }
