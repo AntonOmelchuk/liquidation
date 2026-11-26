@@ -1,5 +1,10 @@
 import { JOURNAL_ROUTES } from "@liquidation/domain/journal/constants";
 import { journalSchema } from "@liquidation/domain/journal/journal";
+import {
+  TRASH_ACTION,
+  TRASH_KIND,
+} from "@liquidation/domain/journal/trash/constants";
+import { LEARNING_TOPIC } from "@liquidation/domain/workspace/constants";
 import { once } from "node:events";
 import { mkdtemp, rm } from "node:fs/promises";
 import { createServer } from "node:http";
@@ -57,14 +62,13 @@ function post(baseUrl: string, command: unknown, pictureId?: string) {
   return fetch(baseUrl + JOURNAL_ROUTES.workspace, request);
 }
 
-test("persists lecture text and image blocks in order and retains their attachments when archived", async () => {
+test("persists lecture blocks and attachments while editing their topic and author", async () => {
   await withJournal(async (baseUrl, journal) => {
     const id = crypto.randomUUID();
     const data = {
       kind: "lesson",
       title: "Day one",
       body: "Legacy paragraph",
-      archived: false,
       completed: false,
     };
     const original = { record: "learning", id, input: data };
@@ -101,19 +105,24 @@ test("persists lecture text and image blocks in order and retains their attachme
     expect(entry.group).toBe("Trading community");
     expect(entry.blocks).toEqual(body);
 
-    const archive = {
+    const edit = {
       ...update,
       revision: 2,
-      input: { ...entry, archived: true },
+      input: {
+        ...entry,
+        topic: LEARNING_TOPIC.PRICE_ACTION,
+        author: "  Price   Action Community  ",
+      },
     };
-    expect((await post(baseUrl, archive)).status).toBe(200);
+    expect((await post(baseUrl, edit)).status).toBe(200);
     const picture = await fetch(
       baseUrl + JOURNAL_ROUTES.planScreenshot + imageId,
     );
     expect(picture.headers.get("content-type")).toBe("image/png");
     expect(Buffer.from(await picture.arrayBuffer())).toEqual(png);
     expect((await journal.read()).workspace.learning[0]).toMatchObject({
-      archived: true,
+      topic: LEARNING_TOPIC.PRICE_ACTION,
+      author: "Price Action Community",
       blocks: body,
     });
 
@@ -132,6 +141,68 @@ test("persists lecture text and image blocks in order and retains their attachme
         .status,
     ).toBe(422);
     expect((await post(baseUrl, note)).status).toBe(200);
+  });
+});
+
+test("uploads note images and preserves them through edits and Trash", async () => {
+  await withJournal(async (baseUrl, journal) => {
+    const id = crypto.randomUUID();
+    const image = crypto.randomUUID();
+    const command = {
+      record: "learning",
+      id,
+      input: {
+        kind: "note",
+        title: "Session review",
+        body: "Read the chart",
+        screenshotIds: [image],
+      },
+    };
+    expect((await post(baseUrl, command)).status).toBe(422);
+    expect((await post(baseUrl, command, image)).status).toBe(200);
+
+    const amended = await post(baseUrl, {
+      ...command,
+      revision: 1,
+      input: {
+        ...command.input,
+        body: "Compare both sessions",
+        topic: LEARNING_TOPIC.BACKTESTING,
+        author: "Study desk",
+      },
+    });
+    expect(amended.status).toBe(200);
+    const imageUrl = baseUrl + JOURNAL_ROUTES.planScreenshot + image;
+    const picture = await fetch(imageUrl);
+    expect(picture.headers.get("content-type")).toBe("image/png");
+    expect(Buffer.from(await picture.arrayBuffer())).toEqual(png);
+
+    const move = (revision: number) =>
+      journal.updateTrash({
+        action: TRASH_ACTION.MOVE,
+        kind: TRASH_KIND.LEARNING,
+        key: id,
+        revision,
+      });
+    const trashed = await move(2);
+    expect((await fetch(imageUrl)).status).toBe(200);
+    const restored = await journal.updateTrash({
+      action: TRASH_ACTION.RESTORE,
+      id: trashed.trash[0].id,
+    });
+    const note = restored.workspace.learning[0];
+    expect(note).toMatchObject({
+      completed: false,
+      topic: LEARNING_TOPIC.BACKTESTING,
+      author: "Study desk",
+      screenshotIds: [image],
+    });
+    const deleted = await move(note.revision);
+    await journal.updateTrash({
+      action: TRASH_ACTION.PURGE,
+      id: deleted.trash[0].id,
+    });
+    expect((await fetch(imageUrl)).status).toBe(404);
   });
 });
 
@@ -193,6 +264,72 @@ test("saves standalone and linked examples while keeping examples out of journal
       ).status,
     ).toBe(200);
     expect((await journal.read()).workspace.highlights[0].featured).toBe(false);
+  });
+});
+
+test("saves example metadata and timeframe charts through deletion, restore and purge", async () => {
+  await withJournal(async (baseUrl, journal) => {
+    const id = crypto.randomUUID();
+    const pictureId = crypto.randomUUID();
+    const details = {
+      date: "2026-11-26",
+      market: "indices",
+      style: "Swing",
+      timeframe: "H4",
+      model: "Key level",
+      rr: 2.81,
+      type: "reversal",
+    };
+    const analysis = [
+      {
+        id: crypto.randomUUID(),
+        timeframe: "W1",
+        text: "Higher-timeframe context",
+        screenshotIds: [pictureId],
+      },
+      {
+        id: crypto.randomUUID(),
+        timeframe: "D1",
+        text: "Look for absorption",
+        screenshotIds: [],
+      },
+    ];
+    const command = {
+      record: "highlight",
+      id,
+      input: {
+        featured: true,
+        note: "",
+        example: { title: "Index setup", symbol: "SPX500" },
+        details,
+        analysis,
+      },
+    };
+    expect((await post(baseUrl, command)).status).toBe(422);
+    expect((await post(baseUrl, command, pictureId)).status).toBe(200);
+    const move = (revision: number) =>
+      journal.updateTrash({
+        action: TRASH_ACTION.MOVE,
+        kind: TRASH_KIND.HIGHLIGHT,
+        key: id,
+        revision,
+      });
+    const trashed = await move(1);
+    const imageUrl = baseUrl + JOURNAL_ROUTES.planScreenshot + pictureId;
+    expect((await fetch(imageUrl)).status).toBe(200);
+    const restored = await journal.updateTrash({
+      action: TRASH_ACTION.RESTORE,
+      id: trashed.trash[0].id,
+    });
+    const example = restored.workspace.highlights[0];
+    expect(example).toMatchObject({ details, analysis });
+    expect(restored.trades).toEqual([]);
+    const deleted = await move(example.revision);
+    await journal.updateTrash({
+      action: TRASH_ACTION.PURGE,
+      id: deleted.trash[0].id,
+    });
+    expect((await fetch(imageUrl)).status).toBe(404);
   });
 });
 

@@ -13,6 +13,8 @@ export const BIQUOTE_QUOTES_URL = BIQUOTE_API_URL + "latest";
 export const QUOTE_RETRY_MS = 15_000;
 export const BIQUOTE_MARKET_CLOSED = "closed";
 export const BIQUOTE_TIME_EXACT = "exact";
+export const BIQUOTE_TIME_DATE = "date";
+export const BIQUOTE_HOLIDAY = "holiday";
 export const BIQUOTE_PERCENT = "percent";
 export const BIQUOTE_VALUE_SUFFIX = {
   thousands: "K",

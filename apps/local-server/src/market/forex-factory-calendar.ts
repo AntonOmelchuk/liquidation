@@ -3,6 +3,8 @@ import type { CalendarEvent } from "@liquidation/domain/market/types";
 import { z } from "zod";
 
 const HOLIDAY = "Holiday";
+const ALL_DAY = "All Day";
+const TENTATIVE = "Tentative";
 const impact = {
   Low: MARKET_IMPACT.LOW,
   Medium: MARKET_IMPACT.MEDIUM,
@@ -18,6 +20,7 @@ const row = z.object({
     .toUpperCase()
     .regex(/^[A-Z]{3}$/),
   date: z.iso.datetime({ offset: true }),
+  time: z.string().nullish(),
   impact: z.enum(Object.keys(impact) as (keyof typeof impact)[]),
   actual: z.string().nullish(),
   forecast: z.string().nullish(),
@@ -36,17 +39,19 @@ export function parseForexFactoryEvents(payload: unknown) {
     const timestamp = Date.parse(event.date);
     if (!Number.isFinite(timestamp)) continue;
     const at = new Date(timestamp).toISOString();
+    const allDay = event.impact === HOLIDAY || event.time === ALL_DAY;
     const id = JSON.stringify([event.country, at, event.title]);
     events.set(id, {
       id,
       name: event.title,
       currency: event.country,
       at,
-      timeKnown: event.impact !== HOLIDAY,
+      timeKnown: !allDay && event.time !== TENTATIVE,
+      allDayOn: allDay ? event.date.slice(0, 10) : undefined,
       impact: impact[event.impact],
-      actual: event.actual ?? "",
-      forecast: event.forecast ?? "",
-      previous: event.previous ?? "",
+      actual: allDay ? "" : (event.actual ?? ""),
+      forecast: allDay ? "" : (event.forecast ?? ""),
+      previous: allDay ? "" : (event.previous ?? ""),
     });
   }
   if (input.length && !events.size) throw new Error("Invalid calendar data.");

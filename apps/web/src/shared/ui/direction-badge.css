@@ -1,0 +1,37 @@
+.direction-badge {
+  --direction-color: var(--muted);
+  --direction-scale: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 0.28rem;
+  min-height: 1.55rem;
+  padding: 0.1rem 0.42rem;
+  border: 1px solid
+    color-mix(in srgb, var(--direction-color) 33%, var(--border));
+  border-radius: 0.38rem;
+  background: color-mix(in srgb, var(--direction-color) 11%, var(--surface));
+  color: var(--direction-color);
+  font-size: 0.8rem;
+  font-weight: 650;
+  line-height: 1.2;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.direction-badge:is([data-direction="long"], [data-direction="bullish"]) {
+  --direction-color: var(--section-accent);
+}
+.direction-badge:is([data-direction="short"], [data-direction="bearish"]) {
+  --direction-color: #ffaaa5;
+  --direction-scale: -1;
+}
+[data-theme="light"]
+  .direction-badge:is([data-direction="short"], [data-direction="bearish"]) {
+  --direction-color: #9f2433;
+}
+.direction-badge svg {
+  flex: 0 0 auto;
+  width: 0.95rem;
+  height: 0.95rem;
+  transform: scaleY(var(--direction-scale));
+}

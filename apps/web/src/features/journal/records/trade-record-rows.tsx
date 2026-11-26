@@ -3,6 +3,7 @@ import { localDay } from "@liquidation/domain/workspace/period";
 import { EMPTY_VALUE } from "../../../shared/constants.ts";
 import { formatCompactDay, numericTone } from "../../../shared/format.ts";
 import { useLocale } from "../../../shared/messages.ts";
+import { TradeSideBadge } from "../../../shared/ui/direction-badge.tsx";
 import { InstrumentIcons } from "../../../shared/ui/instrument-picker.tsx";
 import { TRADE_RESULT } from "./constants.ts";
 import { useTradeRecordMessages } from "./messages.ts";
@@ -13,7 +14,7 @@ export function TradeRecordRows({
   onInspect,
   showFinancialResult,
 }: TradeRecordRowsProps) {
-  const { t, format } = useLocale();
+  const { format } = useLocale();
   const m = useTradeRecordMessages();
   return records.map((record) => {
     const trade = "closedAt" in record ? record : undefined;
@@ -61,9 +62,7 @@ export function TradeRecordRows({
           </button>
         </th>
         <td>
-          <span className="trade-side" data-side={record.direction}>
-            {t[record.direction]}
-          </span>
+          <TradeSideBadge side={record.direction} />
         </td>
         <td title={record.style} className="trade-ledger-clip">
           {record.style || EMPTY_VALUE}

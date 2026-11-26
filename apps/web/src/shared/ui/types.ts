@@ -1,4 +1,13 @@
+import type { PlanSetup } from "@liquidation/domain/plans/types";
+import type { TradeDirection } from "@liquidation/domain/trades/types";
 import type { ComponentProps, ReactNode } from "react";
+
+export type DirectionBadgeProps = {
+  direction: TradeDirection | NonNullable<PlanSetup["narrative"]>;
+  children: ReactNode;
+};
+
+export type TradeSideBadgeProps = { side: TradeDirection };
 
 export type InstrumentIconsProps = { symbol: string };
 

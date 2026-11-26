@@ -13,7 +13,6 @@ import {
 import { AnalyticsSelect } from "../../shared/analytics/filter-fields.tsx";
 import { EMPTY_VALUE, FILTER_ALL } from "../../shared/constants.ts";
 import { useLocale } from "../../shared/messages.ts";
-import { InfoTip } from "../../shared/ui/info-tip.tsx";
 import { Metric, Panel } from "../../shared/ui/layout.tsx";
 import { SelectField } from "../../shared/ui/select-field.tsx";
 import { QuotePanel } from "../market/quote-panel.tsx";
@@ -265,7 +264,6 @@ export function JournalPage() {
           title={t.positions}
           detail={
             <div className="trade-list-toolbar">
-              <InfoTip label={records.details} text={records.compactHelp} />
               {trades && (
                 <span>
                   {t.recorded} · {format.integer.format(filtered.length)}

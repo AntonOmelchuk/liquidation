@@ -7,6 +7,8 @@ import {
   BIQUOTE_CALENDAR_LIMIT,
   BIQUOTE_CALENDAR_URL,
   BIQUOTE_PERCENT,
+  BIQUOTE_HOLIDAY,
+  BIQUOTE_TIME_DATE,
   BIQUOTE_TIME_EXACT,
   BIQUOTE_VALUE_SUFFIX,
 } from "./constants.ts";
@@ -25,6 +27,7 @@ const row = z.object({
   currency: z.string().regex(/^[A-Z]{3}$/),
   time: z.iso.datetime({ offset: true }),
   timeMode: z.string(),
+  type: z.string().optional(),
   importance: z.enum(Object.keys(impacts) as (keyof typeof impacts)[]),
   unit: z.string().nullish(),
   multiplier: z.string().nullish(),
@@ -52,6 +55,8 @@ export function parseBiquoteEvents(payload: unknown): CalendarEvent[] {
     const result = row.safeParse(candidate);
     if (!result.success) continue;
     const event = result.data;
+    const allDay =
+      event.timeMode === BIQUOTE_TIME_DATE || event.type === BIQUOTE_HOLIDAY;
     const unit =
       event.unit === BIQUOTE_PERCENT
         ? "%"
@@ -63,11 +68,12 @@ export function parseBiquoteEvents(payload: unknown): CalendarEvent[] {
       name: event.name,
       currency: event.currency,
       at: new Date(event.time).toISOString(),
-      timeKnown: event.timeMode === BIQUOTE_TIME_EXACT,
+      timeKnown: !allDay && event.timeMode === BIQUOTE_TIME_EXACT,
+      allDayOn: allDay ? event.time.slice(0, 10) : undefined,
       impact: impacts[event.importance],
-      actual: format(event.actual),
-      forecast: format(event.forecast),
-      previous: format(event.previous),
+      actual: allDay ? "" : format(event.actual),
+      forecast: allDay ? "" : format(event.forecast),
+      previous: allDay ? "" : format(event.previous),
     });
   }
   if (rows.length && !events.size) throw new Error("Invalid calendar data.");

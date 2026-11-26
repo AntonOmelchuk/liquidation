@@ -2,10 +2,23 @@ import type { LECTURE_BLOCK } from "@liquidation/domain/workspace/constants";
 import type {
   LearningEntry,
   LearningKind,
+  LearningTopic,
   LectureBlock,
 } from "@liquidation/domain/workspace/types";
 import type { PAGE_VIEW } from "../../../app/constants.ts";
 import type { ScreenshotDraft } from "../../../shared/screenshots/types.ts";
+import type { LEARNING_DATE_ORDER } from "./constants.ts";
+
+export type LearningTopicLabels = Record<LearningTopic, string>;
+
+export type LearningNameOption = { key: string; label: string };
+
+export type LearningListFilters = {
+  search: string;
+  topic?: string;
+  author?: string;
+  sort: (typeof LEARNING_DATE_ORDER)[keyof typeof LEARNING_DATE_ORDER];
+};
 
 export type LearningPageProps = {
   kind: LearningKind;
@@ -20,7 +33,8 @@ export type LearningPageProps = {
 export type LearningEditorProps = {
   kind: LearningKind;
   entry?: LearningEntry;
-  groups: string[];
+  groups: LearningNameOption[];
+  authors: LearningNameOption[];
 };
 
 export type LectureDraft =

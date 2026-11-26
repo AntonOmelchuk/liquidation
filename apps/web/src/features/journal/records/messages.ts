@@ -59,7 +59,7 @@ const en = {
   pnlInvalid:
     "Check the risk and result inputs, or enter the broker's gross result.",
   atRisk: "Remaining stop risk",
-  stopMoved: "Stop moved to entry",
+  stopStatus: "Stop status",
   checklist: "Recorded checklist",
   pass: "Met",
   fail: "Exception",
@@ -134,7 +134,7 @@ const uk: typeof en = {
   pnlInvalid:
     "Перевір ризик і дані для розрахунку або введи валовий результат від брокера.",
   atRisk: "Залишковий ризик стопа",
-  stopMoved: "Стоп перенесено до входу",
+  stopStatus: "Статус стопа",
   checklist: "Записаний чекліст",
   pass: "Виконано",
   fail: "Виняток",

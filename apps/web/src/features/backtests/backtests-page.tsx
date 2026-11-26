@@ -12,6 +12,7 @@ import { backtestHref, playbookHref } from "../../app/page.ts";
 import { EMPTY_VALUE, NEW_DRAFT } from "../../shared/constants.ts";
 import { numericTone } from "../../shared/format.ts";
 import { useLocale } from "../../shared/messages.ts";
+import { TradeSideBadge } from "../../shared/ui/direction-badge.tsx";
 import { ScreenshotGallery } from "../../shared/screenshots/screenshot-gallery.tsx";
 import { InstrumentIcons } from "../../shared/ui/instrument-picker.tsx";
 import { Metric, Panel } from "../../shared/ui/layout.tsx";
@@ -159,7 +160,7 @@ function BacktestComparison({ run, trades }: BacktestComparisonProps) {
 }
 
 export function BacktestDetailsPage({ id }: { id: string }) {
-  const { t, format } = useLocale();
+  const { format } = useLocale();
   const b = useBacktestMessages();
   const run = useJournal((state) =>
     state.backtests.find((entry) => entry.id === id),
@@ -263,7 +264,7 @@ export function BacktestDetailsPage({ id }: { id: string }) {
                           <InstrumentIcons symbol={sample.symbol} />
                           <strong>{sample.symbol}</strong>
                         </span>
-                        <span>{t[sample.direction]}</span>
+                        <TradeSideBadge side={sample.direction} />
                         {sample.timeframe && <span>{sample.timeframe}</span>}
                         <time dateTime={sample.openedAt}>
                           {format.date.format(Date.parse(sample.openedAt))}

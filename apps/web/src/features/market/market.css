@@ -92,66 +92,9 @@
   border-radius: 0.65rem;
   background: var(--surface);
 }
-.quote-toolbar,
-.quote-heading,
-.quote-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.4rem 0.75rem;
-}
-.quote-toolbar {
-  position: relative;
-  justify-content: space-between;
-  padding: 0.45rem 0.7rem;
-  border-bottom: 1px solid var(--border);
-}
-.quote-heading h2 {
-  margin: 0;
-  font-size: 0.92rem;
-}
-.quote-heading,
-.quote-actions {
-  font-size: 0.8rem;
-}
-.quote-actions .quote-pause {
-  min-height: 1.7rem;
-  padding: 0.14rem 0.42rem;
-  font-size: inherit;
-}
-.quote-picker summary {
-  cursor: pointer;
-  color: var(--section-accent);
-}
-.quote-picker small {
-  display: inline;
-  color: var(--muted);
-  font-variant-numeric: tabular-nums;
-}
-.quote-options {
-  position: absolute;
-  z-index: 5;
-  inset-inline-end: 0.45rem;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(6.2rem, 1fr));
-  width: min(24rem, calc(100% - 0.9rem));
-  max-height: 14rem;
-  overflow: auto;
-  gap: 0.55rem;
-  margin: 0.55rem 0 0;
-  padding: 0.65rem;
-  border: 1px solid var(--border);
-  border-radius: 0.55rem;
-  background: var(--surface);
-  box-shadow: 0 0.7rem 1.4rem #0003;
-}
-.quote-ticker > .market-status {
-  margin-inline: 0.7rem;
-  font-size: 0.83rem;
-}
 .quote-conveyor {
   overflow-x: auto;
-  border-radius: 0 0 0.65rem 0.65rem;
+  border-radius: inherit;
 }
 .quote-conveyor[data-moving] {
   overflow-x: hidden;
@@ -210,8 +153,7 @@
   .quote-conveyor[data-moving] .quote-track {
     animation: none;
   }
-  .quote-repeat,
-  .quote-actions .quote-pause {
+  .quote-repeat {
     display: none;
   }
 }

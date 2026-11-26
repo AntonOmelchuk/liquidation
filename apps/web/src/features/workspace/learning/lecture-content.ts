@@ -6,28 +6,6 @@ import type {
 import { existingScreenshots } from "../../../shared/screenshots/draft.ts";
 import type { LectureDraft } from "./types.ts";
 
-export function groupKey(group?: string) {
-  return group?.trim().toLowerCase() ?? "";
-}
-
-export function groupNames(entries: readonly LearningEntry[]) {
-  const names = new Map<string, string>();
-  for (const { group } of entries) {
-    if (group && !names.has(groupKey(group))) names.set(groupKey(group), group);
-  }
-  return [...names.values()].sort((a, b) => a.localeCompare(b));
-}
-
-export function searchableContent(entry: LearningEntry) {
-  const blocks =
-    entry.blocks?.map((block) =>
-      block.type === LECTURE_BLOCK.TEXT ? block.text : block.caption,
-    ) ?? [];
-  return [entry.title, entry.group, entry.body, ...blocks]
-    .join(" ")
-    .toLowerCase();
-}
-
 export function textDraft(text = ""): LectureDraft {
   return { id: crypto.randomUUID(), type: LECTURE_BLOCK.TEXT, text };
 }

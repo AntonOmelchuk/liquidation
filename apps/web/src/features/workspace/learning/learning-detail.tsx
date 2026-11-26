@@ -1,33 +1,18 @@
 import { TRASH_KIND } from "@liquidation/domain/journal/trash/constants";
-import {
-  LEARNING_KIND,
-  WORKSPACE_RECORD,
-} from "@liquidation/domain/workspace/constants";
+import { LEARNING_KIND } from "@liquidation/domain/workspace/constants";
 import type { LearningEntry } from "@liquidation/domain/workspace/types";
 import { learningHref } from "../../../app/page.ts";
 import { useLocale } from "../../../shared/messages.ts";
+import { ScreenshotGallery } from "../../../shared/screenshots/screenshot-gallery.tsx";
 import { DeleteRecord } from "../../trash/delete-record.tsx";
 import { useWorkspaceMessages } from "../messages.ts";
-import { useWorkspaceSave } from "../use-workspace-save.ts";
-import { WorkspaceFeedback } from "../workspace-feedback.tsx";
+import { LearningTags } from "./learning-tags.tsx";
 import { LectureDocument } from "./lecture-blocks.tsx";
-import { useLearningMessages } from "./messages.ts";
 
 export function LearningDetail({ entry }: { entry: LearningEntry }) {
   const { format } = useLocale();
   const m = useWorkspaceMessages();
-  const l = useLearningMessages();
-  const { save, saving, status } = useWorkspaceSave();
   const lecture = entry.kind === LEARNING_KIND.LESSON;
-
-  function toggleArchive() {
-    return save({
-      record: WORKSPACE_RECORD.LEARNING,
-      id: entry.id,
-      revision: entry.revision,
-      input: { ...entry, archived: !entry.archived },
-    });
-  }
 
   return (
     <main className="workspace-page learning-document">
@@ -37,13 +22,13 @@ export function LearningDetail({ entry }: { entry: LearningEntry }) {
       <div className="page-heading learning-heading">
         <div>
           <h1>{entry.title}</h1>
+          <LearningTags entry={entry} />
           <p className="learning-meta">
             {entry.group && <span>{entry.group}</span>}
             <time dateTime={entry.updatedAt}>
               {format.date.format(Date.parse(entry.updatedAt))}
             </time>
-            {entry.completed && <span>{m.completed}</span>}
-            {entry.archived && <span>{l.archived}</span>}
+            {lecture && entry.completed && <span>{m.completed}</span>}
           </p>
         </div>
         <div className="workspace-actions">
@@ -51,11 +36,16 @@ export function LearningDetail({ entry }: { entry: LearningEntry }) {
             kind={TRASH_KIND.LEARNING}
             recordKey={entry.id}
             revision={entry.revision}
-            disabled={saving}
             afterDelete={() => {
               window.location.hash = learningHref(entry.kind);
             }}
           />
+          <a
+            className="action-link secondary"
+            href={learningHref(entry.kind, entry.id, true)}
+          >
+            {m.edit}
+          </a>
           {entry.link && (
             <a
               className="record-link"
@@ -66,28 +56,16 @@ export function LearningDetail({ entry }: { entry: LearningEntry }) {
               {m.source} ↗
             </a>
           )}
-          <a
-            className="action-link secondary"
-            href={learningHref(entry.kind, entry.id, true)}
-          >
-            {m.edit}
-          </a>
-          <button
-            className="secondary"
-            type="button"
-            disabled={saving}
-            onClick={() => void toggleArchive()}
-          >
-            {entry.archived ? m.restore : m.archive}
-          </button>
         </div>
       </div>
-      <WorkspaceFeedback status={status} />
       <article className="panel">
         {lecture ? (
           <LectureDocument entry={entry} />
         ) : (
-          <p className="record-prose">{entry.body}</p>
+          <>
+            {entry.body && <p className="record-prose">{entry.body}</p>}
+            <ScreenshotGallery ids={entry.screenshotIds} />
+          </>
         )}
       </article>
     </main>

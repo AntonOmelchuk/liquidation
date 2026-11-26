@@ -44,16 +44,21 @@ export function CalendarPanel() {
   const source = feed?.source ?? CALENDAR_SOURCE.BIQUOTE;
   const events = feed?.events.filter(
     (event) =>
-      localDay(event.at) === today &&
+      (event.allDayOn ?? localDay(event.at)) === today &&
       (!important || event.impact >= MARKET_IMPACT.MEDIUM),
   );
   const selectedEvent = events?.find(
     (event) =>
-      event.id === expanded && event.timeKnown && Date.parse(event.at) <= now,
+      event.id === expanded &&
+      !event.allDayOn &&
+      event.timeKnown &&
+      Date.parse(event.at) <= now,
   );
   const nextAt = events?.reduce((next, event) => {
     const time = Date.parse(event.at);
-    return event.timeKnown && time >= now ? Math.min(next, time) : next;
+    return !event.allDayOn && event.timeKnown && time >= now
+      ? Math.min(next, time)
+      : next;
   }, Infinity);
   const available =
     feed?.state === CALENDAR_STATE.READY ||
@@ -66,19 +71,19 @@ export function CalendarPanel() {
       detail={formatCompactDay(today)}
     >
       <div className="market-toolbar">
-        <div className="market-attribution">
-          <a
-            className="record-link"
-            href={MARKET_LINKS[source]}
-            target="_blank"
-            rel="noreferrer"
-          >
-            {MARKET_PROVIDER[source]}
-          </a>
-          {source === CALENDAR_SOURCE.FOREX_FACTORY && (
+        {source === CALENDAR_SOURCE.FOREX_FACTORY && (
+          <div className="market-attribution">
+            <a
+              className="record-link"
+              href={MARKET_LINKS[source]}
+              target="_blank"
+              rel="noreferrer"
+            >
+              {MARKET_PROVIDER[source]}
+            </a>
             <span>{m.calendarFallback}</span>
-          )}
-        </div>
+          </div>
+        )}
         {available && (
           <CheckboxField
             checked={important}
@@ -134,7 +139,8 @@ export function CalendarPanel() {
               <tbody>
                 {events.map((event) => {
                   const time = Date.parse(event.at);
-                  const timing = event.timeKnown
+                  const timed = event.timeKnown && !event.allDayOn;
+                  const timing = timed
                     ? time < now
                       ? RELEASE_TIMING.PAST
                       : time === nextAt
@@ -145,10 +151,12 @@ export function CalendarPanel() {
                   return (
                     <tr key={event.id} data-timing={timing}>
                       <td>
-                        {event.timeKnown ? (
+                        {timed ? (
                           <time dateTime={event.at} title={m.localTime}>
                             {format.clock.format(Date.parse(event.at))}
                           </time>
+                        ) : event.allDayOn ? (
+                          m.allDay
                         ) : (
                           m.timePending
                         )}
@@ -184,16 +192,20 @@ export function CalendarPanel() {
                         </span>
                       </td>
                       <td className="market-actual">
-                        {event.actual ? (
+                        {event.allDayOn ? null : event.actual ? (
                           <strong>{event.actual}</strong>
                         ) : (
                           EMPTY_VALUE
                         )}
                       </td>
-                      <td>{event.forecast || EMPTY_VALUE}</td>
-                      <td>{event.previous || EMPTY_VALUE}</td>
                       <td>
-                        {event.timeKnown && time <= now ? (
+                        {event.allDayOn ? null : event.forecast || EMPTY_VALUE}
+                      </td>
+                      <td>
+                        {event.allDayOn ? null : event.previous || EMPTY_VALUE}
+                      </td>
+                      <td>
+                        {timed && time <= now ? (
                           <button
                             type="button"
                             className="secondary market-reaction-trigger"
@@ -206,7 +218,7 @@ export function CalendarPanel() {
                           >
                             {m.priceReaction}
                           </button>
-                        ) : (
+                        ) : event.allDayOn ? null : (
                           EMPTY_VALUE
                         )}
                       </td>

@@ -64,11 +64,11 @@ Enter commission and swap with their original signs. The preview and saved net P
 
 ## Market data on the dashboard
 
-**Today's economic calendar** appears below the daily and weekly review. It shows the current day in the browser's local time zone. The server checks the [biquote calendar](https://biquote.io/docs/#calendar) once per minute while the page is open and shows actual, forecast and previous readings when published. The [Forex Factory weekly export](https://www.forexfactory.com/calendar) provides a cached backup schedule. If both requests fail, the calendar can show the last successful feed with its fetch time. The medium and high impact filter controls visible releases, past scheduled times are dimmed, and the nearest upcoming time is highlighted.
+**Today's economic calendar** appears below the daily and weekly review. It shows the current day in the browser's local time zone. The server checks the [biquote calendar](https://biquote.io/docs/#calendar) once per minute while the page is open and shows actual, forecast and previous readings when published. Events marked **All day** use their published date and leave reading cells blank. Releases awaiting a confirmed time show **To be confirmed**. The [Forex Factory weekly export](https://www.forexfactory.com/calendar) provides a cached backup schedule. If both requests fail, the calendar can show the last successful feed with its fetch time. The medium and high impact filter controls visible releases, past scheduled times are dimmed, and the nearest upcoming time is highlighted.
 
 After a scheduled release, open **Price move** and select an instrument. It compares the mid-price close immediately before the scheduled time with closes at five and fifteen minutes afterward. The panel shows the difference in FX pips or USD for metals, and in percent. It uses complete one-minute candles from biquote, with complete five-minute candles as a fallback on matching boundaries. Empty windows can indicate an unfinished interval, missing data or a date outside the provider's rolling candle history.
 
-**Market quotes** is a scrolling strip across the top of Journal. **Choose pairs** saves up to eight FX and metal symbols in the browser. The local server fetches the latest [biquote](https://biquote.io/docs/) mid-prices as one batch every five seconds while the tab is visible. A quote shows its price and daily percentage change when available. The last update is available on hover. Metals display two decimals, JPY pairs three and other FX pairs five. Calendar currencies show their flags next to the code. Hover or focus the strip to pause scrolling, or select **Pause ticker** to stop it until you resume. The strip is static when reduced motion is enabled.
+The Journal ticker shows the instrument, latest price and daily percentage change when available. **Settings → Market ticker → Ticker instruments** saves up to eight FX and metal symbols in the browser. Clear the selection to hide the ticker. The local server fetches the latest [biquote](https://biquote.io/docs/) mid-prices as one batch every five seconds while the tab is visible. Hover over a price to see its last update. Metals display two decimals, JPY pairs three and other FX pairs five. Hover or focus the strip to pause scrolling, or turn off **Animate ticker** in Settings. The strip is static when reduced motion is enabled.
 
 Both feeds work without API keys. The external services receive the public market-data requests and selected ticker symbols. Trading records, account details and screenshots stay in the local journal.
 
@@ -112,17 +112,19 @@ Expand **Prices and excursions** in a trade or position form to record entry, in
 
 ## Dashboard and daily/weekly review
 
-The dashboard shows open positions and active plans alongside **Daily review** and **Weekly review**. Use **Edit review** to save market observations, news or events, monitored levels, setups, learning plans and tasks. Daily and weekly entries are stored independently. Open the DRC for the end-of-day market and process assessment, or the WRC for the end-of-week assessment. **DRC saved** appears after you save today's report card. Active plans are non-voided plans in **Waiting** or **In progress** whose dates overlap the selected day or week, plus undated plans. Each active plan shows its instrument and status. The news and alert fields are manual entries.
+The dashboard's **Today's thoughts** and **This week's thoughts** views hold market observations, news and events, expectations, screenshots and tasks. Daily and weekly entries are stored independently. Check or uncheck a task from the read view to save it immediately. Active plans are non-voided plans in **Waiting** or **In progress** whose dates overlap the selected thoughts period, plus undated plans. Each active plan shows its instrument and status.
+
+**Daily review** and **Weekly review** summarize their saved DRC or WRC with the process grade and notes, P&L, closed trade count, opportunity grade and overview. A written P&L on the card takes precedence over the calculated value. The review uses the same trade periods as the full cards. The plus tile opens the corresponding editor when a card is missing.
 
 On wide screens, the review sits below today’s thoughts. The weekly watchlist and active plans form a separate column. Both columns stack on narrow screens.
 
 The P&L calendar opens on the month of the most recent trade close or open-position entry in the filtered sample. Use the month arrows or **This month** to navigate. Closed trades show their symbol and net P&L on the closing date. Open positions show their symbol and remaining stop risk on the entry date. A stop moved to entry has zero remaining risk. A day shows up to three records and a count of further entries. Select a day to inspect all its records and open the DRC. Weeks start on Monday and weekly totals cover dates in the displayed month. The daily and cumulative P&L charts use closed trades. Journal date filters match closing dates for closed trades and entry dates for open positions in the calendar.
 
-### Daily thoughts
+### Thoughts and tasks
 
-1. Open **Daily thoughts** or **Write thoughts** in the dashboard's **Today's thoughts** card.
-2. Choose a local calendar date. Write market observations, why you are waiting for a setup, what would change your view, or what you learned during the session. You can save text, screenshots, or both without recording a trade or plan.
-3. Save the entry. The dashboard shows the entry for today's local date. Open an older entry from the history or select any date to add or edit it.
+1. On the dashboard choose **Today** or **This week**, then select **Write thoughts** or **Edit thoughts**. Add text, screenshots or tasks without recording a trade or plan.
+2. Save the entry. Each checkbox saves directly from the dashboard or the entry page.
+3. Open **Thoughts and tasks** in the navigation to choose a date and view daily or weekly history.
 
 ### Weekly watchlist
 
@@ -133,15 +135,16 @@ The P&L calendar opens on the month of the most recent trade close or open-posit
 
 ## Best Trades, Lectures and Notes
 
-- **Best Trades** is a collection you build. Choose **Add from journal** to search closed trades by symbol, closing date or notes. Choose **New example** for a standalone write-up with an optional symbol. Both kinds can include images. You can also add a closed best trade from a report card. Use **Edit** to update a saved example and **Delete** to move it to Trash. Standalone examples are stored separately from journal trades and statistics.
-- **Lectures** groups individual lectures under **Course / block**. Type a group name or select a previous one. Give each lecture its own title and optional source link. Add and reorder text and image blocks. Choose a file, paste an image while the drop area is focused, or drop it in an image block. An image block can include a caption. Saved images open at full size when selected.
-- **Notes** keeps standalone text entries and source links. Search both collections by title and content. Open an entry to edit, archive or delete it. In the list, **Show archived** opens the archive. Restore deleted entries in **Trash**.
+- **Best Trades** shows a table of examples with date, ticker, market, style, timeframe, model, playbook, planned RR and type. Choose **Add from journal** to select a closed trade or **New example** to create a standalone study. Linked examples use the trade's entry date and available classifications and planned RR. The editor supports overrides and separate analysis sections for each timeframe. Add text and charts to each section, then open the ticker in the table to expand the saved sections. You can also feature a closed trade from a report card. Standalone examples are stored separately from journal trades and statistics.
+- **Lectures** groups individual lectures under **Course / block**. Type a group name or select a previous one. Give each lecture its own title and optional source link. Add and reorder text and image blocks. Choose a file, paste an image while the drop area is focused, or drop it in an image block. An image block can include a caption.
+- **Notes** keeps standalone text entries with source links and image attachments. Add images in the editor by choosing files, pasting them into the drop area, or dragging them in. Select a saved image to open it at full size.
+- **Topic** and **Author or community** appear by the title on Notes and Lectures. Choose a topic and enter an author or reuse a name from the journal. Search the collections by title, content, topic or author. Combine the search with the two filters and sort by last update in either direction. Open records to edit or delete them. Restore deleted entries in **Trash**.
 
 ## Trading plans and missed opportunities
 
 Open **Plans** to create a market narrative and an execution plan for a day or a date range. **Waiting** is the default status. Choose another status in the plan form while creating or editing it. The table groups current and upcoming plans separately from past or voided plans. Select the plan name to open it, **Edit** to change its fields, or the status badge to go straight to the review fields.
 
-- The plan list uses `DD.MM.YY` dates and icon actions for editing and moving plans to Trash. **Result** displays the total realized R of linked closed trades with measured risk. A dash indicates that no realized R is available.
+- Plans are grouped into **Active and upcoming** and **Past plans**. **Narrative** shows the market outlook and **Side** shows the planned trade direction. The list uses `DD.MM.YY` dates and icon actions for editing and moving plans to Trash. **Result** displays the total realized R of linked closed trades with measured risk. A dash indicates that no realized R is available.
 - Add an analysis block for each timeframe. Attach screenshots to the analysis, execution plan, timeline entries or post-session review. Paste from the clipboard while the screenshot area is focused, drop images from your file manager or use **Choose images**. Reorder screenshots by dragging them or using the arrow buttons. Select a stored image to open it at full size.
 - The accepted formats are PNG, JPEG, WebP and GIF. Each section can hold 12 images, each file can be up to 8 MiB, and a save can include up to 32 MiB of new screenshots. Save the plan between larger batches.
 - **Original setup** preserves the first saved version of the plan with its images. Timeline updates are dated and can be edited. **Void plan** records an invalidation reason and moves the plan to the past section. **Restore plan** records a separate event.

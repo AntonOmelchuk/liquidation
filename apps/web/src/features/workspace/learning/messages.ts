@@ -1,3 +1,4 @@
+import { LEARNING_TOPIC } from "@liquidation/domain/workspace/constants";
 import { LANGUAGE } from "../../../shared/constants.ts";
 import { useLocale } from "../../../shared/messages.ts";
 
@@ -15,7 +16,25 @@ const en = {
   earlier: "Move block up",
   later: "Move block down",
   removeBlock: "Remove block",
-  archived: "Archived",
+  topic: "Topic",
+  author: "Author or community",
+  noTopic: "No topic",
+  allTopics: "All topics",
+  allAuthors: "All authors and communities",
+  sortByDate: "Sort by last update",
+  newest: "Newest first",
+  oldest: "Oldest first",
+  topics: {
+    [LEARNING_TOPIC.PSYCHOLOGY]: "Psychology",
+    [LEARNING_TOPIC.RISK_MANAGEMENT]: "Risk management",
+    [LEARNING_TOPIC.TRADING_STRATEGY]: "Trading strategy",
+    [LEARNING_TOPIC.PRICE_ACTION]: "Price action",
+    [LEARNING_TOPIC.PRICE_BEHAVIOR]: "Price behavior",
+    [LEARNING_TOPIC.TRADE_EXECUTION]: "Trade execution",
+    [LEARNING_TOPIC.BACKTESTING]: "Backtesting and statistics",
+    [LEARNING_TOPIC.MACROECONOMICS]: "Macroeconomics and news",
+    [LEARNING_TOPIC.GENERAL]: "General",
+  },
   missingLecture: "Lecture not found.",
   missingNote: "Note not found.",
 };
@@ -34,7 +53,25 @@ const uk: typeof en = {
   earlier: "Перемістити блок угору",
   later: "Перемістити блок униз",
   removeBlock: "Прибрати блок",
-  archived: "В архіві",
+  topic: "Тема",
+  author: "Автор або спільнота",
+  noTopic: "Без теми",
+  allTopics: "Усі теми",
+  allAuthors: "Усі автори та спільноти",
+  sortByDate: "Сортувати за датою оновлення",
+  newest: "Спочатку нові",
+  oldest: "Спочатку старі",
+  topics: {
+    [LEARNING_TOPIC.PSYCHOLOGY]: "Психологія",
+    [LEARNING_TOPIC.RISK_MANAGEMENT]: "Ризик-менеджмент",
+    [LEARNING_TOPIC.TRADING_STRATEGY]: "Торгова стратегія",
+    [LEARNING_TOPIC.PRICE_ACTION]: "Прайс-екшн",
+    [LEARNING_TOPIC.PRICE_BEHAVIOR]: "Поведінка ціни",
+    [LEARNING_TOPIC.TRADE_EXECUTION]: "Виконання угод",
+    [LEARNING_TOPIC.BACKTESTING]: "Бектести та статистика",
+    [LEARNING_TOPIC.MACROECONOMICS]: "Макроекономіка та новини",
+    [LEARNING_TOPIC.GENERAL]: "Загальне",
+  },
   missingLecture: "Лекцію не знайдено.",
   missingNote: "Нотатку не знайдено.",
 };

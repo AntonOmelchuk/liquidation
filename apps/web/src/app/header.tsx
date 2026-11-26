@@ -5,6 +5,7 @@ import { useWorkspaceMessages } from "../features/workspace/messages.ts";
 import { usePlanningMessages } from "../features/workspace/planning/messages.ts";
 import { useTrashMessages } from "../features/trash/messages.ts";
 import { useAccountMessages } from "../features/accounts/messages.ts";
+import { QuoteSettings } from "../features/market/quote-settings.tsx";
 import {
   LANGUAGE,
   TEXT_SIZE,
@@ -59,7 +60,13 @@ export function Header({ page }: HeaderProps) {
   return (
     <header className="topbar">
       <a className="brand" href={PAGE_HASHES.journal} aria-label={t.home}>
-        <span aria-hidden="true">◈</span> Liquidation
+        <img
+          src={import.meta.env.BASE_URL + "liquidation.svg"}
+          alt=""
+          width={36}
+          height={36}
+        />
+        Liquidation
       </a>
       <nav className="primary-nav" aria-label={t.navigation}>
         {navigation.map(([target, label]) => (
@@ -150,6 +157,7 @@ export function Header({ page }: HeaderProps) {
             ))}
           </SelectField>
         </div>
+        <QuoteSettings />
       </dialog>
     </header>
   );

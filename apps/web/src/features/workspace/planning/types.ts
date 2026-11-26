@@ -1,14 +1,24 @@
 import type {
   DailyThought,
   MissedTrade,
+  Preparation,
+  PreparationPeriod,
   WeeklyWatchlist,
   WatchItem,
 } from "@liquidation/domain/workspace/types";
 import type { ScreenshotDraft } from "../../../shared/screenshots/types.ts";
 
-export type ThoughtEditorProps = {
+export type PeriodThoughtsPanelProps = {
+  period: PreparationPeriod;
   day: string;
-  entry?: DailyThought;
+  onPeriodChange: (period: PreparationPeriod) => void;
+  onDayChange?: (day: string) => void;
+};
+export type PeriodThoughtsEditorProps = {
+  period: PreparationPeriod;
+  start: string;
+  preparation?: Preparation;
+  legacy?: DailyThought;
   onClose: () => void;
 };
 export type WatchDraft = Omit<WatchItem, "screenshotIds"> & {

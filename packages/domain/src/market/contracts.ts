@@ -30,6 +30,7 @@ const eventSchema = z.object({
   currency: z.string(),
   at: z.iso.datetime(),
   timeKnown: z.boolean(),
+  allDayOn: z.iso.date().optional(),
   impact: marketImpactSchema,
   actual: z.string(),
   forecast: z.string(),

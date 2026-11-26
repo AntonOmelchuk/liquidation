@@ -13,6 +13,7 @@ import type { TradeLinksEditorProps } from "./types.ts";
 
 import { isoToLocalDateTime } from "../../../shared/format.ts";
 import { useLocale } from "../../../shared/messages.ts";
+import { TradeSideBadge } from "../../../shared/ui/direction-badge.tsx";
 import { InstrumentIcons } from "../../../shared/ui/instrument-picker.tsx";
 import { Metric, Panel, RecordActions } from "../../../shared/ui/layout.tsx";
 import { JournalRequestError } from "../data/api.ts";
@@ -96,7 +97,7 @@ function TradeLinksEditor({ trade }: TradeLinksEditorProps) {
               <InstrumentIcons symbol={trade.symbol} />
               {trade.symbol}
             </span>
-            <span>{t[trade.direction]}</span>
+            <TradeSideBadge side={trade.direction} />
             <time dateTime={trade.openedAt}>
               {format.date.format(Date.parse(trade.openedAt))}
             </time>

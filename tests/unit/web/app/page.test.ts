@@ -1,10 +1,11 @@
-import { LEARNING_KIND } from "@liquidation/domain/workspace/constants";
+import { LEARNING_KIND, PERIOD } from "@liquidation/domain/workspace/constants";
 import { expect, test } from "vitest";
 import {
   NEW_PLAN_HREF,
   NEW_PLAYBOOK_HREF,
 } from "../../../../apps/web/src/app/constants.ts";
 import {
+  highlightHref,
   learningHref,
   planHref,
   playbookHref,
@@ -56,10 +57,37 @@ test("opens the AI trade review at its own route", () => {
   expect(routeFor("#review")).toEqual({ page: "review" });
 });
 
-test("addresses thoughts by local day and watchlists by week", () => {
+test("addresses the best trade list, new example and saved example independently", () => {
+  const id = "0a047d28-0555-4dfb-b1fb-acfea3c1e577";
+  expect(routeFor(highlightHref())).toEqual({
+    page: "best-trades",
+    view: "list",
+  });
+  expect(routeFor(highlightHref("new"))).toEqual({
+    page: "best-trades",
+    view: "new",
+  });
+  expect(routeFor(highlightHref(id))).toEqual({
+    page: "best-trades",
+    view: "details",
+    id,
+  });
+  expect(routeFor(highlightHref(id, true))).toEqual({
+    page: "best-trades",
+    view: "edit",
+    id,
+  });
+});
+
+test("addresses daily and weekly thoughts and watchlists by local period", () => {
   expect(routeFor(thoughtHref("2026-11-24"))).toEqual({
     page: "thoughts",
     day: "2026-11-24",
+  });
+  expect(routeFor(thoughtHref("2026-11-24", PERIOD.WEEK))).toEqual({
+    page: "thoughts",
+    period: "week",
+    day: "2026-11-23",
   });
   expect(routeFor(watchlistHref("2026-11-24"))).toEqual({
     page: "watchlist",

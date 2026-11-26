@@ -1,15 +1,27 @@
 import type { Trade } from "@liquidation/domain/trades/types";
-import type { Highlight } from "@liquidation/domain/workspace/types";
-import type { HIGHLIGHT_FLOW } from "./constants.ts";
+import type {
+  Highlight,
+  HighlightDetails,
+} from "@liquidation/domain/workspace/types";
+import type { PAGE } from "../../../app/constants.ts";
+import type { Route } from "../../../app/types.ts";
 
-export type HighlightDraft =
-  | { mode: typeof HIGHLIGHT_FLOW.PICK }
-  | { mode: typeof HIGHLIGHT_FLOW.EDIT; id?: string };
+export type BestTradesPageProps = Extract<
+  Route,
+  { page: typeof PAGE.BEST_TRADES }
+>;
+
+export type HighlightRecord = {
+  entry: Highlight;
+  trade?: Trade;
+  tradeInTrash?: boolean;
+  details: HighlightDetails;
+};
 
 export type HighlightEditorProps = {
   trade?: Trade;
   entry?: Highlight;
-  onClose: (saved?: boolean) => void;
+  details: HighlightDetails;
 };
 
 export type TradePickerProps = {

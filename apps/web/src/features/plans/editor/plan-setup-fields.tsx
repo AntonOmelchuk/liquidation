@@ -13,6 +13,10 @@ import { getPlanNarrative } from "@liquidation/domain/plans/plan-lifecycle";
 import { isoToLocalDateTime } from "../../../shared/format.ts";
 import { useLocale } from "../../../shared/messages.ts";
 import { ScreenshotGallery } from "../../../shared/screenshots/screenshot-gallery.tsx";
+import {
+  DirectionBadge,
+  TradeSideBadge,
+} from "../../../shared/ui/direction-badge.tsx";
 import { InstrumentPicker } from "../../../shared/ui/instrument-picker.tsx";
 import { SelectField } from "../../../shared/ui/select-field.tsx";
 import { usePlanMessages } from "../messages.ts";
@@ -137,14 +141,15 @@ export function PlanSetupDetails({
   setup,
   analysis = true,
 }: PlanSetupDetailsProps) {
-  const { t, format } = useLocale();
+  const { format } = useLocale();
   const p = usePlanMessages();
+  const narrative = getPlanNarrative(setup);
 
   return (
     <div className="plan-setup-details">
       <strong>
-        {setup.symbol} · {t[setup.direction]} · {p[getPlanNarrative(setup)]} ·{" "}
-        {setup.title}
+        {setup.symbol} · {setup.title} <TradeSideBadge side={setup.direction} />{" "}
+        <DirectionBadge direction={narrative}>{p[narrative]}</DirectionBadge>
       </strong>
       <p>{setup.entryCondition}</p>
       {setup.avoid && (

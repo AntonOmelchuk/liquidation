@@ -1,4 +1,7 @@
-import { LEARNING_KIND } from "@liquidation/domain/workspace/constants";
+import {
+  LEARNING_KIND,
+  LEARNING_TOPIC,
+} from "@liquidation/domain/workspace/constants";
 import type {
   LearningEntry,
   LearningKind,
@@ -6,16 +9,24 @@ import type {
 import { useMemo, useState } from "react";
 import { PAGE_VIEW } from "../../../app/constants.ts";
 import { learningHref } from "../../../app/page.ts";
+import { AnalyticsSelect } from "../../../shared/analytics/filter-fields.tsx";
 import { useLocale } from "../../../shared/messages.ts";
+import { SelectField } from "../../../shared/ui/select-field.tsx";
 import { JOURNAL_STATUS } from "../../journal/data/constants.ts";
 import { useJournal } from "../../journal/data/store.ts";
 import { JournalUnavailable } from "../../journal/journal-unavailable.tsx";
 import { useWorkspaceMessages } from "../messages.ts";
+import { LEARNING_DATE_ORDER } from "./constants.ts";
+import {
+  filterLearningEntries,
+  learningNameKey,
+  learningNameOptions,
+} from "./learning-catalog.ts";
 import { LearningDetail } from "./learning-detail.tsx";
 import { LearningEditor } from "./learning-editor.tsx";
-import { groupKey, groupNames, searchableContent } from "./lecture-content.ts";
+import { LearningTags } from "./learning-tags.tsx";
 import { useLearningMessages } from "./messages.ts";
-import type { LearningPageProps } from "./types.ts";
+import type { LearningListFilters, LearningPageProps } from "./types.ts";
 import "../workspace.css";
 import "./learning.css";
 
@@ -44,12 +55,15 @@ export default function LearningPage({ kind, view, id }: LearningPageProps) {
       <LearningEditor
         kind={kind}
         entry={entry}
-        groups={lecture ? groupNames(records) : []}
+        groups={
+          lecture ? learningNameOptions(records.map(({ group }) => group)) : []
+        }
+        authors={learningNameOptions(entries.map(({ author }) => author))}
       />
     );
   }
   if (entry) return <LearningDetail entry={entry} />;
-  return <LearningList kind={kind} records={records} />;
+  return <LearningList key={kind} kind={kind} records={records} />;
 }
 
 function LearningList({
@@ -59,34 +73,33 @@ function LearningList({
   kind: LearningKind;
   records: LearningEntry[];
 }) {
-  const { format } = useLocale();
+  const { t, format } = useLocale();
   const m = useWorkspaceMessages();
   const l = useLearningMessages();
-  const [search, setSearch] = useState("");
-  const [archived, setArchived] = useState(false);
+  const [filters, setFilters] = useState<LearningListFilters>({
+    search: "",
+    sort: LEARNING_DATE_ORDER.NEWEST,
+  });
   const lecture = kind === LEARNING_KIND.LESSON;
-  const value = search.trim().toLowerCase();
-  const visible = records
-    .filter(
-      (entry) =>
-        entry.archived === archived && searchableContent(entry).includes(value),
-    )
-    .toSorted(
-      (a, b) =>
-        Date.parse(b.updatedAt) - Date.parse(a.updatedAt) ||
-        a.title.localeCompare(b.title),
-    );
-  const groups = Map.groupBy(visible, (entry) => groupKey(entry.group));
-  const titled = groupNames(visible);
+  const visible = filterLearningEntries(records, filters, l.topics);
+  const authors = learningNameOptions(records.map(({ author }) => author));
+  const topics = Object.values(LEARNING_TOPIC).map((key) => ({
+    key,
+    label: l.topics[key],
+  }));
+  const groups = Map.groupBy(visible, (entry) => learningNameKey(entry.group));
 
   function renderLectures(items: LearningEntry[]) {
     return (
       <ul className="lecture-group-list">
         {items.map((entry) => (
           <li key={entry.id}>
-            <a className="record-link" href={learningHref(kind, entry.id)}>
-              {entry.title}
-            </a>
+            <div className="learning-row-title">
+              <a className="record-link" href={learningHref(kind, entry.id)}>
+                {entry.title}
+              </a>
+              <LearningTags entry={entry} />
+            </div>
             <small>
               {format.date.format(Date.parse(entry.updatedAt))}
               {entry.completed && " · " + m.completed}
@@ -110,37 +123,65 @@ function LearningList({
           {m.librarySearch}
           <input
             type="search"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
+            value={filters.search}
+            onChange={(event) =>
+              setFilters({ ...filters, search: event.target.value })
+            }
           />
         </label>
-        <label className="workspace-check">
-          <input
-            type="checkbox"
-            checked={archived}
-            onChange={(event) => setArchived(event.target.checked)}
-          />
-          {m.showArchived}
-        </label>
+        <AnalyticsSelect
+          label={l.topic}
+          all={l.allTopics}
+          value={filters.topic}
+          options={topics}
+          onChange={(topic) => setFilters({ ...filters, topic })}
+        />
+        <AnalyticsSelect
+          label={l.author}
+          all={l.allAuthors}
+          value={filters.author}
+          options={authors}
+          onChange={(author) => setFilters({ ...filters, author })}
+        />
+        <SelectField
+          label={l.sortByDate}
+          value={filters.sort}
+          onChange={(event) =>
+            setFilters({
+              ...filters,
+              sort:
+                event.target.value === LEARNING_DATE_ORDER.OLDEST
+                  ? LEARNING_DATE_ORDER.OLDEST
+                  : LEARNING_DATE_ORDER.NEWEST,
+            })
+          }
+        >
+          <option value={LEARNING_DATE_ORDER.NEWEST}>{l.newest}</option>
+          <option value={LEARNING_DATE_ORDER.OLDEST}>{l.oldest}</option>
+        </SelectField>
+        {(filters.search || filters.topic || filters.author) && (
+          <button
+            type="button"
+            className="secondary"
+            onClick={() => setFilters({ search: "", sort: filters.sort })}
+          >
+            {t.resetFilters}
+          </button>
+        )}
       </div>
       {visible.length === 0 ? (
         <p>{m.noEntries}</p>
       ) : lecture ? (
         <div className="lecture-groups">
-          {[...titled, ""].map((group) => {
-            const items = groups.get(groupKey(group));
-            return (
-              items && (
-                <details key={group} className="panel lecture-group" open>
-                  <summary>
-                    <span>{group || l.ungrouped}</span>
-                    <small>{items.length}</small>
-                  </summary>
-                  {renderLectures(items)}
-                </details>
-              )
-            );
-          })}
+          {[...groups].map(([key, items]) => (
+            <details key={key} className="panel lecture-group" open>
+              <summary>
+                <span>{items[0].group ?? l.ungrouped}</span>
+                <small>{format.integer.format(items.length)}</small>
+              </summary>
+              {renderLectures(items)}
+            </details>
+          ))}
         </div>
       ) : (
         <div className="record-card-grid">
@@ -157,6 +198,7 @@ function LearningList({
                 </h2>
                 <small>{format.date.format(Date.parse(entry.updatedAt))}</small>
               </div>
+              <LearningTags entry={entry} />
               {entry.body && (
                 <p className="record-prose note-excerpt">{entry.body}</p>
               )}

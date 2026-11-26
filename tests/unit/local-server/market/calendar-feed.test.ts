@@ -43,6 +43,21 @@ it("polls actual values from biquote once per cache window and preserves a repor
           actual: null,
           timeMode: "tentative",
         },
+        {
+          ...reading,
+          id: "mql5:123",
+          name: "Day event",
+          time: "2026-11-25T00:30:00+02:00",
+          timeMode: "date",
+          previous: 12,
+        },
+        {
+          ...reading,
+          id: "mql5:124",
+          name: "Holiday",
+          type: "holiday",
+          timeMode: "notime",
+        },
       ]),
     )
     .mockResolvedValueOnce(Response.json([{ ...reading, actual: 8 }]));
@@ -55,15 +70,31 @@ it("polls actual values from biquote once per cache window and preserves a repor
     state: CALENDAR_STATE.READY,
     events: [
       {
+        name: "Day event",
+        at: "2026-11-24T22:30:00.000Z",
+        allDayOn: "2026-11-25",
+        timeKnown: false,
+        actual: "",
+        forecast: "",
+        previous: "",
+      },
+      {
         name: "Employment",
         at: "2026-11-25T01:00:00.000Z",
         actual: "0K",
         forecast: "10K",
         timeKnown: true,
       },
-      { actual: "", timeKnown: false },
+      { actual: "", forecast: "10K", timeKnown: false },
+      {
+        name: "Holiday",
+        allDayOn: "2026-11-25",
+        timeKnown: false,
+        forecast: "",
+      },
     ],
   });
+  expect(first.events[2].allDayOn).toBeUndefined();
   const firstUrl = new URL(String(request.mock.calls[0][0]));
   expect(firstUrl.origin + firstUrl.pathname).toBe(BIQUOTE_CALENDAR_URL);
   expect(firstUrl.searchParams.get("from")).toBe("2026-11-24T00:00:00Z");
@@ -107,7 +138,13 @@ it("reuses the cached Forex Factory schedule during an outage and recovers actua
         actual: "",
         timeKnown: true,
       },
-      { name: "Bank holiday", timeKnown: false, forecast: "" },
+      {
+        name: "Bank holiday",
+        allDayOn: "2026-11-24",
+        timeKnown: false,
+        forecast: "",
+        previous: "",
+      },
     ],
   });
   expect(String(request.mock.calls[1][0])).toBe(FOREX_FACTORY_EXPORT);

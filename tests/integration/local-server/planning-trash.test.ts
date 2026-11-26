@@ -341,7 +341,6 @@ test("persists independent thoughts, watchlist reviews and missed trades and han
         title: "Lesson",
         body: "Saved",
         completed: false,
-        archived: false,
       },
     });
     await journal.updateWorkspace(note);
@@ -432,5 +431,114 @@ test("saves and restores BE reviews alongside a missed entry for the same plan",
     expect(comparePlanPerformance({ ...state, missedTrades }).cash.missed).toBe(
       50,
     );
+  });
+});
+
+test("saves inline task changes and combines existing daily thoughts and screenshots", async () => {
+  await withJournal(async (journal, baseUrl) => {
+    const workspace = baseUrl + JOURNAL_ROUTES.workspace;
+    const trash = baseUrl + JOURNAL_ROUTES.trash;
+    const day = "2026-11-26";
+    const image = crypto.randomUUID();
+    const task = {
+      id: crypto.randomUUID(),
+      text: "Check the calendar",
+      done: false,
+    };
+    await journal.updateWorkspace(
+      workspaceCommand.parse({
+        record: "thought",
+        day,
+        input: { text: "Wait for London.", screenshotIds: [image] },
+      }),
+      new Map([[image, png]]),
+    );
+    const preparation = {
+      record: "preparation",
+      kind: "day",
+      start: day,
+      input: {
+        outlook: "Watch the prior low.",
+        news: "USD release.",
+        watch: "A retest.",
+        alerts: "Prior day range",
+        study: "Review execution",
+        tasks: [task],
+      },
+    };
+    expect((await post(workspace, preparation)).status).toBe(200);
+
+    const toggle = {
+      ...preparation,
+      revision: 1,
+      input: { ...preparation.input, tasks: [{ ...task, done: true }] },
+    };
+    expect((await post(workspace, toggle)).status).toBe(200);
+    expect((await post(workspace, toggle)).status).toBe(409);
+    const afterToggle = await journal.read();
+    expect(afterToggle.workspace.preparations[0].tasks).toEqual([
+      { ...task, done: true },
+    ]);
+    expect(afterToggle.workspace.thoughts[0].screenshotIds).toEqual([image]);
+
+    const moving = {
+      action: "move",
+      kind: TRASH_KIND.PREPARATION,
+      key: "day:" + day,
+      revision: 2,
+    };
+    expect(
+      (await post(trash, { ...moving, legacyThoughtRevision: 2 })).status,
+    ).toBe(409);
+    const removed = await post(trash, { ...moving, legacyThoughtRevision: 1 });
+    expect(removed.status).toBe(200);
+    const deleted = journalSchema.parse(removed.body);
+    expect(deleted.workspace.preparations).toEqual([]);
+    expect(deleted.workspace.thoughts).toEqual([]);
+    expect(deleted.trash.map(({ kind }) => kind)).toEqual([
+      TRASH_KIND.PREPARATION,
+      TRASH_KIND.THOUGHT,
+    ]);
+    for (const { id } of deleted.trash) {
+      expect((await post(trash, { action: "restore", id })).status).toBe(200);
+    }
+
+    const merged = {
+      ...preparation,
+      revision: 3,
+      legacyThoughtRevision: 2,
+      input: {
+        outlook: "Wait for London.\n\nWatch the prior low.",
+        news: preparation.input.news,
+        watch: preparation.input.watch,
+        tasks: [{ ...task, done: true }],
+        screenshotIds: [image],
+      },
+    };
+    expect(
+      (await post(workspace, { ...merged, legacyThoughtRevision: 1 })).status,
+    ).toBe(409);
+    expect((await post(workspace, merged)).status).toBe(200);
+    const saved = await journal.read();
+    expect(saved.workspace.thoughts).toEqual([]);
+    expect(saved.workspace.preparations[0]).toMatchObject({
+      ...merged.input,
+      alerts: preparation.input.alerts,
+      study: preparation.input.study,
+      revision: 4,
+    });
+    const final = await post(trash, {
+      ...moving,
+      revision: 4,
+    });
+    expect(final.status).toBe(200);
+    const removedId = journalSchema.parse(final.body).trash[0].id;
+    expect(Buffer.from((await journal.readScreenshot(image))!.bytes)).toEqual(
+      png,
+    );
+    expect((await post(trash, { action: "purge", id: removedId })).status).toBe(
+      200,
+    );
+    expect(await journal.readScreenshot(image)).toBeNull();
   });
 });

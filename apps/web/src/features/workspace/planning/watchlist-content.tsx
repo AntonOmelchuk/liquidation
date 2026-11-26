@@ -8,6 +8,7 @@ import type { WeeklyWatchlist } from "@liquidation/domain/workspace/types";
 import { planHref } from "../../../app/page.ts";
 import { useLocale } from "../../../shared/messages.ts";
 import { ScreenshotGallery } from "../../../shared/screenshots/screenshot-gallery.tsx";
+import { DirectionBadge } from "../../../shared/ui/direction-badge.tsx";
 import { InstrumentIcons } from "../../../shared/ui/instrument-picker.tsx";
 import { useJournal } from "../../journal/data/store.ts";
 import { usePlanMessages } from "../../plans/messages.ts";
@@ -77,8 +78,11 @@ export function WatchlistContent({
                     <InstrumentIcons symbol={item.symbol} />
                     {item.symbol}
                   </strong>
-                  <span className="subdued">
-                    {p[item.narrative]} · {m[item.outcome]}
+                  <span className="watch-asset-result subdued">
+                    <DirectionBadge direction={item.narrative}>
+                      {p[item.narrative]}
+                    </DirectionBadge>
+                    <span>{m[item.outcome]}</span>
                   </span>
                 </div>
                 {(!compact || closed.length > 0 || open > 0 || missed > 0) && (

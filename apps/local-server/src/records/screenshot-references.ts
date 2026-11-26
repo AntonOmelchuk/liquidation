@@ -4,7 +4,8 @@ import { trashedRecords } from "@liquidation/domain/journal/trash/trash";
 import type { Journal } from "@liquidation/domain/journal/types";
 import { planScreenshotIds } from "@liquidation/domain/plans/plan-lifecycle";
 import { playbookScreenshotIds } from "@liquidation/domain/playbooks/playbook";
-import { lectureScreenshotIds } from "@liquidation/domain/workspace/learning";
+import { learningScreenshotIds } from "@liquidation/domain/workspace/learning";
+import { highlightScreenshotIds } from "@liquidation/domain/workspace/highlights";
 
 export function journalScreenshotIds({
   trades,
@@ -42,10 +43,15 @@ export function journalScreenshotIds({
     ...workspace.learning,
     ...trashedRecords(trash, TRASH_KIND.LEARNING),
   ])
-    add(lectureScreenshotIds(item.blocks));
+    add(learningScreenshotIds(item));
   for (const item of [
     ...workspace.highlights,
     ...trashedRecords(trash, TRASH_KIND.HIGHLIGHT),
+  ])
+    add(highlightScreenshotIds(item));
+  for (const item of [
+    ...workspace.preparations,
+    ...trashedRecords(trash, TRASH_KIND.PREPARATION),
     ...workspace.thoughts,
     ...trashedRecords(trash, TRASH_KIND.THOUGHT),
     ...workspace.missedTrades,

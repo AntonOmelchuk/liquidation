@@ -1,11 +1,16 @@
 import type { Journal } from "@liquidation/domain/journal/types";
 import { TRASH_KIND } from "@liquidation/domain/journal/trash/constants";
-import { deletedPlan } from "@liquidation/domain/journal/trash/trash";
+import {
+  deletedPlan,
+  trashedRecords,
+} from "@liquidation/domain/journal/trash/trash";
 import { WORKSPACE_RECORD } from "@liquidation/domain/workspace/constants";
-import { lectureScreenshotIds } from "@liquidation/domain/workspace/learning";
+import { highlightScreenshotIds } from "@liquidation/domain/workspace/highlights";
+import { learningScreenshotIds } from "@liquidation/domain/workspace/learning";
 import { isBreakevenReviewReason } from "@liquidation/domain/workspace/planning";
 import type { WorkspaceCommand } from "@liquidation/domain/workspace/types";
 import { InvalidJournalInput, JournalConflict } from "../errors.ts";
+import { assertPlaybookLink } from "./playbook-records.ts";
 import { assertScreenshotAttachments } from "./screenshot-attachments.ts";
 import { assertNewIdentity, latestTrashedRevision } from "./trash-records.ts";
 
@@ -34,9 +39,6 @@ export function mutateWorkspace(
   uploads: ReadonlyMap<string, Uint8Array>,
 ) {
   const { workspace, trades, positions } = journal;
-  if (uploads.size && command.record === WORKSPACE_RECORD.PREPARATION) {
-    throw new InvalidJournalInput("This record does not accept images.");
-  }
   switch (command.record) {
     case WORKSPACE_RECORD.THOUGHT: {
       const { day, input, revision } = command;
@@ -141,18 +143,45 @@ export function mutateWorkspace(
       break;
     }
     case WORKSPACE_RECORD.PREPARATION: {
-      const { kind, start, input, revision } = command;
+      const { kind, start, input, revision, legacyThoughtRevision } = command;
+      const legacyIndex =
+        legacyThoughtRevision === undefined
+          ? -1
+          : workspace.thoughts.findIndex(({ day }) => day === start);
+      const legacy = workspace.thoughts[legacyIndex];
+      if (legacyThoughtRevision !== legacy?.revision)
+        throw new JournalConflict("The daily thought changed before saving.");
       upsert(
         workspace.preparations,
         (item) => item.kind === kind && item.start === start,
         revision,
-        (next) => ({ ...input, kind, start, revision: next }),
+        (next, previous) => {
+          const screenshotIds = input.screenshotIds ?? previous?.screenshotIds;
+          assertScreenshotAttachments(
+            new Set([
+              ...(previous?.screenshotIds ?? []),
+              ...(legacy?.screenshotIds ?? []),
+            ]),
+            new Set(screenshotIds),
+            uploads,
+          );
+          return {
+            ...input,
+            alerts: input.alerts ?? previous?.alerts,
+            study: input.study ?? previous?.study,
+            screenshotIds,
+            kind,
+            start,
+            revision: next,
+          };
+        },
         latestTrashedRevision(
           journal,
           TRASH_KIND.PREPARATION,
           kind + ":" + start,
         ),
       );
+      if (legacy) workspace.thoughts.splice(legacyIndex, 1);
       break;
     }
     case WORKSPACE_RECORD.REPORT: {
@@ -195,8 +224,8 @@ export function mutateWorkspace(
         revision,
         (next, previous) => {
           assertScreenshotAttachments(
-            new Set(lectureScreenshotIds(previous?.blocks)),
-            new Set(lectureScreenshotIds(input.blocks)),
+            new Set(learningScreenshotIds(previous)),
+            new Set(learningScreenshotIds(input)),
             uploads,
           );
           return {
@@ -227,9 +256,20 @@ export function mutateWorkspace(
             throw new InvalidJournalInput(
               "The source of a saved example is fixed.",
             );
+          const linkedTrade = input.example
+            ? undefined
+            : (trades.find((trade) => trade.id === id) ??
+              trashedRecords(journal.trash, TRASH_KIND.TRADE).find(
+                (trade) => trade.id === id,
+              ));
+          assertPlaybookLink(
+            journal,
+            input.details?.playbook,
+            previous?.details?.playbook ?? linkedTrade?.playbook,
+          );
           assertScreenshotAttachments(
-            new Set(previous?.screenshotIds),
-            new Set(input.screenshotIds),
+            new Set(highlightScreenshotIds(previous)),
+            new Set(highlightScreenshotIds(input)),
             uploads,
           );
           return { ...input, id, revision: next };

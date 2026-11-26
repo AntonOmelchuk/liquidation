@@ -11,6 +11,7 @@ import type {
   TrashEntry,
 } from "@liquidation/domain/journal/trash/types";
 import type { Journal } from "@liquidation/domain/journal/types";
+import { PERIOD } from "@liquidation/domain/workspace/constants";
 import { isBreakevenReviewReason } from "@liquidation/domain/workspace/planning";
 import { randomUUID } from "node:crypto";
 import { InvalidJournalInput, JournalConflict } from "../errors.ts";
@@ -57,6 +58,28 @@ export function mutateTrash(journal: Journal, command: TrashCommand) {
       kind: command.kind,
       value,
     });
+    if (command.legacyThoughtRevision !== undefined) {
+      if (
+        removed.kind !== TRASH_KIND.PREPARATION ||
+        removed.value.kind !== PERIOD.DAY
+      )
+        throw new InvalidJournalInput(
+          "Only a daily entry can include legacy thoughts.",
+        );
+      const thoughtIndex = workspace.thoughts.findIndex(
+        ({ day }) => day === removed.value.start,
+      );
+      const thought = workspace.thoughts[thoughtIndex];
+      if (thought?.revision !== command.legacyThoughtRevision)
+        throw new JournalConflict("The daily thought changed before deletion.");
+      trash.unshift({
+        id: randomUUID(),
+        at: removed.at,
+        kind: TRASH_KIND.THOUGHT,
+        value: thought,
+      });
+      workspace.thoughts.splice(thoughtIndex, 1);
+    }
     records.splice(index, 1);
     trash.unshift(removed);
     return journal;

@@ -1,0 +1,65 @@
+.quote-settings {
+  display: grid;
+  gap: 0.65rem;
+  margin-top: 1.1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+.quote-settings h3,
+.quote-settings p {
+  margin: 0;
+}
+.quote-selection {
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  background: color-mix(in srgb, var(--border) 13%, var(--surface));
+}
+.quote-selection summary {
+  padding: 0.65rem 0.75rem;
+  cursor: pointer;
+  font-weight: 650;
+}
+.quote-selection-count {
+  float: inline-end;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+.quote-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 8.25rem), 1fr));
+  gap: 0.4rem;
+  max-height: 13rem;
+  padding: 0.15rem 0.55rem 0.55rem;
+  overflow: auto;
+}
+.quote-option {
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
+  padding: 0.28rem 0.4rem;
+  background: var(--surface);
+  font-size: 0.82rem;
+}
+.quote-option:has(input:checked) {
+  border-color: color-mix(in srgb, var(--section-accent) 45%, var(--border));
+}
+.quote-option:has(input:disabled) {
+  color: var(--muted);
+}
+.quote-option .instrument-label {
+  gap: 0.3rem;
+}
+.quote-option .instrument-icons {
+  --instrument-icon-size: 1.28rem;
+  --instrument-icon-font: 0.66rem;
+}
+.quote-settings-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem;
+  padding-top: 0.15rem;
+  font-size: 0.86rem;
+}

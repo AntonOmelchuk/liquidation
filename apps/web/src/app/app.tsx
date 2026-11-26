@@ -144,9 +144,15 @@ function PageContent({ route }: PageContentProps) {
       );
     }
     case PAGE.BEST_TRADES:
-      return <BestTradesPage />;
+      return <BestTradesPage {...route} />;
     case PAGE.THOUGHTS:
-      return <ThoughtsPage key={route.day} day={route.day} />;
+      return (
+        <ThoughtsPage
+          key={(route.period ?? "") + ":" + (route.day ?? "")}
+          day={route.day}
+          period={route.period}
+        />
+      );
     case PAGE.WATCHLIST:
       return <WatchlistPage key={route.day} day={route.day} />;
     case PAGE.TRASH:

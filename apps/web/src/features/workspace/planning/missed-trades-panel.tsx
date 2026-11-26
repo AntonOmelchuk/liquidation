@@ -12,6 +12,7 @@ import { EMPTY_VALUE } from "../../../shared/constants.ts";
 import { numericTone } from "../../../shared/format.ts";
 import { useLocale } from "../../../shared/messages.ts";
 import { ScreenshotGallery } from "../../../shared/screenshots/screenshot-gallery.tsx";
+import { TradeSideBadge } from "../../../shared/ui/direction-badge.tsx";
 import { Panel } from "../../../shared/ui/layout.tsx";
 import { InstrumentIcons } from "../../../shared/ui/instrument-picker.tsx";
 import { useJournal } from "../../journal/data/store.ts";
@@ -172,7 +173,9 @@ export function MissedTradesPanel({
                           <InstrumentIcons symbol={miss.symbol} />
                           {miss.symbol}
                         </span>
-                        <small>{t[miss.direction]}</small>
+                        <small>
+                          <TradeSideBadge side={miss.direction} />
+                        </small>
                         {plan ? (
                           <a className="record-link" href={planHref(plan.id)}>
                             {plan.setup.title}

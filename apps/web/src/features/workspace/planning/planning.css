@@ -1,3 +1,85 @@
+.thought-period-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.6rem 0.85rem;
+  margin-bottom: 0.85rem;
+}
+.thought-notes dt {
+  color: var(--text);
+  font-weight: 650;
+}
+.thought-excerpt .record-prose {
+  margin: 0;
+}
+.thought-excerpt .record-prose:not([data-expanded="true"]) {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  overflow: hidden;
+}
+.thought-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 0.45rem;
+  padding: 0.3rem 0.55rem;
+}
+.thought-toggle-chevron {
+  width: 0.45rem;
+  height: 0.45rem;
+  border: solid currentColor;
+  border-width: 0 1.5px 1.5px 0;
+  transform: translateY(-0.1rem) rotate(45deg);
+}
+.thought-toggle[aria-expanded="true"] .thought-toggle-chevron {
+  transform: translateY(0.1rem) rotate(225deg);
+}
+.thought-tasks {
+  margin-block: 0.85rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--border);
+}
+.thought-tasks h3,
+.thought-task-editor h3 {
+  margin: 0;
+}
+.thought-task-list {
+  display: grid;
+  gap: 0.2rem;
+  margin: 0.45rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.thought-task-list .checkbox-field {
+  justify-content: start;
+  min-height: 2rem;
+  width: fit-content;
+  max-width: 100%;
+  text-align: start;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+.thought-task-list input:checked ~ .checkbox-text {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+.thought-task-editor {
+  display: grid;
+  gap: 0.45rem;
+}
+.thought-task-editor > button {
+  justify-self: start;
+}
+.thought-task-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.45rem;
+}
+.thought-task-row input {
+  min-width: 0;
+}
 .planning-fields {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -45,6 +127,12 @@
 }
 .watch-summary-list li:last-child {
   border-bottom: 0;
+}
+.watch-asset-result {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.5rem;
 }
 .watch-summary-list p {
   white-space: pre-wrap;
