@@ -11,6 +11,7 @@ export function DeleteRecord({
   kind,
   recordKey,
   revision,
+  legacyThoughtRevision,
   afterDelete,
   disabled,
   iconOnly = false,
@@ -41,6 +42,7 @@ export function DeleteRecord({
         kind,
         key: recordKey,
         revision,
+        legacyThoughtRevision,
       });
       dialog.current?.close();
       afterDelete?.();

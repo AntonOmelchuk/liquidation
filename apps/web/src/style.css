@@ -36,14 +36,10 @@ body {
   font-size: 1.22rem;
   font-weight: 750;
 }
-.brand span {
-  display: grid;
-  place-items: center;
+.brand img {
+  flex: none;
   width: 2.25rem;
   height: 2.25rem;
-  border-radius: 0.65rem;
-  color: var(--accent);
-  background: #1d3338;
 }
 main {
   width: 100%;
@@ -388,10 +384,6 @@ dialog::backdrop {
 [data-theme="light"] .topbar {
   background: #fafcff;
 }
-[data-theme="light"] .brand span {
-  color: #12644d;
-  background: #ddf1e8;
-}
 [data-theme="light"] .metrics article {
   background: linear-gradient(135deg, #e6f1ff, var(--surface) 74%);
 }
@@ -676,7 +668,7 @@ button:not(:disabled):hover {
 .journal-dashboard .panel {
   padding: clamp(0.75rem, 1.05vw, 1.05rem);
 }
-.journal-dashboard .dashboard-split .record-prose {
+.journal-dashboard .dashboard-split .record-prose:not([data-expanded="true"]) {
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 4;

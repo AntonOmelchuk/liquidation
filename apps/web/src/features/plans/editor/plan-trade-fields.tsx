@@ -7,6 +7,7 @@ import { netCents } from "@liquidation/domain/trades/trade";
 import { EMPTY_VALUE } from "../../../shared/constants.ts";
 import { numericTone } from "../../../shared/format.ts";
 import { useLocale } from "../../../shared/messages.ts";
+import { TradeSideBadge } from "../../../shared/ui/direction-badge.tsx";
 import { InstrumentIcons } from "../../../shared/ui/instrument-picker.tsx";
 import { useJournal } from "../../journal/data/store.ts";
 import { usePlanMessages } from "../messages.ts";
@@ -120,7 +121,9 @@ export function PlanTradeFields({
                         <InstrumentIcons symbol={record.symbol} />
                         {record.symbol}
                       </span>
-                      <small>{t[record.direction]}</small>
+                      <small>
+                        <TradeSideBadge side={record.direction} />
+                      </small>
                     </th>
                     <td>
                       <time dateTime={record.openedAt}>{opened}</time>

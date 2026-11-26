@@ -292,9 +292,9 @@ export function PeriodReport({
                             id: best.id,
                             revision: highlight?.revision,
                             input: {
+                              ...highlight,
                               featured: true,
                               note: highlight?.note || report.best,
-                              screenshotIds: highlight?.screenshotIds,
                             },
                           })
                         }

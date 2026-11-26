@@ -57,26 +57,8 @@
   border: 1px solid var(--border);
   border-radius: 0.55rem;
 }
-.workspace-example-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
-  gap: 0.8rem;
-}
-.workspace-example {
-  border: 1px solid var(--border);
-  padding: 0.85rem;
-  border-radius: 0.7rem;
-}
-.workspace-example h3 {
-  margin: 0;
-}
-.workspace-example button,
 .learning-entry .workspace-actions {
   margin-top: 0.6rem;
-}
-.highlight-editor-fields {
-  grid-template-columns: minmax(0, 1fr);
-  min-width: 0;
 }
 .learning-entry .panel-heading {
   align-items: flex-start;

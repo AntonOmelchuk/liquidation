@@ -14,6 +14,66 @@
   gap: 0.45rem 0.85rem;
   margin: 0.6rem 0 0;
 }
+.learning-row-title,
+.learning-tags {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.55rem;
+  min-width: 0;
+}
+.learning-heading .learning-tags {
+  margin-block-start: 0.55rem;
+}
+.learning-tag {
+  padding: 0.14rem 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: 0.38rem;
+  background: color-mix(in srgb, var(--border) 20%, var(--surface));
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+.learning-tag-topic {
+  --topic-hue: 216;
+  --topic-color: hsl(var(--topic-hue) 69% 79%);
+  background: color-mix(in srgb, var(--topic-color) 11%, var(--surface));
+  color: var(--topic-color);
+  border-color: color-mix(in srgb, var(--topic-color) 34%, var(--border));
+  font-size: 1.02rem;
+  padding: 0.16rem 0.52rem;
+}
+[data-theme="light"] .learning-tag-topic {
+  --topic-color: hsl(var(--topic-hue) 66% 29%);
+}
+.learning-tag-topic[data-topic="psychology"] {
+  --topic-hue: 276;
+}
+.learning-tag-topic[data-topic="risk-management"] {
+  --topic-hue: 40;
+}
+.learning-tag-topic[data-topic="trading-strategy"] {
+  --topic-hue: 145;
+}
+.learning-tag-topic[data-topic="price-action"] {
+  --topic-hue: 186;
+}
+.learning-tag-topic[data-topic="price-behavior"] {
+  --topic-hue: 330;
+}
+.learning-tag-topic[data-topic="trade-execution"] {
+  --topic-hue: 14;
+}
+.learning-tag-topic[data-topic="backtesting"] {
+  --topic-hue: 247;
+}
+.learning-tag-topic[data-topic="macroeconomics"] {
+  --topic-hue: 84;
+}
+.learning-tag-topic[data-topic="general"] {
+  --topic-color: var(--muted);
+}
 .learning-fields {
   display: grid;
   gap: 1rem;

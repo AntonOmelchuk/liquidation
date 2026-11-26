@@ -5,6 +5,7 @@ export type DeleteRecordProps = {
   kind: TrashKind;
   recordKey: string;
   revision?: number;
+  legacyThoughtRevision?: number;
   afterDelete?: () => void;
   disabled?: boolean;
   iconOnly?: boolean;

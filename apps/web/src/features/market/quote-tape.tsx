@@ -96,7 +96,7 @@ export function QuoteTape({
   return (
     <>
       {unavailable && (
-        <p className="market-status" role="status">
+        <p className="visually-hidden" role="status">
           {m.quotesUnavailable}
         </p>
       )}

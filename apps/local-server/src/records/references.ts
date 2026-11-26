@@ -73,7 +73,11 @@ export function hasRecordReferences(
         [
           ...journal.backtests,
           ...trashedRecords(journal.trash, TRASH_KIND.BACKTEST),
-        ].some((run) => run.playbook?.id === key)
+        ].some((run) => run.playbook?.id === key) ||
+        [
+          ...journal.workspace.highlights,
+          ...trashedRecords(journal.trash, TRASH_KIND.HIGHLIGHT),
+        ].some((highlight) => highlight.details?.playbook?.id === key)
       );
     default:
       return false;

@@ -6,6 +6,7 @@ import {
 import { periodBounds } from "@liquidation/domain/workspace/period";
 import type {
   LearningKind,
+  PreparationPeriod,
   ReviewPeriod,
 } from "@liquidation/domain/workspace/types";
 import { workspaceDaySchema } from "@liquidation/domain/workspace/workspace";
@@ -53,6 +54,11 @@ export function backtestHref(id: string, editing = false) {
   return `${PAGE_HASHES.backtests}/${id}${editing ? `/${PAGE_VIEW.EDIT}` : ""}`;
 }
 
+export function highlightHref(id?: string, editing = false) {
+  const root = PAGE_HASHES[PAGE.BEST_TRADES];
+  return id ? root + "/" + id + (editing ? "/" + PAGE_VIEW.EDIT : "") : root;
+}
+
 export function positionEditHref(
   id: string,
   view: typeof PAGE_VIEW.EDIT | typeof PAGE_VIEW.CLOSE,
@@ -76,8 +82,14 @@ export function learningHref(kind: LearningKind, id?: string, editing = false) {
   return id ? root + "/" + id + (editing ? "/" + PAGE_VIEW.EDIT : "") : root;
 }
 
-export function thoughtHref(day: string) {
-  return PAGE_HASHES.thoughts + "/" + day;
+export function thoughtHref(
+  day: string,
+  period: PreparationPeriod = PERIOD.DAY,
+) {
+  const root = PAGE_HASHES.thoughts;
+  return period === PERIOD.WEEK
+    ? root + "/" + period + "/" + periodBounds(period, day).start
+    : root + "/" + day;
 }
 export function watchlistHref(day: string) {
   return PAGE_HASHES.watchlist + "/" + periodBounds(PERIOD.WEEK, day).start;
@@ -105,7 +117,6 @@ export function routeFor(hash: string): Route {
   if (hash === PAGE_HASHES.review) return { page: PAGE.REVIEW };
   if (hash === LEGACY_LEARNING_HREF)
     return { page: PAGE.LECTURES, view: PAGE_VIEW.LIST };
-  if (hash === PAGE_HASHES[PAGE.BEST_TRADES]) return { page: PAGE.BEST_TRADES };
   if (hash === RECENT_REVIEW_HREF) return { page: PAGE.REPORTS, recent: true };
   const [page, id, action, section, ...rest] = hash.split("/");
   if (rest.length === 0) {
@@ -117,12 +128,26 @@ export function routeFor(hash: string): Route {
       const day = workspaceDaySchema.safeParse(id);
       return { page: PAGE.CARDS, day: day.success ? day.data : undefined };
     }
-    if (page === PAGE_HASHES.thoughts || page === PAGE_HASHES.watchlist) {
-      const target =
-        page === PAGE_HASHES.thoughts ? PAGE.THOUGHTS : PAGE.WATCHLIST;
+    if (page === PAGE_HASHES.thoughts) {
+      if (id === PERIOD.WEEK && !section) {
+        const date = workspaceDaySchema.safeParse(action);
+        if (date.success)
+          return {
+            page: PAGE.THOUGHTS,
+            period: PERIOD.WEEK,
+            day: periodBounds(PERIOD.WEEK, date.data).start,
+          };
+      }
       const date = workspaceDaySchema.safeParse(id);
       return {
-        page: target,
+        page: PAGE.THOUGHTS,
+        day: date.success && !action && !section ? date.data : undefined,
+      };
+    }
+    if (page === PAGE_HASHES.watchlist) {
+      const date = workspaceDaySchema.safeParse(id);
+      return {
+        page: PAGE.WATCHLIST,
         day: date.success && !action && !section ? date.data : undefined,
       };
     }
@@ -134,6 +159,15 @@ export function routeFor(hash: string): Route {
       if (id && action === PAGE_VIEW.EDIT && !section)
         return { page: target, view: PAGE_VIEW.EDIT, id };
       return { page: target, view: PAGE_VIEW.LIST };
+    }
+    if (page === PAGE_HASHES[PAGE.BEST_TRADES]) {
+      if (id === PAGE_VIEW.NEW && !action && !section)
+        return { page: PAGE.BEST_TRADES, view: PAGE_VIEW.NEW };
+      if (id && !action && !section)
+        return { page: PAGE.BEST_TRADES, view: PAGE_VIEW.DETAILS, id };
+      if (id && action === PAGE_VIEW.EDIT && !section)
+        return { page: PAGE.BEST_TRADES, view: PAGE_VIEW.EDIT, id };
+      return { page: PAGE.BEST_TRADES, view: PAGE_VIEW.LIST };
     }
     if (page === PAGE_HASHES.reports) {
       const period = PERIODS.find((kind) => kind === id);

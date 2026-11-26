@@ -1,17 +1,17 @@
 import { z } from "zod";
 import { screenshotIdsSchema } from "../evidence/screenshots.ts";
-import { instrumentSymbolSchema } from "../instruments/symbol.ts";
 import {
   ASSESSMENT_LIMIT,
   PERIOD,
   PERIODS,
+  PREPARATION_OUTLOOK_LIMIT,
   PREPARATION_PERIODS,
   TASK_LIMIT,
   TASK_TEXT_LIMIT,
   WORKSPACE_RECORD,
   WORKSPACE_TEXT_LIMIT,
-  WORKSPACE_TITLE_LIMIT,
 } from "./constants.ts";
+import { highlightInputSchema } from "./highlights.ts";
 import { learningSchema } from "./learning.ts";
 import {
   missedInputSchema,
@@ -39,12 +39,13 @@ const task = z.object({
   done: z.boolean(),
 });
 const preparation = z.object({
-  outlook: text,
+  outlook: z.string().trim().max(PREPARATION_OUTLOOK_LIMIT),
   news: text,
-  alerts: text,
+  alerts: text.optional(),
   watch: text,
-  study: text,
+  study: text.optional(),
   tasks: z.array(task).max(TASK_LIMIT).refine(uniqueIds),
+  screenshotIds: screenshotIdsSchema.optional(),
 });
 const assessment = z.object({
   id: z.uuid(),
@@ -74,17 +75,6 @@ const report = z.object({
     .multipleOf(0.01)
     .optional(),
 });
-const highlight = z.object({
-  featured: z.boolean(),
-  note: text,
-  example: z
-    .object({
-      title: z.string().trim().min(1).max(WORKSPACE_TITLE_LIMIT),
-      symbol: instrumentSymbolSchema.optional(),
-    })
-    .optional(),
-  screenshotIds: screenshotIdsSchema.optional(),
-});
 const revision = z.number().int().positive();
 const periodStart = ({
   kind,
@@ -112,7 +102,9 @@ export const workspaceSchema = z.object({
       }),
     )
     .default([]),
-  highlights: z.array(highlight.extend({ id: z.uuid(), revision })).default([]),
+  highlights: z
+    .array(highlightInputSchema.extend({ id: z.uuid(), revision }))
+    .default([]),
   thoughts: z.array(thoughtSchema).default([]),
   watchlists: z.array(watchlistSchema).default([]),
   missedTrades: z.array(missedTradeSchema).default([]),
@@ -144,9 +136,15 @@ export const workspaceCommand = z.discriminatedUnion("record", [
       record: z.literal(WORKSPACE_RECORD.PREPARATION),
       ...preparationKey,
       revision: revision.optional(),
+      legacyThoughtRevision: revision.optional(),
       input: preparation,
     })
-    .refine(periodStart),
+    .refine(periodStart)
+    .refine(
+      ({ kind, legacyThoughtRevision, input }) =>
+        legacyThoughtRevision === undefined ||
+        (kind === PERIOD.DAY && input.screenshotIds !== undefined),
+    ),
   z
     .object({
       record: z.literal(WORKSPACE_RECORD.REPORT),
@@ -165,6 +163,6 @@ export const workspaceCommand = z.discriminatedUnion("record", [
     record: z.literal(WORKSPACE_RECORD.HIGHLIGHT),
     id: z.uuid(),
     revision: revision.optional(),
-    input: highlight,
+    input: highlightInputSchema,
   }),
 ]);

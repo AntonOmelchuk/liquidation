@@ -1,4 +1,9 @@
-import { currencies, forexPairs, otherInstruments } from "./constants.ts";
+import {
+  currencies,
+  forexPairs,
+  INSTRUMENT_MARKET,
+  otherInstruments,
+} from "./constants.ts";
 import type { Currency, Instrument } from "./types.ts";
 
 const instruments: readonly Instrument[] = [
@@ -10,13 +15,15 @@ const instruments: readonly Instrument[] = [
         symbol: base + quote,
         name: `${baseName} / ${quoteName}`,
         icons: [baseIcon, quoteIcon],
+        market: INSTRUMENT_MARKET.FOREX,
       };
     });
   }),
-  ...otherInstruments.map(([symbol, name, icon]) => ({
+  ...otherInstruments.map(([symbol, name, icon, market]) => ({
     symbol,
     name,
     icons: [icon],
+    market,
   })),
 ];
 
@@ -29,6 +36,18 @@ export function currencyFlag(code: string) {
   return Object.hasOwn(currencies, currency)
     ? currencies[currency as Currency][1]
     : undefined;
+}
+
+export function instrumentMarket(
+  symbol: string,
+): Instrument["market"] | undefined {
+  const normalized = symbol.trim().toUpperCase();
+  const base = normalized.split(/[._]/, 1)[0];
+  return (
+    bySymbol.get(normalized)?.market ??
+    bySymbol.get(base)?.market ??
+    (currencyFlag(normalized) ? INSTRUMENT_MARKET.FOREX : undefined)
+  );
 }
 
 export function instrumentIcons(symbol: string): readonly string[] {

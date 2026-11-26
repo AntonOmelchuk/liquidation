@@ -8,6 +8,7 @@ import { EMPTY_VALUE } from "../../../shared/constants.ts";
 import { numericTone } from "../../../shared/format.ts";
 import { useLocale } from "../../../shared/messages.ts";
 import { PencilIcon } from "../../../shared/ui/action-icons.tsx";
+import { TradeSideBadge } from "../../../shared/ui/direction-badge.tsx";
 import { InstrumentIcons } from "../../../shared/ui/instrument-picker.tsx";
 import { usePlaybookMessages } from "../../playbooks/messages.ts";
 import {
@@ -20,7 +21,7 @@ import { usePlanMessages } from "../messages.ts";
 
 function PlanRow({ plan, actual }: PlanRowProps) {
   const p = usePlanMessages();
-  const { t, format } = useLocale();
+  const { format } = useLocale();
   const { id, setup } = plan;
   const count = (number: number) => format.integer.format(number);
   const totalR = actual?.totalR ?? null;
@@ -33,10 +34,14 @@ function PlanRow({ plan, actual }: PlanRowProps) {
             <InstrumentIcons symbol={setup.symbol} />
             {setup.symbol}
           </span>
-          <span>{t[setup.direction]}</span>
-          <PlanNarrativeLabel setup={setup} />
         </small>
       </th>
+      <td>
+        <PlanNarrativeLabel setup={setup} />
+      </td>
+      <td>
+        <TradeSideBadge side={setup.direction} />
+      </td>
       <td>
         <PlanSpan setup={setup} compact />
       </td>
@@ -110,7 +115,7 @@ function PlanRow({ plan, actual }: PlanRowProps) {
 }
 
 export function PlansTable({ groups, execution, label }: PlansTableProps) {
-  const { format } = useLocale();
+  const { format, t } = useLocale();
   const p = usePlanMessages();
   const b = usePlaybookMessages();
 
@@ -125,6 +130,8 @@ export function PlansTable({ groups, execution, label }: PlansTableProps) {
         <thead>
           <tr>
             <th scope="col">{p.title}</th>
+            <th scope="col">{p.narrativeColumn}</th>
+            <th scope="col">{t.side}</th>
             <th scope="col">{p.period}</th>
             <th scope="col">{p.status}</th>
             <th scope="col">{b.link}</th>
@@ -137,9 +144,14 @@ export function PlansTable({ groups, execution, label }: PlansTableProps) {
         </thead>
         {groups.map(({ period, plans }) => (
           <tbody key={period}>
-            <tr className="plan-table-group">
-              <th scope="rowgroup" colSpan={7}>
-                {p[period]} <span>{format.integer.format(plans.length)}</span>
+            <tr className="plan-table-group" data-period={period}>
+              <th scope="rowgroup" colSpan={9}>
+                <div className="plan-group-heading">
+                  <span>{p[period]}</span>
+                  <span className="plan-group-count">
+                    {format.integer.format(plans.length)}
+                  </span>
+                </div>
               </th>
             </tr>
             {plans.map((plan) => (

@@ -11,6 +11,7 @@ import { positionEditHref, tradeLinksHref } from "../../../app/page.ts";
 import { EMPTY_VALUE } from "../../../shared/constants.ts";
 import { numericTone } from "../../../shared/format.ts";
 import { useLocale } from "../../../shared/messages.ts";
+import { TradeSideBadge } from "../../../shared/ui/direction-badge.tsx";
 import { InstrumentIcons } from "../../../shared/ui/instrument-picker.tsx";
 import { Panel } from "../../../shared/ui/layout.tsx";
 import { useAccountMessages } from "../../accounts/messages.ts";
@@ -91,10 +92,7 @@ export function TradeDetailsDialog({
           </span>
           <h2 id={titleId} className="instrument-label">
             <InstrumentIcons symbol={record.symbol} />
-            {record.symbol}{" "}
-            <span className="trade-side" data-side={record.direction}>
-              {t[record.direction]}
-            </span>
+            {record.symbol} <TradeSideBadge side={record.direction} />
           </h2>
         </div>
         <button
@@ -160,8 +158,8 @@ export function TradeDetailsDialog({
             )}
             {record.breakeven && (
               <div>
-                <dt>{m.stopMoved}</dt>
-                <dd className="positive">BE</dd>
+                <dt>{m.stopStatus}</dt>
+                <dd className="positive">{a.breakeven}</dd>
               </div>
             )}
             <div>

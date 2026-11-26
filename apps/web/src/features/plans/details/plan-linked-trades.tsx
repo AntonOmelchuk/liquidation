@@ -4,6 +4,7 @@ import type { PlanLinkedTradesProps } from "./types.ts";
 import { planHref } from "../../../app/page.ts";
 import { EMPTY_VALUE } from "../../../shared/constants.ts";
 import { useLocale } from "../../../shared/messages.ts";
+import { DirectionBadge } from "../../../shared/ui/direction-badge.tsx";
 import { Metric, Panel } from "../../../shared/ui/layout.tsx";
 import { TradeTable } from "../../journal/records/trade-table.tsx";
 import { TRADE_TABLE_MODE } from "../../journal/records/constants.ts";
@@ -65,7 +66,10 @@ export function PlanLinkedTrades({
         <div className="plan-alignment">
           <h3>{p.alignment}</h3>
           <p>
-            {p.plannedBias} · {p[narrative]}
+            {p.plannedBias} ·{" "}
+            <DirectionBadge direction={narrative}>
+              {p[narrative]}
+            </DirectionBadge>
           </p>
           {(["withNarrative", "againstNarrative"] as const).map((key) => (
             <div className="plan-alignment-row" key={key}>

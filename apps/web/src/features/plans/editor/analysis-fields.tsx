@@ -1,11 +1,34 @@
 import { MAX_PLAN_ANALYSIS_BLOCKS } from "@liquidation/domain/plans/constants";
+import type { PlanAnalysisBlock } from "@liquidation/domain/plans/types";
 import type { AnalysisDraft, AnalysisFieldsProps } from "./types.ts";
 
 import { ScreenshotField } from "../../../shared/screenshots/screenshot-field.tsx";
+import { existingScreenshots } from "../../../shared/screenshots/draft.ts";
 import { usePlanMessages } from "../messages.ts";
 
 export function emptyAnalysisBlock(): AnalysisDraft {
   return { id: crypto.randomUUID(), timeframe: "", text: "", screenshots: [] };
+}
+
+export function analysisDraft(blocks?: readonly PlanAnalysisBlock[]) {
+  return (
+    blocks?.map(({ screenshotIds, ...block }) => ({
+      ...block,
+      screenshots: existingScreenshots(screenshotIds),
+    })) ?? []
+  );
+}
+
+export function readAnalysisBlocks(blocks: readonly AnalysisDraft[]) {
+  const filled = blocks.filter(
+    ({ text, screenshots }) => text.trim() || screenshots.length,
+  );
+  return filled.length
+    ? filled.map(({ screenshots, ...block }) => ({
+        ...block,
+        screenshotIds: screenshots.map(({ id }) => id),
+      }))
+    : undefined;
 }
 
 export function AnalysisFields({

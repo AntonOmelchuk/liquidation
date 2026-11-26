@@ -12,6 +12,7 @@ import type {
 import { EMPTY_VALUE } from "../../../shared/constants.ts";
 import { formatCompactDay } from "../../../shared/format.ts";
 import { useLocale } from "../../../shared/messages.ts";
+import { DirectionBadge } from "../../../shared/ui/direction-badge.tsx";
 import { usePlanMessages } from "../messages.ts";
 import "./plan-status.css";
 
@@ -73,5 +74,6 @@ export function PlanSpan({ setup, compact = false }: PlanSpanProps) {
 
 export function PlanNarrativeLabel({ setup }: PlanNarrativeLabelProps) {
   const p = usePlanMessages();
-  return <span>{p[getPlanNarrative(setup)]}</span>;
+  const narrative = getPlanNarrative(setup);
+  return <DirectionBadge direction={narrative}>{p[narrative]}</DirectionBadge>;
 }

@@ -42,16 +42,25 @@ export const BREAKEVEN_REVIEW_REASONS = [
 ] as const;
 export const LEARNING_KIND = { LESSON: "lesson", NOTE: "note" } as const;
 export const LEARNING_KINDS = Object.values(LEARNING_KIND);
+export const HIGHLIGHT_TYPE = {
+  REVERSAL: "reversal",
+  CONTINUATION: "continuation",
+} as const;
+export const LEARNING_TOPIC = {
+  PSYCHOLOGY: "psychology",
+  RISK_MANAGEMENT: "risk-management",
+  TRADING_STRATEGY: "trading-strategy",
+  PRICE_ACTION: "price-action",
+  PRICE_BEHAVIOR: "price-behavior",
+  TRADE_EXECUTION: "trade-execution",
+  BACKTESTING: "backtesting",
+  MACROECONOMICS: "macroeconomics",
+  GENERAL: "general",
+} as const;
 export const LECTURE_BLOCK = { TEXT: "text", IMAGE: "image" } as const;
 export const LECTURE_BLOCK_LIMIT = 40;
 export const LECTURE_CAPTION_LIMIT = 240;
-export const PREPARATION_FIELDS = [
-  "outlook",
-  "news",
-  "alerts",
-  "watch",
-  "study",
-] as const;
+export const PREPARATION_FIELDS = ["outlook", "news", "watch"] as const;
 export const REPORT_FIELDS = [
   "focus",
   "process",
@@ -65,6 +74,8 @@ export const REPORT_FIELDS = [
 ] as const;
 export const REPORT_GRADES = ["A", "B", "C", "D", "F"] as const;
 export const WORKSPACE_TEXT_LIMIT = 4000;
+// A daily thought and the existing outlook can both be present on older dates.
+export const PREPARATION_OUTLOOK_LIMIT = WORKSPACE_TEXT_LIMIT * 2 + 2;
 export const WORKSPACE_TITLE_LIMIT = 120;
 export const TASK_TEXT_LIMIT = 240;
 export const TASK_LIMIT = 32;

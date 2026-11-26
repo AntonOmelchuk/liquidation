@@ -22,7 +22,12 @@ import { JOURNAL_STATUS } from "../../journal/data/constants.ts";
 import { useJournal } from "../../journal/data/store.ts";
 import { usePlanMessages } from "../messages.ts";
 import { PlanUnavailable } from "../plan-unavailable.tsx";
-import { AnalysisFields, emptyAnalysisBlock } from "./analysis-fields.tsx";
+import {
+  AnalysisFields,
+  analysisDraft,
+  emptyAnalysisBlock,
+  readAnalysisBlocks,
+} from "./analysis-fields.tsx";
 import { PlanPlaybookField, readPlanPlaybook } from "./plan-playbook.tsx";
 import { PlanReviewFields } from "./plan-review-fields.tsx";
 import { planSaveError } from "./plan-save-error.ts";
@@ -94,12 +99,7 @@ function PlanEditor({ plan, section }: PlanEditorProps) {
   const screenshotMessages = useScreenshotMessages();
   const [analysis, setAnalysis] = useState<AnalysisDraft[]>(() =>
     plan?.setup.analysis?.length
-      ? plan.setup.analysis.map(({ id, timeframe, text, screenshotIds }) => ({
-          id,
-          timeframe,
-          text,
-          screenshots: existingScreenshots(screenshotIds),
-        }))
+      ? analysisDraft(plan.setup.analysis)
       : [emptyAnalysisBlock()],
   );
   const [setupShots, setSetupShots] = useState(() =>
@@ -155,9 +155,6 @@ function PlanEditor({ plan, section }: PlanEditorProps) {
     event.preventDefault();
     if (saving) return;
     const data = new FormData(event.currentTarget);
-    const filledAnalysis = analysis.filter(
-      ({ text, screenshots }) => text.trim() || screenshots.length,
-    );
     const setup = {
       title: data.get("title"),
       symbol: data.get("symbol"),
@@ -171,12 +168,7 @@ function PlanEditor({ plan, section }: PlanEditorProps) {
       narrative: data.get("narrative"),
       avoid: data.get("avoid") || undefined,
       playbook: readPlanPlaybook(data),
-      analysis: filledAnalysis.length
-        ? filledAnalysis.map(({ screenshots, ...block }) => ({
-            ...block,
-            screenshotIds: screenshots.map(({ id }) => id),
-          }))
-        : undefined,
+      analysis: readAnalysisBlocks(analysis),
       screenshotIds: setupShots.length
         ? setupShots.map(({ id }) => id)
         : undefined,

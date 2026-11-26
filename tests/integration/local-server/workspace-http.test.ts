@@ -138,7 +138,6 @@ test("saves preparation, cards, highlights and course notes beside legacy journa
         title: "Risk review",
         kind: "lesson",
         completed: false,
-        archived: false,
         link: "https://example.com/course",
         body: "My course notes.",
       },
@@ -176,9 +175,9 @@ test("saves preparation, cards, highlights and course notes beside legacy journa
     });
     expect(snapshot.workspace.learning[0]).toMatchObject({
       ...course.input,
-      archived: true,
       completed: true,
     });
+    expect(snapshot.workspace.learning[0]).not.toHaveProperty("archived");
     expect(snapshot.positions).toEqual([]);
     expect(snapshot.trades[0].id).toBe(position.id);
   } finally {

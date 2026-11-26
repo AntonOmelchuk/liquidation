@@ -17,6 +17,7 @@ import {
   localDateTimeToIso,
 } from "../../../shared/format.ts";
 import { useLocale } from "../../../shared/messages.ts";
+import { TradeSideBadge } from "../../../shared/ui/direction-badge.tsx";
 import {
   InstrumentPicker,
   InstrumentIcons,
@@ -226,7 +227,7 @@ function TradeEditor({ mode, position }: TradeEditorProps) {
                 <InstrumentIcons symbol={initial.symbol} />
                 {initial.symbol}
               </span>
-              <span>{t[initial.direction]}</span>
+              <TradeSideBadge side={initial.direction} />
               <time dateTime={initial.openedAt}>
                 {format.date.format(Date.parse(initial.openedAt))}
               </time>

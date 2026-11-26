@@ -13,6 +13,7 @@ export const usePreferences = create<
   persist(
     (set) => ({
       quoteSymbols: DEFAULT_QUOTE_SYMBOLS,
+      quoteMotion: true,
       language: LANGUAGE.ENGLISH,
       theme: THEME.DARK,
       textSize: TEXT_SIZE.NORMAL,

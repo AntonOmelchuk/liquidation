@@ -3,6 +3,7 @@ import { screenshotIdsSchema } from "../evidence/screenshots.ts";
 import {
   LEARNING_KIND,
   LEARNING_KINDS,
+  LEARNING_TOPIC,
   LECTURE_BLOCK,
   LECTURE_BLOCK_LIMIT,
   LECTURE_CAPTION_LIMIT,
@@ -13,6 +14,12 @@ import type { LectureBlock } from "./types.ts";
 
 const text = z.string().trim().max(WORKSPACE_TEXT_LIMIT);
 const title = z.string().trim().min(1).max(WORKSPACE_TITLE_LIMIT);
+const learningName = z
+  .string()
+  .trim()
+  .overwrite((value) => value.replace(/\s+/g, " "))
+  .min(1)
+  .max(WORKSPACE_TITLE_LIMIT);
 
 export const lectureBlockSchema = z.discriminatedUnion("type", [
   z.object({
@@ -45,26 +52,27 @@ export const learningSchema = z
     title,
     kind: z.enum(LEARNING_KINDS),
     body: text,
-    group: z
-      .string()
-      .trim()
-      .overwrite((value) => value.replace(/\s+/g, " "))
-      .min(1)
-      .max(WORKSPACE_TITLE_LIMIT)
-      .optional(),
+    group: learningName.optional(),
+    topic: z.enum(LEARNING_TOPIC).optional(),
+    author: learningName.optional(),
     blocks: lectureBlocks.optional(),
+    screenshotIds: screenshotIdsSchema.optional(),
     link: z
       .url({ protocol: /^https?$/ })
       .max(2048)
       .optional(),
-    completed: z.boolean(),
-    archived: z.boolean(),
+    completed: z.boolean().default(false),
   })
   .refine(
     ({ kind, group, blocks }) =>
       kind === LEARNING_KIND.LESSON ||
       (group === undefined && blocks === undefined),
     "Only lectures have groups and content blocks.",
+  )
+  .refine(
+    ({ kind, screenshotIds }) =>
+      kind === LEARNING_KIND.NOTE || screenshotIds === undefined,
+    "Lecture images belong to content blocks.",
   );
 
 export function lectureScreenshotIds(blocks?: readonly LectureBlock[]) {
@@ -73,4 +81,10 @@ export function lectureScreenshotIds(blocks?: readonly LectureBlock[]) {
       block.type === LECTURE_BLOCK.IMAGE ? block.screenshotIds : [],
     ) ?? []
   );
+}
+
+export function learningScreenshotIds(
+  entry?: Pick<z.infer<typeof learningSchema>, "blocks" | "screenshotIds">,
+) {
+  return entry?.screenshotIds ?? lectureScreenshotIds(entry?.blocks);
 }

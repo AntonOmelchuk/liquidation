@@ -95,6 +95,7 @@ export const trashCommandSchema = z.discriminatedUnion("action", [
     kind: z.enum(TRASH_KINDS),
     key: z.string().min(1).max(80),
     revision: z.number().int().positive().optional(),
+    legacyThoughtRevision: z.number().int().positive().optional(),
   }),
   z.object({ action: z.literal(TRASH_ACTION.RESTORE), id: z.uuid() }),
   z.object({ action: z.literal(TRASH_ACTION.PURGE), id: z.uuid() }),
