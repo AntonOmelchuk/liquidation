@@ -43,6 +43,8 @@ export type SortableHeaderProps = {
 };
 
 export type SeriesChartProps = {
+  compact?: boolean;
+  signed?: boolean;
   values: readonly number[];
   label: string;
   empty: string;

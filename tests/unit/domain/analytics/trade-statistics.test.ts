@@ -43,6 +43,10 @@ test("shares cost-adjusted results between summary and groups", () => {
   expect(results).toMatchObject({
     count: 3,
     net: 70,
+    wins: 1,
+    losses: 1,
+    winningPnl: 100,
+    losingPnl: 30,
     flat: 1,
     winRate: 1 / 3,
     profitFactor: 100 / 30,
@@ -76,6 +80,10 @@ test("groups simultaneous closes when measuring realized drawdown", () => {
   ).toMatchObject({ net: 20, maxDrawdown: 0 });
   expect(tradeStatistics([])).toMatchObject({
     net: 0,
+    wins: 0,
+    losses: 0,
+    winningPnl: 0,
+    losingPnl: 0,
     duration: { median: null },
     profitFactor: null,
     winRate: null,

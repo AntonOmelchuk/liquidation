@@ -7,7 +7,7 @@ export type JournalUnavailableProps = {
   loadError?: string;
 };
 
-export type PerformanceChartProps = { trades: readonly Trade[] };
+export type PerformanceChartProps = { values: readonly number[] };
 
 export type InstrumentBreakdownProps = { trades: readonly Trade[] };
 

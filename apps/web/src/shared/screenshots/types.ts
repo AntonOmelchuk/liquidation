@@ -19,3 +19,9 @@ export type ScreenshotPreviewProps = {
 };
 
 export type ScreenshotGalleryProps = { ids?: readonly string[] };
+
+export type ScreenshotDialogProps = {
+  source: string;
+  title: string;
+  onClose: () => void;
+};

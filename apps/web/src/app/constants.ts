@@ -16,6 +16,7 @@ export const PAGE = {
   CARDS: "cards",
   GUIDE: "guide",
   MISTAKES: "mistakes",
+  NEWS_REACTIONS: "news-reactions",
 } as const;
 
 export const PAGE_VIEW = {
@@ -48,6 +49,7 @@ export const PAGE_HASHES = {
   [PAGE.CARDS]: "#cards",
   [PAGE.GUIDE]: "#guide",
   [PAGE.MISTAKES]: "#mistakes",
+  [PAGE.NEWS_REACTIONS]: "#news-reactions",
 } as const;
 export const LEGACY_LEARNING_HREF = "#learning";
 

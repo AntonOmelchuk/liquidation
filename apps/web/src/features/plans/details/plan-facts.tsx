@@ -56,16 +56,20 @@ export function PlanSpan({ setup, compact = false }: PlanSpanProps) {
       <span>{p.noPeriod}</span>
     );
   }
-  const label = (day: string) =>
-    compact ? formatCompactDay(day) : format.day.format(Date.parse(day));
+  const fullDate = (day: string) => format.day.format(Date.parse(day));
 
   return (
     <span className="plan-dates">
-      <time dateTime={startsOn}>{label(startsOn)}</time>
+      <time dateTime={startsOn} title={fullDate(startsOn)}>
+        {formatCompactDay(startsOn)}
+      </time>
       {endsOn && endsOn !== startsOn && (
         <>
           {" "}
-          – <time dateTime={endsOn}>{label(endsOn)}</time>
+          –{" "}
+          <time dateTime={endsOn} title={fullDate(endsOn)}>
+            {formatCompactDay(endsOn)}
+          </time>
         </>
       )}
     </span>

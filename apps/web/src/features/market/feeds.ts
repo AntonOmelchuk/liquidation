@@ -6,6 +6,7 @@ import {
 import {
   calendarFeedSchema,
   quoteSnapshotSchema,
+  releaseHistorySchema,
   releaseReactionSchema,
 } from "@liquidation/domain/market/contracts";
 import type {
@@ -106,9 +107,20 @@ export function useQuoteFeed(selection: string) {
   };
 }
 
-export function useReleaseReaction(query: ReleaseReactionQuery | undefined) {
+export function useReleaseReaction(
+  query: ReleaseReactionQuery | undefined,
+  event: string,
+) {
   const url = query
-    ? MARKET_ROUTES.reaction + "?" + new URLSearchParams(query)
+    ? MARKET_ROUTES.reaction + "?" + new URLSearchParams({ ...query, event })
     : undefined;
   return useMarketFeed(url, releaseReactionSchema, REACTION_POLL_MS);
+}
+
+export function useReleaseHistory() {
+  return useMarketFeed(
+    MARKET_ROUTES.reactions,
+    releaseHistorySchema,
+    REACTION_POLL_MS,
+  );
 }

@@ -31,7 +31,7 @@ const en = {
   date: "Date",
   closeDay: "Clear day selection",
   activePlans: "Active plans",
-  noActivePlans: "No waiting or in-progress plans in this period.",
+  noActivePlans: "No waiting or in-progress plans.",
   outlook: "Market outlook",
   news: "News and events",
   watch: "What I’m waiting for",
@@ -170,8 +170,7 @@ const uk: typeof en = {
   date: "Дата",
   closeDay: "Скинути вибір дня",
   activePlans: "Актуальні плани",
-  noActivePlans:
-    "У цьому періоді немає планів зі статусом «Очікую» або «В процесі».",
+  noActivePlans: "Немає планів зі статусом «Очікую» або «В процесі».",
   outlook: "Думки про ринок",
   news: "Новини й події",
   watch: "Що я очікую",

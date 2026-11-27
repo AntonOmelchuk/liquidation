@@ -173,6 +173,32 @@
   color: var(--muted);
   margin-block-start: 0.6rem;
 }
+.record-card-grid.note-card-grid {
+  grid-auto-rows: 1fr;
+  align-items: stretch;
+}
+.note-card-grid .learning-entry > .panel-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.35rem;
+}
+.note-card-grid .panel-heading h2 {
+  min-block-size: 2lh;
+  align-items: start;
+}
+.note-card-grid .panel-heading h2::before {
+  margin-block-start: 0.13em;
+}
+.note-card-grid .record-link {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+.note-card-date {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
 .note-excerpt {
   display: -webkit-box;
   -webkit-box-orient: vertical;

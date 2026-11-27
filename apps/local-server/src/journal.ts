@@ -30,7 +30,14 @@ export function createJournal(
   directory = process.env.LIQUIDATION_DATA_DIR ||
     join(homedir(), ".liquidation"),
 ) {
-  const { read, write, readScreenshot } = createJournalStorage(directory);
+  const {
+    read,
+    write,
+    readScreenshot,
+    backup,
+    readReleaseHistory,
+    recordReleaseHistory,
+  } = createJournalStorage(directory);
   function updatePlan(
     command: PlanCommand,
     uploads = new Map<string, Uint8Array>(),
@@ -63,6 +70,9 @@ export function createJournal(
 
   return {
     read,
+    backup,
+    readReleaseHistory,
+    recordReleaseHistory,
     append: (input: TradeInput, uploads = new Map<string, Uint8Array>()) =>
       write((journal) => appendTrade(journal, input, uploads), uploads),
     updatePosition: (

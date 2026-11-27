@@ -5,7 +5,7 @@ import type { PlanTradeFieldsProps } from "./types.ts";
 
 import { netCents } from "@liquidation/domain/trades/trade";
 import { EMPTY_VALUE } from "../../../shared/constants.ts";
-import { numericTone } from "../../../shared/format.ts";
+import { formatCompactDateTime, numericTone } from "../../../shared/format.ts";
 import { useLocale } from "../../../shared/messages.ts";
 import { TradeSideBadge } from "../../../shared/ui/direction-badge.tsx";
 import { InstrumentIcons } from "../../../shared/ui/instrument-picker.tsx";
@@ -42,9 +42,13 @@ export function PlanTradeFields({
   const visible = records.filter(
     (record) =>
       (!selectedOnly || selected(record)) &&
-      [record.symbol, record.openedAt, record.notes].some((value) =>
-        value.toLowerCase().includes(term),
-      ),
+      (!term ||
+        [
+          record.symbol,
+          record.openedAt,
+          formatCompactDateTime(record.openedAt, format.clock),
+          record.notes,
+        ].some((value) => value.toLowerCase().includes(term))),
   );
   const count = records.filter(selected).length;
 
@@ -97,7 +101,13 @@ export function PlanTradeFields({
               {visible.slice(0, limit).map((record) => {
                 const checked = selected(record);
                 const closed = "closedAt" in record;
-                const opened = format.date.format(Date.parse(record.openedAt));
+                const opened = formatCompactDateTime(
+                  record.openedAt,
+                  format.clock,
+                );
+                const fullDate = format.date.format(
+                  Date.parse(record.openedAt),
+                );
                 const previousPlan = record.planId && names.get(record.planId);
                 const pnl = closed ? netCents(record) / 100 : null;
                 return (
@@ -105,7 +115,7 @@ export function PlanTradeFields({
                     <td>
                       <input
                         type="checkbox"
-                        aria-label={`${p.includeTrade} · ${record.symbol} · ${t[record.direction]} · ${opened}`}
+                        aria-label={`${p.includeTrade} · ${record.symbol} · ${t[record.direction]} · ${fullDate}`}
                         checked={checked}
                         onChange={(event) =>
                           onChange({
@@ -120,13 +130,13 @@ export function PlanTradeFields({
                       <span className="instrument-label">
                         <InstrumentIcons symbol={record.symbol} />
                         {record.symbol}
-                      </span>
-                      <small>
                         <TradeSideBadge side={record.direction} />
-                      </small>
+                      </span>
                     </th>
                     <td>
-                      <time dateTime={record.openedAt}>{opened}</time>
+                      <time dateTime={record.openedAt} title={fullDate}>
+                        {opened}
+                      </time>
                     </td>
                     <td>{closed ? p.closedState : p.openState}</td>
                     <td>

@@ -71,6 +71,10 @@ export function tradeStatistics(trades: readonly Trade[]) {
   return {
     count: trades.length,
     net: (gain - loss) / 100,
+    wins: wins.length,
+    losses: losses.length,
+    winningPnl: gain / 100,
+    losingPnl: loss / 100,
     winRate: trades.length ? wins.length / trades.length : null,
     profitFactor: loss ? gain / loss : gain ? Infinity : null,
     averageWin,

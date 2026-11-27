@@ -49,8 +49,33 @@
   height: 100%;
   object-fit: contain;
 }
+.screenshot-thumb {
+  width: 100%;
+  padding: 0;
+  cursor: zoom-in;
+}
+.screenshot-thumb:enabled:hover {
+  border-color: var(--accent);
+}
 .screenshot-placeholder {
   font-size: 0.85rem;
+}
+dialog.screenshot-viewer {
+  width: min(96rem, calc(100% - 2rem));
+}
+.screenshot-viewer-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+.screenshot-viewer img {
+  display: block;
+  max-width: 100%;
+  max-height: 78dvh;
+  margin-inline: auto;
+  object-fit: contain;
 }
 .screenshot-actions {
   display: flex;

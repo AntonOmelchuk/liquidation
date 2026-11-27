@@ -12,14 +12,16 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import type {
   CalendarReader,
   QuoteReader,
-  ReleaseReactionReader,
+  ReactionHistoryReader,
+  ReleaseReactionRouteReader,
 } from "../market/types.ts";
 import { isLocalRequest } from "./local-request.ts";
 
 export function marketHandler(
   readCalendar: CalendarReader,
   readQuotes: QuoteReader,
-  readReaction: ReleaseReactionReader,
+  readReaction: ReleaseReactionRouteReader,
+  readHistory: ReactionHistoryReader,
 ) {
   return async (request: IncomingMessage, response: ServerResponse) => {
     function send(status: number, data: unknown) {
@@ -45,6 +47,16 @@ export function marketHandler(
       send(HTTP_STATUS.OK, await readCalendar());
       return;
     }
+    if (path === MARKET_ROUTES.reactions) {
+      try {
+        send(HTTP_STATUS.OK, await readHistory());
+      } catch {
+        send(HTTP_STATUS.INTERNAL_SERVER_ERROR, {
+          error: "Could not read local news reactions.",
+        });
+      }
+      return;
+    }
     const query = new URLSearchParams(search);
     if (path === MARKET_ROUTES.reaction) {
       const input = releaseReactionQuerySchema.safeParse({
@@ -57,7 +69,9 @@ export function marketHandler(
         });
         return;
       }
-      const reaction = await readReaction(input.data);
+      const reaction = await readReaction(input.data, query.get("event")).catch(
+        () => null,
+      );
       if (reaction === null) {
         send(HTTP_STATUS.SERVICE_UNAVAILABLE, {
           error: "Candle history is temporarily unavailable.",

@@ -184,7 +184,7 @@ function LearningList({
           ))}
         </div>
       ) : (
-        <div className="record-card-grid">
+        <div className="record-card-grid note-card-grid">
           {visible.map((entry) => (
             <article key={entry.id} className="panel learning-entry">
               <div className="panel-heading">
@@ -192,11 +192,14 @@ function LearningList({
                   <a
                     className="record-link"
                     href={learningHref(kind, entry.id)}
+                    title={entry.title}
                   >
                     {entry.title}
                   </a>
                 </h2>
-                <small>{format.date.format(Date.parse(entry.updatedAt))}</small>
+                <time className="note-card-date" dateTime={entry.updatedAt}>
+                  {format.date.format(Date.parse(entry.updatedAt))}
+                </time>
               </div>
               <LearningTags entry={entry} />
               {entry.body && (

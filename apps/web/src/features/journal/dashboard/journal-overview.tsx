@@ -20,17 +20,9 @@ export function JournalOverview({ today }: { today: string }) {
   const [period, setPeriod] = useState<PreparationPeriod>(PERIOD.DAY);
   const { t } = useLocale();
   const m = useWorkspaceMessages();
-  const { start, through } = periodBounds(period, today);
+  const { start } = periodBounds(period, today);
   const plans = useJournal((state) => state.plans);
-  const active = plans.filter((plan) => {
-    const first = plan.setup.startsOn;
-    const last = plan.setup.endsOn ?? first;
-    return (
-      isOpenPlan(plan) &&
-      (!first || first <= through) &&
-      (!last || last >= start)
-    );
-  });
+  const active = plans.filter(isOpenPlan);
   return (
     <div className="dashboard-split">
       <div className="layout">

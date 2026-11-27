@@ -9,6 +9,7 @@ import { link, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { FILE_ERROR, RASTER_SIGNATURE } from "../constants.ts";
 import { JournalConflict, RequestError } from "../errors.ts";
+import { SCREENSHOT_DIRECTORY } from "./constants.ts";
 
 function rasterType(bytes: Buffer) {
   if (
@@ -42,7 +43,7 @@ function rasterType(bytes: Buffer) {
   return null;
 }
 
-function validatedBytes(data: Uint8Array) {
+export function validateScreenshotBytes(data: Uint8Array) {
   if (data.byteLength > MAX_SCREENSHOT_BYTES)
     throw new RequestError(
       HTTP_STATUS.CONTENT_TOO_LARGE,
@@ -58,7 +59,7 @@ function validatedBytes(data: Uint8Array) {
 }
 
 export function createScreenshotStorage(dataDirectory: string) {
-  const directory = join(dataDirectory, "screenshots");
+  const directory = join(dataDirectory, SCREENSHOT_DIRECTORY);
 
   async function read(id: string) {
     if (!screenshotIdSchema.safeParse(id).success) return null;
@@ -84,7 +85,7 @@ export function createScreenshotStorage(dataDirectory: string) {
 
     const validated = [...uploads].map(
       ([id, bytes]) =>
-        [screenshotIdSchema.parse(id), validatedBytes(bytes)] as const,
+        [screenshotIdSchema.parse(id), validateScreenshotBytes(bytes)] as const,
     );
     await mkdir(directory, { recursive: true, mode: 0o700 });
     try {

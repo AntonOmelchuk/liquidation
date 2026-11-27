@@ -24,12 +24,13 @@ export const currencies = {
   ZAR: ["South African rand", "🇿🇦"],
   SGD: ["Singapore dollar", "🇸🇬"],
   CNY: ["Chinese yuan", "🇨🇳"],
+  CNH: ["Offshore Chinese yuan", "🇨🇳"],
 } as const;
 
 export const forexPairs = {
   EUR: ["USD", "GBP", "JPY", "CHF", "CAD", "AUD", "NZD", "SEK", "NOK"],
   GBP: ["USD", "JPY", "CHF", "CAD", "AUD", "NZD"],
-  USD: ["JPY", "CHF", "CAD", "SEK", "NOK", "MXN", "ZAR", "SGD"],
+  USD: ["JPY", "CHF", "CAD", "SEK", "NOK", "MXN", "ZAR", "SGD", "CNH"],
   AUD: ["USD", "JPY", "CHF", "CAD", "NZD"],
   NZD: ["USD", "JPY", "CHF", "CAD"],
   CAD: ["JPY", "CHF"],

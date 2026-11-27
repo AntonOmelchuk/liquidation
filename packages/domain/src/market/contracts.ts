@@ -68,10 +68,33 @@ export const releaseReactionSchema = releaseReactionQuerySchema.extend({
   closes: z.tuple([observedPrice, observedPrice]),
 });
 
+export const measuredReactionSchema = releaseReactionSchema.extend({
+  interval: z.enum(CANDLE_INTERVAL),
+  before: z.number().positive(),
+});
+
+export const releaseObservationSchema = z
+  .object({
+    event: eventSchema,
+    source: z.enum(CALENDAR_SOURCE),
+    reaction: measuredReactionSchema,
+    comparison: z.literal(true).optional(),
+  })
+  .refine(
+    ({ event, reaction }) =>
+      event.timeKnown &&
+      !event.allDayOn &&
+      Date.parse(event.at) === Date.parse(reaction.at) &&
+      reaction.closes.some((close) => close !== null),
+  );
+
+export const releaseHistorySchema = z.array(releaseObservationSchema);
+
 export function isMarketRoute(path?: string) {
   return (
     path === MARKET_ROUTES.calendar ||
     path === MARKET_ROUTES.quotes ||
-    path === MARKET_ROUTES.reaction
+    path === MARKET_ROUTES.reaction ||
+    path === MARKET_ROUTES.reactions
   );
 }

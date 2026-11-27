@@ -19,14 +19,3 @@ export const MARKET_LINKS = {
 
 export const METAL_QUOTE_SYMBOLS = new Set<string>(QUOTE_METALS);
 export const JPY_QUOTE_CURRENCY = "JPY";
-
-export const RELEASE_SYMBOLS = new Map([
-  ["USD", "EURUSD"],
-  ["EUR", "EURUSD"],
-  ["GBP", "GBPUSD"],
-  ["JPY", "USDJPY"],
-  ["CHF", "USDCHF"],
-  ["CAD", "USDCAD"],
-  ["AUD", "AUDUSD"],
-  ["NZD", "NZDUSD"],
-]);

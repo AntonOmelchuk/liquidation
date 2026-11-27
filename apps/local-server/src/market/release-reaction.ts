@@ -3,6 +3,10 @@ import {
   MINUTE_MS,
   RELEASE_REACTION_MINUTES,
 } from "@liquidation/domain/market/constants";
+import {
+  measuredWindows,
+  measurementKey,
+} from "@liquidation/domain/market/release-history";
 import type {
   ReactionInterval,
   ReleaseReaction,
@@ -33,10 +37,6 @@ const fiveMinuteMs = MINUTE_MS * RELEASE_REACTION_MINUTES[0];
 
 function emptyReaction(query: ReleaseReactionQuery): ReleaseReaction {
   return { ...query, interval: null, before: null, closes: [null, null] };
-}
-
-function completeCount(reaction: ReleaseReaction | null | undefined) {
-  return reaction?.closes.filter((close) => close !== null).length ?? 0;
 }
 
 export function createReleaseReactionReader({
@@ -125,7 +125,7 @@ export function createReleaseReactionReader({
       // The fallback candle interval can still be available.
     }
 
-    if (completeCount(primary) < expected && eventTime % fiveMinuteMs === 0) {
+    if (measuredWindows(primary) < expected && eventTime % fiveMinuteMs === 0) {
       try {
         const fallback = await measure(
           query,
@@ -133,7 +133,7 @@ export function createReleaseReactionReader({
           eventTime,
           asOf,
         );
-        if (!primary || completeCount(fallback) > completeCount(primary))
+        if (!primary || measuredWindows(fallback) > measuredWindows(primary))
           return fallback;
       } catch {
         // Keep the available minute-level observations.
@@ -149,7 +149,7 @@ export function createReleaseReactionReader({
     const asOf = now();
     const eventTime = Date.parse(query.at);
     if (asOf < eventTime + fiveMinuteMs) return emptyReaction(query);
-    const key = query.symbol + " " + query.at;
+    const key = measurementKey(query);
     const existing = cached.get(key);
     if (existing && asOf < existing.expiresAt) return existing.response;
     const shared = inFlight.get(key);
@@ -158,14 +158,15 @@ export function createReleaseReactionReader({
     const pending = refresh(query, eventTime, asOf)
       .then((fresh) => {
         const result =
-          existing && completeCount(existing.response) > completeCount(fresh)
+          existing &&
+          measuredWindows(existing.response) > measuredWindows(fresh)
             ? existing.response
             : fresh;
         if (result) {
           cached.delete(key);
           const expiresAt =
             now() +
-            (completeCount(result) === RELEASE_REACTION_MINUTES.length
+            (measuredWindows(result) === RELEASE_REACTION_MINUTES.length
               ? COMPLETE_REACTION_CACHE_MS
               : REACTION_RETRY_MS);
           cached.set(key, { response: result, expiresAt });

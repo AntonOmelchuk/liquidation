@@ -379,6 +379,9 @@
 .plan-trade-options td {
   text-transform: none;
 }
+.plan-trade-options :is(.instrument-label, time) {
+  white-space: nowrap;
+}
 .plan-trade-options th:first-child,
 .plan-trade-options td:first-child {
   text-align: center;

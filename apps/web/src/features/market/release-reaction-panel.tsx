@@ -2,24 +2,20 @@ import {
   CALENDAR_SOURCE,
   MARKET_PROVIDER,
   MINUTE_MS,
+  OFFSHORE_YUAN_PAIR,
   QUOTE_SYMBOLS,
   RELEASE_REACTION_MINUTES,
 } from "@liquidation/domain/market/constants";
+import { defaultReactionSymbol } from "@liquidation/domain/market/release-history";
 import { useEffect, useRef, useState } from "react";
 import { EMPTY_VALUE, LOCALES } from "../../shared/constants.ts";
 import { numericTone } from "../../shared/format.ts";
 import { useLocale } from "../../shared/messages.ts";
 import { SelectField } from "../../shared/ui/select-field.tsx";
-import {
-  DEFAULT_QUOTE_SYMBOLS,
-  JPY_QUOTE_CURRENCY,
-  MARKET_LINKS,
-  METAL_QUOTE_SYMBOLS,
-  RELEASE_SYMBOLS,
-} from "./constants.ts";
+import { MARKET_LINKS } from "./constants.ts";
 import { useReleaseReaction } from "./feeds.ts";
 import { useMarketMessages } from "./messages.ts";
-import { quotePriceDigits } from "./quote-format.ts";
+import { reactionFormatters } from "./quote-format.ts";
 import type { ReleaseReactionPanelProps } from "./types.ts";
 
 export function ReleaseReactionPanel({
@@ -34,35 +30,20 @@ export function ReleaseReactionPanel({
     panel.current?.scrollIntoView({ block: "nearest" });
   }, []);
   const [symbol, setSymbol] = useState(
-    () => RELEASE_SYMBOLS.get(event.currency) ?? DEFAULT_QUOTE_SYMBOLS[0],
+    () => defaultReactionSymbol(event.currency) ?? "",
   );
   const release = Date.parse(event.at);
   const ready = now >= release + RELEASE_REACTION_MINUTES[0] * MINUTE_MS;
   const result = useReleaseReaction(
-    ready ? { symbol, at: event.at } : undefined,
+    ready && symbol ? { symbol, at: event.at } : undefined,
+    event.id,
   );
   const before = result?.data?.before;
-  const locale = LOCALES[language];
-  const digits = quotePriceDigits(symbol);
-  const price = new Intl.NumberFormat(locale, {
-    minimumFractionDigits: digits,
-    maximumFractionDigits: digits,
-  });
-  const signedPercent = new Intl.NumberFormat(locale, {
-    style: "percent",
-    maximumFractionDigits: 3,
-    signDisplay: "exceptZero",
-  });
-  const move = new Intl.NumberFormat(locale, {
-    maximumFractionDigits: METAL_QUOTE_SYMBOLS.has(symbol) ? 2 : 1,
-    signDisplay: "exceptZero",
-  });
-
-  function formatMove(delta: number) {
-    if (METAL_QUOTE_SYMBOLS.has(symbol)) return move.format(delta) + " USD";
-    const pipSize = symbol.endsWith(JPY_QUOTE_CURRENCY) ? 0.01 : 0.0001;
-    return move.format(delta / pipSize) + " " + m.pips;
-  }
+  const { price, percent, move } = reactionFormatters(
+    LOCALES[language],
+    symbol,
+    m.pips,
+  );
 
   return (
     <section
@@ -78,6 +59,9 @@ export function ReleaseReactionPanel({
           value={symbol}
           onChange={(change) => setSymbol(change.currentTarget.value)}
         >
+          <option value="" disabled>
+            {m.chooseReactionSymbol}
+          </option>
           {QUOTE_SYMBOLS.map((instrument) => (
             <option value={instrument} key={instrument}>
               {instrument}
@@ -85,9 +69,12 @@ export function ReleaseReactionPanel({
           ))}
         </SelectField>
       </div>
-      {ready && !result && <p role="status">{t.loading}</p>}
+      {symbol === OFFSHORE_YUAN_PAIR && (
+        <p className="market-reaction-method">{m.yuanProxy}</p>
+      )}
+      {symbol && ready && !result && <p role="status">{t.loading}</p>}
       {result?.failed && !result.data && <p role="status">{m.reactionError}</p>}
-      {(!ready || result?.data) && (
+      {symbol && (!ready || result?.data) && (
         <dl className="market-reaction-readings">
           <div>
             <dt>{m.beforeRelease}</dt>
@@ -106,8 +93,7 @@ export function ReleaseReactionPanel({
                     <>
                       <strong>{price.format(close)}</strong>
                       <span className={numericTone(delta)}>
-                        {formatMove(delta)} ·{" "}
-                        {signedPercent.format(delta / before)}
+                        {move(delta)} · {percent.format(delta / before)}
                       </span>
                     </>
                   ) : (

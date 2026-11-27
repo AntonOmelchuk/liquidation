@@ -22,6 +22,9 @@ const en = {
   calendarFallback: "Backup schedule",
   priceReaction: "Price move",
   reactionSymbol: "Instrument",
+  chooseReactionSymbol: "Choose an instrument",
+  yuanProxy:
+    "USDCNH is the price of one US dollar in offshore yuan. A rise means the dollar strengthened against the offshore yuan.",
   beforeRelease: "Before release",
   afterRelease: (minutes: number) => "After " + minutes + " min",
   reactionWaiting: "Waiting for the window to close",
@@ -69,6 +72,9 @@ const uk: typeof en = {
   calendarFallback: "Резервний розклад",
   priceReaction: "Рух ціни",
   reactionSymbol: "Інструмент",
+  chooseReactionSymbol: "Обери інструмент",
+  yuanProxy:
+    "USDCNH показує ціну одного долара США в офшорних юанях. Зростання означає, що долар зміцнився відносно офшорного юаня.",
   beforeRelease: "До релізу",
   afterRelease: (minutes: number) => "Через " + minutes + " хв",
   reactionWaiting: "Очікуємо закриття інтервалу",

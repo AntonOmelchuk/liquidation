@@ -1,0 +1,99 @@
+.news-reactions-hint {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.news-reactions-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: end;
+  margin-block: 1rem;
+}
+
+.news-reactions-filters label {
+  max-width: 100%;
+}
+
+.news-reactions-table {
+  min-width: 0;
+  max-height: min(35rem, 70vh);
+  overflow: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.news-reactions-table th,
+.news-reactions-table td {
+  white-space: nowrap;
+}
+
+.news-reactions-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface);
+}
+
+.news-reactions-table [data-selected] {
+  background: color-mix(in srgb, var(--accent) 7%, var(--surface));
+}
+
+.news-reactions-table td small {
+  display: block;
+  margin-top: 0.14rem;
+  color: var(--muted);
+}
+
+.news-series-button {
+  padding: 0.28rem 0;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  text-align: start;
+  white-space: normal;
+  min-width: 9rem;
+}
+
+.news-series-button:hover {
+  text-decoration: underline;
+}
+
+.news-directions > span {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.news-release-detail {
+  margin-top: 1.25rem;
+}
+
+.news-forecast {
+  margin-block: 1rem 1.4rem;
+}
+
+.news-forecast h4,
+.news-release-filter h4 {
+  margin-block: 0.4rem 0.65rem;
+}
+
+.news-release-filter {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.news-forecast-directions {
+  display: flex;
+  gap: 0.7rem;
+}
+
+.news-forecast button:disabled {
+  color: var(--muted);
+}
+
+.news-reactions-page .checkbox-field {
+  margin-block: 0.45rem 0.85rem;
+}

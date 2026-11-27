@@ -26,7 +26,6 @@ export type PlanAnalyticsProps = {
   trades: readonly Trade[];
   positions: readonly Position[];
   execution: ReadonlyMap<string, PlanExecution>;
-  today: string;
 };
 export type PlanCohortTableProps = {
   rows: readonly PlanAnalyticsRow[];
@@ -35,7 +34,6 @@ export type PlanCohortTableProps = {
   onSelect: (key: string | null) => void;
   label: (row: PlanAnalyticsRow) => string;
   execution: PlanAnalyticsProps["execution"];
-  today: string;
 };
 
 export type OutcomeChartProps = {

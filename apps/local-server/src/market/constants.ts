@@ -1,3 +1,5 @@
+import { MINUTE_MS } from "@liquidation/domain/market/constants";
+
 export const FOREX_FACTORY_EXPORT =
   "https://nfs.faireconomy.media/ff_calendar_thisweek.json";
 export const FOREX_FACTORY_CACHE_MS = 60 * 60_000;
@@ -27,3 +29,8 @@ export const REACTION_CANDLE_LIMIT = 32;
 export const REACTION_RETRY_MS = 30_000;
 export const COMPLETE_REACTION_CACHE_MS = 60 * 60_000;
 export const MAX_CACHED_REACTIONS = 128;
+
+export const REACTION_COLLECTION_INTERVAL_MS = MINUTE_MS;
+export const REACTION_COLLECTION_RETRY_MS = 5 * MINUTE_MS;
+export const REACTION_COLLECTION_LOOKBACK_MS = 24 * 60 * MINUTE_MS;
+export const REACTION_COLLECTION_BATCH = 8;

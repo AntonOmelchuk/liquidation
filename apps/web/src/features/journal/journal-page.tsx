@@ -2,6 +2,7 @@ import { DashboardAccounts } from "../accounts/dashboard-accounts.tsx";
 import { useAccountOptions } from "../accounts/account-options.ts";
 import { useAccountMessages } from "../accounts/messages.ts";
 import { TRADE_SIDE } from "@liquidation/domain/trades/constants";
+import { tradeCurves } from "@liquidation/domain/analytics/trade-risk";
 import { tradeStatistics } from "@liquidation/domain/analytics/trade-statistics";
 import { localDay } from "@liquidation/domain/workspace/period";
 import { useDeferredValue, useMemo, useState } from "react";
@@ -11,9 +12,9 @@ import {
   RECENT_REVIEW_HREF,
 } from "../../app/constants.ts";
 import { AnalyticsSelect } from "../../shared/analytics/filter-fields.tsx";
-import { EMPTY_VALUE, FILTER_ALL } from "../../shared/constants.ts";
+import { FILTER_ALL } from "../../shared/constants.ts";
 import { useLocale } from "../../shared/messages.ts";
-import { Metric, Panel } from "../../shared/ui/layout.tsx";
+import { Panel } from "../../shared/ui/layout.tsx";
 import { SelectField } from "../../shared/ui/select-field.tsx";
 import { QuotePanel } from "../market/quote-panel.tsx";
 import "../market/market.css";
@@ -23,6 +24,7 @@ import {
   MissedTradesShortcut,
 } from "../workspace/planning/missed-trades-panel.tsx";
 import "../workspace/workspace.css";
+import { DashboardMetrics } from "./dashboard/dashboard-metrics.tsx";
 import { PnlCalendar } from "./dashboard/pnl-calendar.tsx";
 import { JournalOverview } from "./dashboard/journal-overview.tsx";
 import { JOURNAL_STATUS } from "./data/constants.ts";
@@ -69,6 +71,13 @@ export function JournalPage() {
     };
   }, [trades, positions, query, side, from, through, account]);
   const metrics = useMemo(() => tradeStatistics(filtered), [filtered]);
+  const netValues = useMemo(
+    () =>
+      filtered.length
+        ? [0, ...tradeCurves(filtered).cash.map(({ value }) => value)]
+        : [],
+    [filtered],
+  );
   const today = localDay(new Date().toISOString());
   const initialMonth = useMemo(() => {
     let latest = -Infinity;
@@ -172,49 +181,11 @@ export function JournalPage() {
           {t.invalidDateRange}
         </p>
       )}
-      <section className="metrics dashboard-metrics" aria-label={t.statistics}>
-        <Metric
-          label={t.pnl}
-          value={trades ? format.money.format(metrics.net) : EMPTY_VALUE}
-          detail={
-            trades
-              ? t.count + " · " + format.integer.format(metrics.count)
-              : undefined
-          }
-        />
-        <Metric
-          label={t.profitFactor}
-          value={
-            metrics.profitFactor === null
-              ? EMPTY_VALUE
-              : format.money.format(metrics.profitFactor)
-          }
-        />
-        <Metric
-          label={m.expectancy}
-          value={
-            metrics.expectancy === null
-              ? EMPTY_VALUE
-              : format.money.format(metrics.expectancy)
-          }
-        />
-        <Metric
-          label={m.maxDrawdown}
-          value={
-            metrics.count
-              ? format.money.format(metrics.maxDrawdown)
-              : EMPTY_VALUE
-          }
-        />
-        <Metric
-          label={t.win}
-          value={
-            metrics.winRate === null
-              ? EMPTY_VALUE
-              : format.percentage.format(metrics.winRate)
-          }
-        />
-      </section>
+      <DashboardMetrics
+        stats={metrics}
+        values={netValues}
+        ready={trades !== null}
+      />
       {status === JOURNAL_STATUS.ERROR && (
         <div role="alert">
           <p className="error">{t.loadError}</p>
@@ -242,7 +213,7 @@ export function JournalPage() {
               detail={from || through ? t.filteredPeriod : t.allTime}
             >
               {trades ? (
-                <PerformanceChart trades={filtered} />
+                <PerformanceChart values={netValues} />
               ) : (
                 <p>
                   {status === JOURNAL_STATUS.ERROR ? t.unavailable : t.loading}

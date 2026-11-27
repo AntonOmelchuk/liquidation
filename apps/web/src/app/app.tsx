@@ -37,6 +37,9 @@ const StatisticsPage = lazy(() =>
 const MistakesPage = lazy(
   () => import("../features/mistakes/mistakes-page.tsx"),
 );
+const NewsReactionsPage = lazy(
+  () => import("../features/market/history/news-reactions-page.tsx"),
+);
 const GuidePage = lazy(() => import("../features/guide/guide-page.tsx"));
 const ReviewPage = lazy(() => import("../features/review/review-page.tsx"));
 const PlaybookDetailsPage = lazy(
@@ -111,6 +114,8 @@ function PageContent({ route }: PageContentProps) {
       );
     case PAGE.MISTAKES:
       return <MistakesPage />;
+    case PAGE.NEWS_REACTIONS:
+      return <NewsReactionsPage />;
     case PAGE.GUIDE:
       return <GuidePage />;
     case PAGE.STATISTICS:

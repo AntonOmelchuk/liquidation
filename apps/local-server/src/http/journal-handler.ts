@@ -1,5 +1,6 @@
 import { backtestCommand } from "@liquidation/domain/backtests/backtest";
 import { accountCommandSchema } from "@liquidation/domain/accounts/account";
+import { isBackupRoute } from "@liquidation/domain/backup/constants";
 import {
   HTTP_METHOD,
   HTTP_STATUS,
@@ -27,6 +28,7 @@ import { createLocalReview } from "../review/local-model.ts";
 import type { ReviewSummarizer } from "../review/types.ts";
 import { isLocalRequest } from "./local-request.ts";
 import { readJournalBody } from "./request-body.ts";
+import { handleBackupRequest } from "./backup-handler.ts";
 
 export function journalHandler(
   journal = createJournal(),
@@ -34,7 +36,7 @@ export function journalHandler(
 ) {
   return async (request: IncomingMessage, response: ServerResponse) => {
     function send(status: number, data: unknown) {
-      if (response.destroyed) return;
+      if (response.destroyed || response.headersSent) return;
       response.writeHead(status, {
         "Content-Type": MEDIA_TYPE.JSON,
         "Cache-Control": "no-store",
@@ -50,6 +52,16 @@ export function journalHandler(
       const route = request.url?.split("?", 1)[0];
       if (!isJournalRoute(route)) {
         send(HTTP_STATUS.NOT_FOUND, { error: "Unknown journal route." });
+        return;
+      }
+      if (route && isBackupRoute(route)) {
+        await handleBackupRequest(
+          journal.backup,
+          route,
+          request,
+          response,
+          send,
+        );
         return;
       }
       if (route?.startsWith(JOURNAL_ROUTES.planScreenshot)) {

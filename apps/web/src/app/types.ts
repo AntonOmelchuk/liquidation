@@ -14,7 +14,13 @@ export type Page = keyof typeof PAGE_HASHES;
 
 export type Route =
   | { page: typeof PAGE.STATISTICS; account?: string }
-  | { page: typeof PAGE.REVIEW | typeof PAGE.GUIDE | typeof PAGE.MISTAKES }
+  | {
+      page:
+        | typeof PAGE.REVIEW
+        | typeof PAGE.GUIDE
+        | typeof PAGE.MISTAKES
+        | typeof PAGE.NEWS_REACTIONS;
+    }
   | {
       page: typeof PAGE.REPORTS;
       recent?: boolean;

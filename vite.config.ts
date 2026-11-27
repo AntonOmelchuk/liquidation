@@ -14,7 +14,9 @@ export default defineConfig({
     {
       name: "liquidation-local-api",
       configureServer(server) {
-        const handleApi = localApiHandler();
+        const { handle: handleApi, start } = localApiHandler();
+        const httpServer = server.httpServer;
+        httpServer?.once("listening", () => httpServer.once("close", start()));
         server.middlewares.use((request, response, next) => {
           if (!handleApi(request, response)) next();
         });

@@ -22,6 +22,7 @@ export type JournalState = Omit<Journal, "version" | "trades"> & {
     | typeof JOURNAL_STATUS.ERROR;
   load: () => Promise<void>;
   refreshJournal: () => Promise<void>;
+  restoreBackup: (token: string) => Promise<string>;
   updatePosition: (
     command: PositionCommand,
     uploads?: ReadonlyMap<string, File>,
