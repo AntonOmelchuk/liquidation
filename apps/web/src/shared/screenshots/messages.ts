@@ -12,7 +12,8 @@ const en = {
   remove: "Remove screenshot",
   moveEarlier: "Move screenshot earlier",
   moveLater: "Move screenshot later",
-  preview: "Open screenshot in a new tab",
+  preview: "View screenshot",
+  image: "Screenshot",
   unavailable: "Screenshot unavailable",
 };
 
@@ -27,7 +28,8 @@ const uk: Record<keyof typeof en, string> = {
   remove: "Прибрати скриншот",
   moveEarlier: "Перемістити скриншот раніше",
   moveLater: "Перемістити скриншот пізніше",
-  preview: "Відкрити скриншот у новій вкладці",
+  preview: "Переглянути скриншот",
+  image: "Скриншот",
   unavailable: "Скриншот недоступний",
 };
 

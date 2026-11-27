@@ -1,6 +1,14 @@
 import type { BacktestCommand } from "@liquidation/domain/backtests/types";
 import type { AccountCommand } from "@liquidation/domain/accounts/types";
 import {
+  BACKUP_MEDIA_TYPE,
+  BACKUP_ROUTES,
+} from "@liquidation/domain/backup/constants";
+import {
+  backupPreviewSchema,
+  backupRestoreSchema,
+} from "@liquidation/domain/backup/contracts";
+import {
   HTTP_METHOD,
   JOURNAL_ROUTES,
   MEDIA_TYPE,
@@ -29,7 +37,16 @@ export class JournalRequestError extends Error {
   }
 }
 
-async function request(endpoint: string, body?: unknown): Promise<unknown> {
+async function requestJson(
+  endpoint: string,
+  options?: RequestInit,
+): Promise<unknown> {
+  const response = await fetch(endpoint, options);
+  if (!response.ok) throw new JournalRequestError(response.status);
+  return response.json();
+}
+
+function request(endpoint: string, body?: unknown) {
   const options =
     body === undefined
       ? undefined
@@ -40,11 +57,27 @@ async function request(endpoint: string, body?: unknown): Promise<unknown> {
             headers: { "Content-Type": MEDIA_TYPE.JSON },
             body: JSON.stringify(body),
           };
-  const response = await fetch(endpoint, options);
-  if (!response.ok) {
-    throw new JournalRequestError(response.status);
-  }
-  return response.json();
+  return requestJson(endpoint, options);
+}
+
+export async function previewBackup(file: File) {
+  return backupPreviewSchema.parse(
+    await requestJson(BACKUP_ROUTES.preview, {
+      method: HTTP_METHOD.POST,
+      headers: { "Content-Type": BACKUP_MEDIA_TYPE },
+      body: file,
+    }),
+  );
+}
+
+export async function applyBackup(token: string) {
+  return backupRestoreSchema.parse(
+    await request(BACKUP_ROUTES.restore, { token }),
+  );
+}
+
+export async function cancelBackup(token: string) {
+  await request(BACKUP_ROUTES.cancel, { token });
 }
 
 export async function loadJournal() {

@@ -6,6 +6,7 @@ import { JOURNAL_STATUS } from "./constants.ts";
 import type { JournalState } from "./types.ts";
 
 import {
+  applyBackup,
   loadJournal,
   saveAccount,
   saveBacktest,
@@ -19,9 +20,9 @@ import {
 } from "./api.ts";
 
 export const useJournal = create<JournalState>((set, get) => {
-  let pending = Promise.resolve();
+  let pending: Promise<unknown> = Promise.resolve();
 
-  function enqueue(operation: () => Promise<void>) {
+  function enqueue<Result>(operation: () => Promise<Result>) {
     const next = pending.then(operation);
     pending = next.catch(() => undefined);
     return next;
@@ -82,6 +83,13 @@ export const useJournal = create<JournalState>((set, get) => {
     refreshJournal() {
       return enqueue(async () => {
         applySnapshot(await loadJournal());
+      });
+    },
+    restoreBackup(token) {
+      return enqueue(async () => {
+        const { journal, safetyId } = await applyBackup(token);
+        applySnapshot(journal);
+        return safetyId;
       });
     },
     updatePosition(command, uploads) {

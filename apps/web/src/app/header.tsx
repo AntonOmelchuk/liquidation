@@ -5,7 +5,9 @@ import { useWorkspaceMessages } from "../features/workspace/messages.ts";
 import { usePlanningMessages } from "../features/workspace/planning/messages.ts";
 import { useTrashMessages } from "../features/trash/messages.ts";
 import { useAccountMessages } from "../features/accounts/messages.ts";
+import { BackupSettings } from "../features/backup/backup-settings.tsx";
 import { QuoteSettings } from "../features/market/quote-settings.tsx";
+import { useNewsReactionMessages } from "../features/market/history/messages.ts";
 import {
   LANGUAGE,
   TEXT_SIZE,
@@ -28,6 +30,7 @@ export function Header({ page }: HeaderProps) {
   const accounts = useAccountMessages();
   const guide = useGuideMessages();
   const mistakes = useMistakeMessages();
+  const news = useNewsReactionMessages();
   const dialog = useRef<HTMLDialogElement>(null);
   const { language, theme, textSize, update } = usePreferences();
   const navigation = [
@@ -37,6 +40,7 @@ export function Header({ page }: HeaderProps) {
     [PAGE.PLANS, t.plansNav],
     [PAGE.PLAYBOOKS, t.playbooksNav],
     [PAGE.STATISTICS, t.statisticsNav],
+    [PAGE.NEWS_REACTIONS, news.nav],
     [PAGE.MISTAKES, mistakes.nav],
     [PAGE.BACKTESTS, t.backtestsNav],
     [PAGE.BEST_TRADES, m.bestTrades],
@@ -158,6 +162,7 @@ export function Header({ page }: HeaderProps) {
           </SelectField>
         </div>
         <QuoteSettings />
+        <BackupSettings />
       </dialog>
     </header>
   );

@@ -107,6 +107,8 @@ export function cardsHref(day: string) {
 
 export function routeFor(hash: string): Route {
   if (hash === PAGE_HASHES.mistakes) return { page: PAGE.MISTAKES };
+  if (hash === PAGE_HASHES[PAGE.NEWS_REACTIONS])
+    return { page: PAGE.NEWS_REACTIONS };
   if (hash === NEW_TRADE_HREF)
     return { page: PAGE.JOURNAL, view: PAGE_VIEW.NEW };
   if (hash === OPEN_POSITION_HREF)

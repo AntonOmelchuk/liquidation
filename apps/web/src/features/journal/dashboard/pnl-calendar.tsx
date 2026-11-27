@@ -8,12 +8,18 @@ import {
 import { useMemo, useState } from "react";
 import { reportHref } from "../../../app/page.ts";
 import { EMPTY_VALUE, LOCALES } from "../../../shared/constants.ts";
-import { numericTone } from "../../../shared/format.ts";
+import {
+  capitalizeFirst,
+  createCurrencyFormatter,
+  numericTone,
+} from "../../../shared/format.ts";
 import { useLocale } from "../../../shared/messages.ts";
 import { Panel } from "../../../shared/ui/layout.tsx";
 import { useWorkspaceMessages } from "../../workspace/messages.ts";
 import { useJournal } from "../data/store.ts";
 import { CalendarTradePreview } from "./calendar-trade-preview.tsx";
+import { CHART_TONE } from "./constants.ts";
+import { useDashboardMessages } from "./messages.ts";
 import { TRADE_TABLE_MODE } from "../records/constants.ts";
 import { TradeTable } from "../records/trade-table.tsx";
 import type { CalendarProps, DailyPnlProps } from "./types.ts";
@@ -26,6 +32,7 @@ export function PnlCalendar({
 }: CalendarProps) {
   const { t, language, format } = useLocale();
   const m = useWorkspaceMessages();
+  const labels = useDashboardMessages();
   const [chosenMonth, setChosenMonth] = useState("");
   const [selection, setSelectedDay] = useState<string>();
   const month = chosenMonth || initialMonth;
@@ -36,29 +43,27 @@ export function PnlCalendar({
   );
   const locale = LOCALES[language];
   const currency = useJournal((state) => state.currency);
-  const money = useMemo(
-    () =>
-      new Intl.NumberFormat(locale, {
-        style: "currency",
-        currency,
-        currencyDisplay: "narrowSymbol",
-        maximumFractionDigits: 2,
-        minimumFractionDigits: 2,
-      }),
-    [currency, locale],
+  const money = createCurrencyFormatter(locale, currency);
+  const signedMoney = createCurrencyFormatter(locale, currency, {
+    signDisplay: "exceptZero",
+  });
+  const monthLabel = capitalizeFirst(
+    new Intl.DateTimeFormat(locale, {
+      month: "long",
+      year: "numeric",
+      timeZone: "UTC",
+    }).format(calendarDate(month + "-01")),
+    locale,
   );
-  const monthLabel = new Intl.DateTimeFormat(locale, {
-    month: "long",
-    year: "numeric",
-    timeZone: "UTC",
-  }).format(calendarDate(month + "-01"));
   const weekday = new Intl.DateTimeFormat(locale, {
     weekday: "short",
     timeZone: "UTC",
   });
-  const compact = new Intl.NumberFormat(locale, {
+  const compact = createCurrencyFormatter(locale, currency, {
     notation: "compact",
+    minimumFractionDigits: 0,
     maximumFractionDigits: 2,
+    signDisplay: "exceptZero",
   });
   const selected = selectedDay ? data.days.get(selectedDay) : undefined;
   const isCurrentMonth = month === today.slice(0, 7);
@@ -100,14 +105,19 @@ export function PnlCalendar({
         </div>
         <div className="calendar-totals">
           <span className={numericTone(data.net)}>
-            {t.pnl} · {format.money.format(data.net / 100)}
+            {t.pnl} · {signedMoney.format(data.net / 100)}
           </span>
           <span>
             {m.activeDays} · {format.integer.format(data.active)}
           </span>
         </div>
       </div>
-      <div className="calendar-scroll">
+      <div
+        className="calendar-scroll"
+        tabIndex={0}
+        role="region"
+        aria-label={m.calendar + " · " + monthLabel}
+      >
         <table
           className="pnl-calendar"
           aria-label={m.calendar + " · " + monthLabel}
@@ -134,7 +144,7 @@ export function PnlCalendar({
                   const label = [format.day.format(calendarDate(day))];
                   if (closed)
                     label.push(
-                      t.pnl + " " + format.money.format(closed.net / 100),
+                      t.pnl + " " + signedMoney.format(closed.net / 100),
                       t.count + " " + closed.trades.length,
                     );
                   if (openCount) label.push(t.openPositions + " " + openCount);
@@ -147,7 +157,9 @@ export function PnlCalendar({
                             "calendar-day " +
                             (closed
                               ? (numericTone(closed.net) ?? "calendar-flat")
-                              : "")
+                              : openCount
+                                ? "calendar-open-only"
+                                : "")
                           }
                           aria-current={day === today ? "date" : undefined}
                           aria-pressed={selectedDay === day}
@@ -161,7 +173,9 @@ export function PnlCalendar({
                           }
                         >
                           <span className="calendar-day-heading">
-                            <span>{dayNumber}</span>
+                            <span className="calendar-day-number">
+                              {dayNumber}
+                            </span>
                             {closed && (
                               <strong className={numericTone(closed.net)}>
                                 {compact.format(closed.net / 100)}
@@ -199,12 +213,17 @@ export function PnlCalendar({
                     </td>
                   );
                 })}
-                <td className="calendar-week">
+                <td
+                  className={
+                    "calendar-week " +
+                    (closedDays ? (numericTone(net) ?? "calendar-flat") : "")
+                  }
+                >
                   <strong className={numericTone(net)}>
                     {closedDays ? compact.format(net / 100) : EMPTY_VALUE}
                   </strong>
                   <span>
-                    {m.activeDays} · {active}
+                    {m.activeDays} · {format.integer.format(active)}
                   </span>
                 </td>
               </tr>
@@ -212,6 +231,20 @@ export function PnlCalendar({
           </tbody>
         </table>
       </div>
+      <ul className="calendar-legend">
+        <li data-tone={CHART_TONE.WIN}>
+          <i aria-hidden="true" />
+          {labels.profitDay}
+        </li>
+        <li data-tone={CHART_TONE.LOSS}>
+          <i aria-hidden="true" />
+          {labels.lossDay}
+        </li>
+        <li data-tone={CHART_TONE.FLAT}>
+          <i aria-hidden="true" />
+          {labels.flatDay}
+        </li>
+      </ul>
       {selectedDay && (
         <section
           className="calendar-drilldown"
@@ -286,10 +319,13 @@ function DailyPnl({ days }: DailyPnlProps) {
             <li key={day} aria-label={label} title={label}>
               <span
                 className={numericTone(net)}
+                data-flat={net === 0 || undefined}
                 style={
                   net < 0
                     ? { height: size, top: "50%" }
-                    : { height: size, bottom: "50%" }
+                    : net > 0
+                      ? { height: size, bottom: "50%" }
+                      : undefined
                 }
               />
             </li>

@@ -53,7 +53,7 @@ it("serves the market panels and release reaction through the loopback-only API 
       }
       return request(url, options);
     });
-  const handle = localApiHandler();
+  const { handle } = localApiHandler();
   const server = createServer((request, response) => {
     if (!handle(request, response)) response.writeHead(404).end();
   });

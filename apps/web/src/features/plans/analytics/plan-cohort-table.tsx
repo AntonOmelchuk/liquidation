@@ -17,7 +17,6 @@ export function PlanCohortTable({
   heading,
   label,
   execution,
-  today,
   selected,
   onSelect,
 }: PlanCohortTableProps) {
@@ -193,7 +192,7 @@ export function PlanCohortTable({
               </button>
             </div>
             <PlansTable
-              groups={planTableGroups(active.plans, today)}
+              groups={planTableGroups(active.plans)}
               execution={execution}
               label={p.analyticsSample}
             />

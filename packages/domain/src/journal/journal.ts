@@ -6,6 +6,8 @@ import {
 } from "../accounts/account.ts";
 import { DEFAULT_CURRENCY } from "../accounts/constants.ts";
 import { backtestSchema } from "../backtests/backtest.ts";
+import { isBackupRoute } from "../backup/constants.ts";
+import { releaseHistorySchema } from "../market/contracts.ts";
 import { planSchema } from "../plans/plan.ts";
 import { playbookSchema } from "../playbooks/playbook.ts";
 import { positionSchema } from "../trades/position.ts";
@@ -26,6 +28,7 @@ export function isJournalRoute(path: string | undefined) {
     path === JOURNAL_ROUTES.workspace ||
     path === JOURNAL_ROUTES.accounts ||
     path === JOURNAL_ROUTES.trash ||
+    isBackupRoute(path) ||
     Boolean(path?.startsWith(JOURNAL_ROUTES.planScreenshot))
   );
 }
@@ -42,4 +45,8 @@ export const journalSchema = z.object({
   backtests: z.array(backtestSchema).default([]),
   workspace: workspaceSchema.prefault({}),
   trash: z.array(trashEntrySchema).default([]),
+});
+
+export const storedJournalSchema = journalSchema.extend({
+  releaseObservations: releaseHistorySchema.default([]),
 });

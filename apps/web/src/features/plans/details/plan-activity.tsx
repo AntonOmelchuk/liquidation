@@ -10,6 +10,7 @@ import type {
 } from "./types.ts";
 
 import { planCommand } from "@liquidation/domain/plans/plan";
+import { formatCompactDateTime } from "../../../shared/format.ts";
 import { useLocale } from "../../../shared/messages.ts";
 import {
   collectScreenshots,
@@ -182,8 +183,11 @@ export function PlanActivity({ plan }: PlanActivityProps) {
           {events.map((event) => (
             <li key={event.id}>
               <div className="plan-actions">
-                <time dateTime={event.at}>
-                  {format.date.format(Date.parse(event.at))}
+                <time
+                  dateTime={event.at}
+                  title={format.date.format(Date.parse(event.at))}
+                >
+                  {formatCompactDateTime(event.at, format.clock)}
                 </time>
                 {event.kind === PLAN_EVENT.UPDATE && !editing && (
                   <button

@@ -1,17 +1,20 @@
 import { JOURNAL_ROUTES } from "@liquidation/domain/journal/constants";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type {
   ScreenshotGalleryProps,
   ScreenshotPreviewProps,
 } from "./types.ts";
 
 import { useScreenshotMessages } from "./messages.ts";
+import { ScreenshotDialog } from "./screenshot-dialog.tsx";
 import "./screenshots.css";
 
 export function ScreenshotPreview({ shot, number }: ScreenshotPreviewProps) {
   const messages = useScreenshotMessages();
   const [objectUrl, setObjectUrl] = useState<string>();
   const [failed, setFailed] = useState(false);
+  const [viewing, setViewing] = useState(false);
+  const thumbnail = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!shot.file) return;
@@ -23,32 +26,44 @@ export function ScreenshotPreview({ shot, number }: ScreenshotPreviewProps) {
   const source = shot.file
     ? objectUrl
     : JOURNAL_ROUTES.planScreenshot + shot.id;
-  const name = `${messages.title} · ${number}`;
-  if (failed)
-    return <p className="screenshot-placeholder">{messages.unavailable}</p>;
-  const thumbnail = source && (
-    <img
-      src={source}
-      alt={name}
-      loading="lazy"
-      draggable={false}
-      onError={() => setFailed(true)}
-    />
-  );
-
-  return shot.file ? (
-    <div className="screenshot-thumb">{thumbnail}</div>
-  ) : (
-    <a
-      className="screenshot-thumb"
-      href={source}
-      target="_blank"
-      draggable={false}
-      rel="noreferrer"
-      aria-label={`${messages.preview} · ${number}`}
-    >
-      {thumbnail}
-    </a>
+  const name = `${messages.image} · ${number}`;
+  return (
+    <>
+      {failed ? (
+        <p className="screenshot-placeholder">{messages.unavailable}</p>
+      ) : (
+        <button
+          ref={thumbnail}
+          className="screenshot-thumb"
+          type="button"
+          draggable={false}
+          aria-haspopup="dialog"
+          aria-label={`${messages.preview} · ${number}`}
+          disabled={!source}
+          onClick={() => setViewing(true)}
+        >
+          {source && (
+            <img
+              src={source}
+              alt=""
+              loading="lazy"
+              draggable={false}
+              onError={() => setFailed(true)}
+            />
+          )}
+        </button>
+      )}
+      {source && viewing && (
+        <ScreenshotDialog
+          source={source}
+          title={name}
+          onClose={() => {
+            setViewing(false);
+            thumbnail.current?.focus({ preventScroll: true });
+          }}
+        />
+      )}
+    </>
   );
 }
 

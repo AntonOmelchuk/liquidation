@@ -13,7 +13,6 @@ import { comparePlanPerformance } from "@liquidation/domain/analytics/plan-perfo
 import { indexPlanExecution } from "@liquidation/domain/plans/plan-execution";
 import { getPlanPeriod } from "@liquidation/domain/plans/plan-lifecycle";
 import { EMPTY_VALUE } from "../../shared/constants.ts";
-import { isoToLocalDateTime } from "../../shared/format.ts";
 import { useLocale } from "../../shared/messages.ts";
 import { Metric, Panel } from "../../shared/ui/layout.tsx";
 import { SelectField } from "../../shared/ui/select-field.tsx";
@@ -51,11 +50,8 @@ export function PlansPage() {
     () => indexPlanExecution(plans, trades ?? [], positions),
     [plans, trades, positions],
   );
-  const today = isoToLocalDateTime(new Date().toISOString()).slice(0, 10);
-  const groups = planTableGroups(visiblePlans, today);
-  const past = plans.filter(
-    (plan) => getPlanPeriod(plan, today) === PLAN_PERIOD.PAST,
-  );
+  const groups = planTableGroups(visiblePlans);
+  const past = plans.filter((plan) => getPlanPeriod(plan) === PLAN_PERIOD.PAST);
   const pastResults = past.flatMap(({ id }) => {
     const actual = execution.get(id)?.actual;
     return actual?.closed ? [actual] : [];
@@ -246,7 +242,6 @@ export function PlansPage() {
             trades={trades ?? []}
             positions={positions}
             execution={execution}
-            today={today}
           />
           <PlanPerformancePanel data={data} />
         </div>

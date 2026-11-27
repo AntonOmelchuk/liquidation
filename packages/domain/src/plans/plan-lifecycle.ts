@@ -34,10 +34,8 @@ export function isPlanOpportunityStatus(status: unknown) {
   return PLAN_OPPORTUNITY_STATUSES.some((value) => value === status);
 }
 
-export function getPlanPeriod(plan: Plan, today: string) {
-  if (!isOpenPlan(plan)) return PLAN_PERIOD.PAST;
-  const end = plan.setup.endsOn ?? plan.setup.startsOn;
-  return end && end < today ? PLAN_PERIOD.PAST : PLAN_PERIOD.CURRENT;
+export function getPlanPeriod(plan: Plan) {
+  return isOpenPlan(plan) ? PLAN_PERIOD.CURRENT : PLAN_PERIOD.PAST;
 }
 
 export function canLinkPlan(plan: Plan, entryDay: string) {

@@ -7,6 +7,7 @@ import {
 } from "@liquidation/domain/market/constants";
 import { localDay } from "@liquidation/domain/workspace/period";
 import { useEffect, useId, useState } from "react";
+import { PAGE, PAGE_HASHES } from "../../app/constants.ts";
 import { EMPTY_VALUE } from "../../shared/constants.ts";
 import { formatCompactDay } from "../../shared/format.ts";
 import { useLocale } from "../../shared/messages.ts";
@@ -19,11 +20,13 @@ import {
   RELEASE_TIMING,
 } from "./constants.ts";
 import { useCalendarFeed } from "./feeds.ts";
+import { useNewsReactionMessages } from "./history/messages.ts";
 import { useMarketMessages } from "./messages.ts";
 import { ReleaseReactionPanel } from "./release-reaction-panel.tsx";
 
 export function CalendarPanel() {
   const m = useMarketMessages();
+  const news = useNewsReactionMessages();
   const { t, format } = useLocale();
   const feed = useCalendarFeed();
   const [important, setImportant] = useState(true);
@@ -92,6 +95,9 @@ export function CalendarPanel() {
             {m.important}
           </CheckboxField>
         )}
+        <a className="record-link" href={PAGE_HASHES[PAGE.NEWS_REACTIONS]}>
+          {news.link}
+        </a>
       </div>
       {!feed && (
         <p className="market-status" role="status">

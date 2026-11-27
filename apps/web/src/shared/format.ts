@@ -1,3 +1,5 @@
+import { localDay } from "@liquidation/domain/workspace/period";
+
 export function createFormatters(locale: string) {
   return {
     money: new Intl.NumberFormat(locale, {
@@ -30,6 +32,21 @@ export function createFormatters(locale: string) {
   };
 }
 
+export function createCurrencyFormatter(
+  locale: string,
+  currency: string,
+  options?: Intl.NumberFormatOptions,
+) {
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency,
+    currencyDisplay: "narrowSymbol",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+    ...options,
+  });
+}
+
 export function localDateTimeToIso(
   value: FormDataEntryValue | null,
   original?: string,
@@ -49,6 +66,10 @@ export function isoToLocalDateTime(value: string) {
 export function formatCompactDay(day: string) {
   const [year, month, date] = day.split("-");
   return `${date}.${month}.${year.slice(-2)}`;
+}
+
+export function formatCompactDateTime(iso: string, clock: Intl.DateTimeFormat) {
+  return `${formatCompactDay(localDay(iso))} · ${clock.format(Date.parse(iso))}`;
 }
 
 export function numericTone(value: number) {

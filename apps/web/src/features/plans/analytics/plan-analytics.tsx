@@ -35,7 +35,6 @@ export function PlanAnalytics({
   trades,
   positions,
   execution,
-  today,
 }: PlanAnalyticsProps) {
   const { t, language } = useLocale();
   const p = usePlanMessages();
@@ -219,7 +218,6 @@ export function PlanAnalytics({
               onSelect={setSelected}
               label={label}
               execution={execution}
-              today={today}
             />
           ) : (
             <p role="status">{plans.length ? p.noMatches : p.noPlans}</p>

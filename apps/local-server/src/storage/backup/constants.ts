@@ -1,0 +1,9 @@
+export const BACKUP_MANIFEST_FILE = "manifest.json";
+export const BACKUP_WORK_DIRECTORY = ".backup-work";
+export const BACKUP_DIRECTORY = "backups";
+export const RESTORE_TRANSACTION = ".restore-transaction";
+export const PREVIOUS_SCREENSHOTS = "previous-screenshots";
+export const BACKUP_PREVIEW_LIFETIME = 30 * 60_000;
+export const MAX_BACKUP_ENTRIES = 65_000;
+export const MAX_JOURNAL_BYTES = 64 * 1024 ** 2;
+export const MAX_MANIFEST_BYTES = 4 * 1024 ** 2;

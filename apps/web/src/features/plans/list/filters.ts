@@ -46,8 +46,8 @@ export function filterPlansByStartDate(
   });
 }
 
-export function planTableGroups(plans: readonly Plan[], today: string) {
-  const grouped = Map.groupBy(plans, (plan) => getPlanPeriod(plan, today));
+export function planTableGroups(plans: readonly Plan[]) {
+  const grouped = Map.groupBy(plans, getPlanPeriod);
   return ([PLAN_PERIOD.CURRENT, PLAN_PERIOD.PAST] as const).flatMap(
     (period) => {
       const rows = grouped.get(period);

@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@liquidation/domain": "workspace:*",
+    "@zip.js/zip.js": "2.25.0",
     "zod": "^4.6.7"
   }
 }

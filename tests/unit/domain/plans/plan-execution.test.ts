@@ -105,8 +105,10 @@ test("uses inclusive plan dates and respects void and restore events", () => {
   expect(canLinkPlan(plan, "2026-11-23")).toBe(true);
   expect(canLinkPlan(plan, "2026-11-27")).toBe(true);
   expect(canLinkPlan(plan, "2026-11-28")).toBe(false);
-  expect(getPlanPeriod(plan, "2026-11-22")).toBe("current");
-  expect(getPlanPeriod(plan, "2026-11-28")).toBe("past");
+  expect(getPlanPeriod(plan)).toBe("current");
+  expect(getPlanPeriod({ ...plan, review: { status: "waiting" } })).toBe(
+    "current",
+  );
 
   const at = "2026-11-24T15:00:00Z";
   const voided: Plan = {
@@ -114,13 +116,13 @@ test("uses inclusive plan dates and respects void and restore events", () => {
     events: [{ id: plan.id, kind: "void", at, reason: "Invalid setup" }],
   };
   expect(canLinkPlan(voided, "2026-11-24")).toBe(false);
-  expect(getPlanPeriod(voided, "2026-11-24")).toBe("past");
+  expect(getPlanPeriod(voided)).toBe("past");
   const restored: Plan = {
     ...plan,
     events: [...(voided.events ?? []), { id: trade.id, kind: "restore", at }],
   };
   expect(canLinkPlan(restored, "2026-11-24")).toBe(true);
-  expect(getPlanPeriod(restored, "2026-11-24")).toBe("current");
+  expect(getPlanPeriod(restored)).toBe("current");
 });
 
 test("moves a worked plan out of the active group before its end date", () => {
@@ -135,7 +137,7 @@ test("moves a worked plan out of the active group before its end date", () => {
   for (const review of reviews) {
     const reviewed = { ...plan, review };
     expect(isOpenPlan(reviewed)).toBe(false);
-    expect(getPlanPeriod(reviewed, day)).toBe("past");
+    expect(getPlanPeriod(reviewed)).toBe("past");
     expect(canLinkPlan(reviewed, day)).toBe(true);
   }
 });

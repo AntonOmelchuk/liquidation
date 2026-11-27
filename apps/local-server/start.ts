@@ -12,7 +12,7 @@ import {
 import { localApiHandler } from "./src/http/local-api.ts";
 
 const root = resolve("dist");
-const handleApi = localApiHandler();
+const { handle: handleApi, start } = localApiHandler();
 const types: Record<string, string> = {
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
@@ -20,7 +20,7 @@ const types: Record<string, string> = {
   ".svg": "image/svg+xml",
 };
 
-createServer(async (request, response) => {
+const server = createServer(async (request, response) => {
   const pathname = new URL(request.url ?? ROOT_PATH, "http://127.0.0.1")
     .pathname;
   if (handleApi(request, response)) return;
@@ -44,6 +44,8 @@ createServer(async (request, response) => {
   createReadStream(path)
     .on("error", () => response.destroy())
     .pipe(response);
-}).listen(LOCAL_PORT, LOCAL_HOST, () =>
-  console.log("Liquidation is running at http://127.0.0.1:4173"),
-);
+});
+server.listen(LOCAL_PORT, LOCAL_HOST, () => {
+  server.once("close", start());
+  console.log("Liquidation is running at http://127.0.0.1:4173");
+});
