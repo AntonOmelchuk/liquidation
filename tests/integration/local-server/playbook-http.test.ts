@@ -21,7 +21,7 @@ import {
 import { journalHandler } from "../../../apps/local-server/src/http/journal-handler.ts";
 import { createJournal } from "../../../apps/local-server/src/journal.ts";
 
-test("keeps plan and pinned playbook checklists through edits, close and reload", async () => {
+test("retains the trade checklists after editing the playbook, closing and reloading", async () => {
   const directory = await mkdtemp(join(tmpdir(), "liquidation-playbooks-"));
   const server = createServer(journalHandler(createJournal(directory)));
   try {
@@ -104,7 +104,6 @@ test("keeps plan and pinned playbook checklists through edits, close and reload"
         planId,
         playbook: {
           id,
-          version: 1,
           setupId,
           entry: [
             { ruleId: entryId, met: true },
@@ -146,7 +145,13 @@ test("keeps plan and pinned playbook checklists through edits, close and reload"
     const opened = journalSchema.parse(
       await (await post(JOURNAL_ROUTES.positions, open)).json(),
     ).positions[0];
-    expect(opened.playbook).toEqual(open.input.playbook);
+    expect(opened.playbook).toMatchObject({
+      ...open.input.playbook,
+      recordedRules: {
+        setupName: "Sweep",
+        management: create.rules.management,
+      },
+    });
 
     const edit: PlaybookCommand = {
       action: "edit",
@@ -196,10 +201,13 @@ test("keeps plan and pinned playbook checklists through edits, close and reload"
       playbook: { ...open.input.playbook, management: close.input.management },
       ...outcome,
     });
-    expect(book.versions.map(({ management }) => management[0].label)).toEqual([
+    expect(book.rules.management[0].label).toBe("New exit rule");
+    expect(book).not.toHaveProperty("versions");
+    expect(book.legacyVersions).toBeUndefined();
+    expect(closed.playbook?.recordedRules?.management[0].label).toBe(
       "Original stop",
-      "New exit rule",
-    ]);
+    );
+    expect(closed.playbook?.version).toBeUndefined();
     expect(playbookResults(saved.trades)).toEqual({
       count: 1,
       net: 40,
@@ -212,11 +220,10 @@ test("keeps plan and pinned playbook checklists through edits, close and reload"
       count: 1,
       rate: 1,
     });
-    expect(
-      ruleOutcomes(book, book.versions[0], saved.trades).rows[0].misses[0]
-        .reason,
-    ).toBe("Early entry");
-    expect(ruleOutcomes(book, book.versions[1], saved.trades).assessed).toBe(0);
+    expect(ruleOutcomes(book, saved.trades).rows[0].misses[0].reason).toBe(
+      "Early entry",
+    );
+    expect(ruleOutcomes(book, saved.trades).assessed).toBe(1);
     expect(playbookReviewProgress(book, 1)?.due).toBe(1);
 
     const screenshotId = randomUUID();
@@ -303,16 +310,20 @@ test("links historical trades without ratings, rejects conflicting edits and lea
     const next = { playbook: { id } };
     const update = { id: trade.id, previous: {}, next };
     const linked = await journal.updateTradeLinks(update);
-    expect(linked.trades[0].playbook).toEqual({ id });
+    expect(linked.trades[0].playbook).toMatchObject({ id });
     expect(adherence(linked.trades, "entry")).toEqual({ count: 0, rate: null });
     expect(await journal.updateTradeLinks(update)).toEqual(linked);
     await expect(
       journal.updateTradeLinks({
         ...update,
-        next: { playbook: { id, version: 1 } },
+        next: { playbook: { id }, limitEntryTest: true },
       }),
     ).rejects.toThrow("Trade links have changed.");
-    await journal.updateTradeLinks({ ...update, previous: next, next: {} });
+    await journal.updateTradeLinks({
+      ...update,
+      previous: { playbook: linked.trades[0].playbook },
+      next: {},
+    });
     expect((await createJournal(directory).read()).trades).toEqual([trade]);
   } finally {
     await rm(directory, { recursive: true, force: true });

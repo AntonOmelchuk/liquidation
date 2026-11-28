@@ -1,3 +1,4 @@
+import { DateText } from "../../../shared/ui/date-text.tsx";
 import {
   FORECAST_RESULT,
   OFFSHORE_YUAN_PAIR,
@@ -10,10 +11,9 @@ import {
   summarizeForecastReactions,
 } from "@liquidation/domain/market/release-surprise";
 import type { ForecastResult } from "@liquidation/domain/market/types";
-import { localDay } from "@liquidation/domain/workspace/period";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { EMPTY_VALUE, LOCALES } from "../../../shared/constants.ts";
-import { formatCompactDay, numericTone } from "../../../shared/format.ts";
+import { numericTone } from "../../../shared/format.ts";
 import { useLocale } from "../../../shared/messages.ts";
 import { useMarketMessages } from "../messages.ts";
 import { reactionFormatters } from "../quote-format.ts";
@@ -115,10 +115,7 @@ export function ReleaseDetail({ series, close }: NewsReleaseDetailProps) {
             {visible.map(({ observation: { event, reaction }, forecast }) => (
               <tr key={releaseObservationKey(event, reaction.symbol)}>
                 <th scope="row">
-                  <time dateTime={event.at}>
-                    {formatCompactDay(localDay(event.at))} ·{" "}
-                    {format.clock.format(Date.parse(event.at))}
-                  </time>
+                  <DateText value={event.at} withTime />
                 </th>
                 <td>{event.actual || EMPTY_VALUE}</td>
                 <td>{event.forecast || EMPTY_VALUE}</td>

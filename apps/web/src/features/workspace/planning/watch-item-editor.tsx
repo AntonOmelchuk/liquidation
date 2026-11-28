@@ -1,3 +1,5 @@
+import { ICON_ACTION } from "../../../shared/ui/constants.ts";
+import { IconAction } from "../../../shared/ui/icon-action.tsx";
 import { TRASH_KIND } from "@liquidation/domain/journal/trash/constants";
 import { PLAN_NARRATIVES } from "@liquidation/domain/plans/constants";
 import { getPlanVoiding } from "@liquidation/domain/plans/plan-lifecycle";
@@ -11,6 +13,7 @@ import {
   periodBounds,
 } from "@liquidation/domain/workspace/period";
 import { ScreenshotField } from "../../../shared/screenshots/screenshot-field.tsx";
+import { CheckboxField } from "../../../shared/ui/checkbox-field.tsx";
 import { InstrumentIcons } from "../../../shared/ui/instrument-picker.tsx";
 import { SelectField } from "../../../shared/ui/select-field.tsx";
 import { NEW_PLAN_HREF } from "../../../app/constants.ts";
@@ -40,6 +43,7 @@ export function WatchItemEditor({
   const { t, format } = useLocale();
   const [refreshing, setRefreshing] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [plansExpanded, setPlansExpanded] = useState(item.planIds.length > 0);
   const { start, through } = periodBounds(PERIOD.WEEK, week);
   const options = [
     ...plans
@@ -77,14 +81,12 @@ export function WatchItemEditor({
           <InstrumentIcons symbol={item.symbol} />
           {item.symbol}
         </h3>
-        <button
-          type="button"
-          className="secondary"
+        <IconAction
+          icon={ICON_ACTION.DELETE}
+          label={w.remove}
           disabled={disabled}
           onClick={onRemove}
-        >
-          {w.remove}
-        </button>
+        />
       </div>
       <SelectField
         label={p.narrative}
@@ -116,28 +118,33 @@ export function WatchItemEditor({
         disabled={disabled}
         onChange={(images) => onChange({ ...item, images })}
       />
-      <details className="watch-plan-options" open={item.planIds.length > 0}>
+      <details
+        className="watch-plan-options"
+        open={plansExpanded}
+        onToggle={(event) => setPlansExpanded(event.currentTarget.open)}
+      >
         <summary>
           {m.linkedPlans} · {item.planIds.length}
         </summary>
         {options.length ? (
-          options.map(({ id, title }) => (
-            <label key={id} className="workspace-check">
-              <input
-                type="checkbox"
+          <div className="watch-plan-choices">
+            {options.map(({ id, title }) => (
+              <CheckboxField
+                key={id}
                 checked={item.planIds.includes(id)}
                 onChange={(event) =>
                   onChange({
                     ...item,
-                    planIds: event.target.checked
+                    planIds: event.currentTarget.checked
                       ? [...item.planIds, id]
                       : item.planIds.filter((value) => value !== id),
                   })
                 }
-              />{" "}
-              {title}
-            </label>
-          ))
+              >
+                {title}
+              </CheckboxField>
+            ))}
+          </div>
         ) : (
           <p>{m.noPlans}</p>
         )}

@@ -104,12 +104,20 @@
   margin: 0;
 }
 .watch-plan-options {
-  display: grid;
-  gap: 0.55rem;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 0.65rem;
+  background: var(--field);
 }
 .watch-plan-options summary {
   cursor: pointer;
   font-weight: 600;
+}
+.watch-plan-choices {
+  display: grid;
+  justify-items: start;
+  gap: 0.65rem;
+  margin-block: 0.85rem;
 }
 .watch-asset-review {
   border-top: 1px solid var(--border);
@@ -138,6 +146,90 @@
   white-space: pre-wrap;
   margin: 0.35rem 0 0;
 }
+.watchlist-review-progress {
+  display: grid;
+  width: min(100%, 18rem);
+  gap: 0.45rem;
+  margin-block: 0.85rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+.watchlist-review-progress strong {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.watch-outcome {
+  padding: 0.18rem 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: 0.38rem;
+  background: var(--surface-raised);
+  font-size: 0.82rem;
+}
+.watch-outcome:is([data-outcome="observed"], [data-outcome="traded"]) {
+  color: var(--pnl-positive);
+  background: color-mix(in srgb, var(--pnl-positive) 10%, var(--surface));
+}
+.watch-outcome[data-outcome="missed"] {
+  color: var(--pnl-negative);
+  background: color-mix(in srgb, var(--pnl-negative) 10%, var(--surface));
+}
+.watchlist-week-review {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(9rem, 14rem);
+  align-items: start;
+  gap: 1rem;
+}
+.watchlist-saved-review {
+  margin-block: 0.9rem;
+  padding: 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 0.65rem;
+  background: color-mix(in srgb, var(--section-accent) 5%, var(--surface));
+}
+.watchlist-saved-review :is(h3, p, .panel-heading) {
+  margin: 0;
+}
+.watchlist-saved-review p {
+  margin-block-start: 0.55rem;
+}
+.watchlist-history {
+  min-inline-size: 44rem;
+}
+.watchlist-history :is(th, td) {
+  padding: 0.62rem 0.75rem;
+}
+.watchlist-history :is(th, td):not(:first-child) {
+  text-align: end;
+  text-transform: none;
+}
+.watchlist-history tbody th {
+  font-size: 0.92rem;
+}
+.watchlist-history tbody tr:hover {
+  background: var(--surface-raised);
+}
+.watchlist-misses {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: end;
+  align-items: center;
+  gap: 0.45rem;
+}
+.watchlist-missed-assets {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.14rem 0.38rem;
+  border-radius: 0.36rem;
+  color: var(--pnl-negative);
+  background: color-mix(in srgb, var(--pnl-negative) 11%, var(--surface));
+  font-size: 0.82rem;
+}
+@media (max-width: 38rem) {
+  .watchlist-week-review {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 .missed-estimate {
   display: grid;
   gap: 0.85rem;
@@ -157,11 +249,6 @@
 .breakeven-review-summary tbody tr:last-child {
   background: color-mix(in srgb, var(--section-accent) 7%, var(--surface));
   font-weight: 650;
-}
-.missed-trade-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
 }
 .journal-missed {
   margin-block-start: 1rem;

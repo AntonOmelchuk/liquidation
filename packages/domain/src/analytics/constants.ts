@@ -7,7 +7,6 @@ export const TRADE_FACTOR = {
   MONTH: "month",
   YEAR: "year",
   PLAYBOOK: "model",
-  VERSION: "version",
   SETUP: "setup",
   DURATION: "duration",
   OUTCOME: "outcome",
@@ -15,6 +14,7 @@ export const TRADE_FACTOR = {
   STYLE: "style",
   SESSION: "session",
   ENTRY_TYPE: "entryType",
+  LIMIT_ENTRY_TEST: "limitEntryTest",
   MISTAKE: "mistake",
 } as const;
 
@@ -94,6 +94,5 @@ export const INSIGHT_FACTORS = [
   TRADE_FACTOR.DURATION,
   TRADE_FACTOR.STYLE,
   TRADE_FACTOR.PLAYBOOK,
-  TRADE_FACTOR.VERSION,
   TRADE_FACTOR.SETUP,
 ] as const;

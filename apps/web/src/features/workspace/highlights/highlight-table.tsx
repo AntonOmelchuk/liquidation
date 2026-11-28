@@ -1,7 +1,8 @@
+import { ICON_ACTION } from "../../../shared/ui/constants.ts";
+import { IconAction } from "../../../shared/ui/icon-action.tsx";
 import { TRASH_KIND } from "@liquidation/domain/journal/trash/constants";
 import { highlightHref } from "../../../app/page.ts";
 import { useLocale } from "../../../shared/messages.ts";
-import { PencilIcon } from "../../../shared/ui/action-icons.tsx";
 import { InstrumentIcons } from "../../../shared/ui/instrument-picker.tsx";
 import { DeleteRecord } from "../../trash/delete-record.tsx";
 import { useTrashMessages } from "../../trash/messages.ts";
@@ -43,19 +44,15 @@ function HighlightRow({
       ))}
       <td>
         <div className="highlight-row-actions">
-          <a
-            className="action-link secondary icon-action"
+          <IconAction
+            icon={ICON_ACTION.EDIT}
+            label={m.edit + " · " + name}
             href={highlightHref(entry.id, true)}
-            aria-label={m.edit + " · " + name}
-            title={m.edit}
-          >
-            <PencilIcon />
-          </a>
+          />
           <DeleteRecord
             kind={TRASH_KIND.HIGHLIGHT}
             recordKey={entry.id}
             revision={entry.revision}
-            iconOnly
             recordLabel={name}
           />
         </div>

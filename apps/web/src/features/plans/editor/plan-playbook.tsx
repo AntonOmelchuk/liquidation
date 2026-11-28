@@ -1,6 +1,5 @@
 import { PLAYBOOK_STATUS } from "@liquidation/domain/playbooks/constants";
 import { deletedPlaybook } from "@liquidation/domain/journal/trash/trash";
-import type { PlaybookReference } from "@liquidation/domain/playbooks/types";
 import { useState } from "react";
 import type { PlanPlaybookFieldProps, PlanPlaybookLinkProps } from "./types.ts";
 
@@ -12,15 +11,9 @@ import { useTrashMessages } from "../../trash/messages.ts";
 import { usePlaybookMessages } from "../../playbooks/messages.ts";
 import { PlaybookSelect } from "../../playbooks/playbook-select.tsx";
 
-function optionValue({ id, version }: PlaybookReference) {
-  return `${id}:${version}`;
-}
-
 export function readPlanPlaybook(data: FormData) {
-  const value = data.get("planPlaybook");
-  if (!value) return undefined;
-  const [id, version] = String(value).split(":");
-  return { id, version: Number(version) };
+  const id = data.get("planPlaybook");
+  return id ? { id: String(id) } : undefined;
 }
 
 export function PlanPlaybookField({ initial }: PlanPlaybookFieldProps) {
@@ -28,7 +21,7 @@ export function PlanPlaybookField({ initial }: PlanPlaybookFieldProps) {
   const books = useHistoricalPlaybookOptions(initial?.id);
   const active = useJournal((state) => state.playbooks);
   const deleted = useTrashMessages().deleted;
-  const [value, setValue] = useState(initial ? optionValue(initial) : "");
+  const [value, setValue] = useState(initial?.id ?? "");
   const available = books.filter(
     (book) =>
       book.status !== PLAYBOOK_STATUS.RETIRED || book.id === initial?.id,
@@ -43,18 +36,13 @@ export function PlanPlaybookField({ initial }: PlanPlaybookFieldProps) {
       empty={!available.length}
     >
       <option value="">{b.none}</option>
-      {available.flatMap((book) =>
-        book.versions.toReversed().map(({ number }) => (
-          <option
-            key={optionValue({ id: book.id, version: number })}
-            value={optionValue({ id: book.id, version: number })}
-          >
-            {book.title} · v{number}
-            {book.status === PLAYBOOK_STATUS.RETIRED && ` · ${b.retired}`}
-            {!active.some(({ id }) => id === book.id) && " · " + deleted}
-          </option>
-        )),
-      )}
+      {available.map((book) => (
+        <option key={book.id} value={book.id}>
+          {book.title}
+          {book.status === PLAYBOOK_STATUS.RETIRED && ` · ${b.retired}`}
+          {!active.some(({ id }) => id === book.id) && " · " + deleted}
+        </option>
+      ))}
     </PlaybookSelect>
   );
 }
@@ -71,14 +59,14 @@ export function PlanPlaybookLink({ reference }: PlanPlaybookLinkProps) {
   if (!book)
     return old ? (
       <span>
-        {old.title} · v{reference.version} · {deleted}
+        {old.title} · {deleted}
       </span>
     ) : (
       EMPTY_VALUE
     );
   return (
     <a className="record-link" href={playbookHref(book.id)}>
-      {book.title} <span className="subdued">v{reference.version}</span>
+      {book.title}
     </a>
   );
 }

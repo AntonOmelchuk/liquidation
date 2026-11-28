@@ -1,7 +1,8 @@
 import { TRASH_ACTION } from "@liquidation/domain/journal/trash/constants";
 import { useEffect, useId, useRef, useState } from "react";
 import { useLocale } from "../../shared/messages.ts";
-import { TrashIcon } from "../../shared/ui/action-icons.tsx";
+import { ICON_ACTION } from "../../shared/ui/constants.ts";
+import { IconAction } from "../../shared/ui/icon-action.tsx";
 import { useJournal } from "../journal/data/store.ts";
 import { useTrashMessages } from "./messages.ts";
 import type { DeleteRecordProps } from "./types.ts";
@@ -14,7 +15,6 @@ export function DeleteRecord({
   legacyThoughtRevision,
   afterDelete,
   disabled,
-  iconOnly = false,
   recordLabel,
 }: DeleteRecordProps) {
   const { t } = useLocale();
@@ -55,24 +55,16 @@ export function DeleteRecord({
 
   return (
     <>
-      <button
-        type="button"
-        className={
-          iconOnly
-            ? "secondary record-delete icon-action"
-            : "secondary record-delete"
-        }
-        aria-label={label}
+      <IconAction
+        icon={ICON_ACTION.DELETE}
+        label={label}
         aria-haspopup="dialog"
-        title={iconOnly ? label : undefined}
         disabled={disabled || saving}
         onClick={() => {
           setError(false);
           setOpen(true);
         }}
-      >
-        {iconOnly ? <TrashIcon /> : m.delete}
-      </button>
+      />
       {open && (
         <dialog
           ref={dialog}

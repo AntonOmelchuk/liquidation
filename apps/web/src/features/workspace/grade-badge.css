@@ -1,0 +1,23 @@
+.review-grade {
+  --grade-color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: 1.85em;
+  padding: 0.19em 0.45em;
+  border: 1px solid color-mix(in srgb, var(--grade-color) 32%, var(--border));
+  border-radius: 0.48rem;
+  color: var(--grade-color);
+  background: color-mix(in srgb, var(--grade-color) 12%, var(--surface));
+  font-weight: 780;
+  line-height: 1.2;
+}
+.review-grade[data-tone="positive"] {
+  --grade-color: var(--pnl-positive);
+}
+.review-grade[data-tone="negative"] {
+  --grade-color: var(--pnl-negative);
+}
+.review-grade[data-tone="caution"] {
+  --grade-color: var(--chart-caution);
+}

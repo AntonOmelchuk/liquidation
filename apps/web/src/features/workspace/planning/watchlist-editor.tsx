@@ -1,6 +1,7 @@
 import { instrumentSymbolSchema } from "@liquidation/domain/instruments/symbol";
 import { PLAN_NARRATIVE } from "@liquidation/domain/plans/constants";
 import {
+  REPORT_GRADES,
   WATCHLIST_LIMIT,
   WATCH_OUTCOME,
   WORKSPACE_RECORD,
@@ -14,6 +15,7 @@ import {
   existingScreenshots,
 } from "../../../shared/screenshots/draft.ts";
 import { InstrumentPicker } from "../../../shared/ui/instrument-picker.tsx";
+import { SelectField } from "../../../shared/ui/select-field.tsx";
 import { formText } from "../form.ts";
 import { useWorkspaceSave } from "../use-workspace-save.ts";
 import {
@@ -49,9 +51,11 @@ export function WatchlistEditor({
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
+    const grade = formText(form, "grade");
     const input = {
       outlook: formText(form, "outlook"),
       review: formText(form, "review"),
+      grade: REPORT_GRADES.find((value) => value === grade),
       items: items.map(({ images, ...item }) => ({
         ...item,
         screenshotIds: images.map(({ id }) => id),
@@ -63,7 +67,7 @@ export function WatchlistEditor({
         collectScreenshots(items.map(({ images }) => images)),
       )
     )
-      onClose();
+      onClose(true);
   }
   return (
     <form className="layout" onSubmit={(event) => void submit(event)}>
@@ -129,15 +133,29 @@ export function WatchlistEditor({
             />
           ))}
         </div>
-        <label>
-          {m.weekReview}
-          <textarea
-            name="review"
-            rows={5}
-            maxLength={WORKSPACE_TEXT_LIMIT}
-            defaultValue={entry?.review}
-          />
-        </label>
+        <div className="watchlist-week-review">
+          <label>
+            {m.weekReview}
+            <textarea
+              name="review"
+              rows={5}
+              maxLength={WORKSPACE_TEXT_LIMIT}
+              defaultValue={entry?.review}
+            />
+          </label>
+          <SelectField
+            name="grade"
+            label={m.weekGrade}
+            defaultValue={entry?.grade ?? ""}
+          >
+            <option value="">{m.noGrade}</option>
+            {REPORT_GRADES.map((value) => (
+              <option key={value} value={value}>
+                {value}
+              </option>
+            ))}
+          </SelectField>
+        </div>
       </fieldset>
       <WorkspaceFeedback status={status} />
       <div className="workspace-actions">
@@ -146,7 +164,7 @@ export function WatchlistEditor({
           className="secondary"
           type="button"
           disabled={saving}
-          onClick={onClose}
+          onClick={() => onClose()}
         >
           {t.cancel}
         </button>

@@ -2,8 +2,10 @@ import { useState } from "react";
 import { REVIEW_GROUP } from "@liquidation/domain/review/constants";
 import type { ReviewGroup } from "@liquidation/domain/review/types";
 import { FactorButtons } from "../../../shared/analytics/factor-buttons.tsx";
+import { TradeMetricCards } from "../../../shared/analytics/trade-metric-cards.tsx";
+import { useTradeCashSeries } from "../../../shared/analytics/use-trade-cash-series.ts";
 import { useLocale } from "../../../shared/messages.ts";
-import { Metric, Panel } from "../../../shared/ui/layout.tsx";
+import { Panel } from "../../../shared/ui/layout.tsx";
 import { useReviewMessages } from "../messages.ts";
 import type { ReviewOverviewProps } from "../types.ts";
 import { ReviewDataTable } from "./data-table.tsx";
@@ -12,23 +14,15 @@ import { reviewValues } from "./presentation.ts";
 export function ReviewOverview({ report, tables }: ReviewOverviewProps) {
   const locale = useLocale();
   const m = useReviewMessages();
-  const { t } = locale;
   const { totals } = report;
-  const { amount, percent, count } = reviewValues({ ...locale, messages: m });
+  const values = useTradeCashSeries(report.records);
+  const { count } = reviewValues({ ...locale, messages: m });
   const [group, setGroup] = useState<ReviewGroup>(REVIEW_GROUP.SYMBOLS);
 
   return (
     <>
       <section aria-label={m.overview}>
-        <div className="metrics review-kpis">
-          <Metric
-            label={t.pnl}
-            value={amount(totals.net)}
-            detail={`${t.count} · ${count(totals.count)}`}
-          />
-          <Metric label={t.win} value={percent(totals.winRate)} />
-          <Metric label={t.profitFactor} value={amount(totals.profitFactor)} />
-        </div>
+        <TradeMetricCards stats={totals} values={values} overviewOnly />
         <p className="review-note">
           {m.open} · {count(report.openPositions)}
         </p>

@@ -5,7 +5,7 @@ import { expect, test } from "vitest";
 
 const openedAt = "2026-11-20T10:00:00Z";
 const closedAt = "2026-11-23T10:00:00Z";
-const playbook = { id: "0a047d28-0555-4dfb-b1fb-acfea3c1e577", version: 1 };
+const playbook = { id: "0a047d28-0555-4dfb-b1fb-acfea3c1e577" };
 
 function plan(
   id: string,
@@ -96,22 +96,18 @@ test("counts decided plans, measures linked realized R and excludes misses with 
   });
 });
 
-test("groups instruments and exact playbook versions, retaining plans without a playbook", () => {
+test("groups plans by instrument and playbook, including unassigned plans", () => {
   const plans = [
     plan("eur-v1", { status: "worked" }),
-    plan(
-      "eur-v2",
-      { status: "worked" },
-      { playbook: { ...playbook, version: 2 } },
-    ),
+    plan("eur-second", { status: "worked" }),
     plan("gbp-v1", { status: "worked" }, { symbol: "GBPUSD" }),
     plan("no-playbook", { status: "waiting" }, { playbook: undefined }),
   ];
   const records = { plans, trades: [], positions: [] };
   const combined = summarizePlanGroups(records, "instrumentAndPlaybook");
 
-  expect(combined).toHaveLength(4);
-  expect(new Set(combined.map(({ key }) => key)).size).toBe(4);
+  expect(combined).toHaveLength(3);
+  expect(new Set(combined.map(({ key }) => key)).size).toBe(3);
   const byInstrument = summarizePlanGroups(records, "instrument");
   expect(byInstrument[0]).toMatchObject({
     instrument: "EURUSD",
@@ -120,10 +116,10 @@ test("groups instruments and exact playbook versions, retaining plans without a 
   });
 
   const byPlaybook = summarizePlanGroups(records, "playbook");
-  expect(byPlaybook).toHaveLength(3);
+  expect(byPlaybook).toHaveLength(2);
   expect(byPlaybook[0]).toMatchObject({
     playbook,
-    plans: [plans[0], plans[2]],
+    plans: [plans[0], plans[1], plans[2]],
   });
   expect(byPlaybook.find((group) => !group.playbook)).toMatchObject({
     plans: [plans[3]],

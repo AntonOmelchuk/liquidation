@@ -1,8 +1,10 @@
+import { DateText } from "../../../shared/ui/date-text.tsx";
+import { ICON_ACTION } from "../../../shared/ui/constants.ts";
+import { IconAction } from "../../../shared/ui/icon-action.tsx";
 import { TRASH_KIND } from "@liquidation/domain/journal/trash/constants";
 import { LEARNING_KIND } from "@liquidation/domain/workspace/constants";
 import type { LearningEntry } from "@liquidation/domain/workspace/types";
 import { learningHref } from "../../../app/page.ts";
-import { useLocale } from "../../../shared/messages.ts";
 import { ScreenshotGallery } from "../../../shared/screenshots/screenshot-gallery.tsx";
 import { DeleteRecord } from "../../trash/delete-record.tsx";
 import { useWorkspaceMessages } from "../messages.ts";
@@ -10,7 +12,6 @@ import { LearningTags } from "./learning-tags.tsx";
 import { LectureDocument } from "./lecture-blocks.tsx";
 
 export function LearningDetail({ entry }: { entry: LearningEntry }) {
-  const { format } = useLocale();
   const m = useWorkspaceMessages();
   const lecture = entry.kind === LEARNING_KIND.LESSON;
 
@@ -25,9 +26,7 @@ export function LearningDetail({ entry }: { entry: LearningEntry }) {
           <LearningTags entry={entry} />
           <p className="learning-meta">
             {entry.group && <span>{entry.group}</span>}
-            <time dateTime={entry.updatedAt}>
-              {format.date.format(Date.parse(entry.updatedAt))}
-            </time>
+            <DateText value={entry.updatedAt} withTime />
             {lecture && entry.completed && <span>{m.completed}</span>}
           </p>
         </div>
@@ -40,12 +39,11 @@ export function LearningDetail({ entry }: { entry: LearningEntry }) {
               window.location.hash = learningHref(entry.kind);
             }}
           />
-          <a
-            className="action-link secondary"
+          <IconAction
+            icon={ICON_ACTION.EDIT}
+            label={m.edit}
             href={learningHref(entry.kind, entry.id, true)}
-          >
-            {m.edit}
-          </a>
+          />
           {entry.link && (
             <a
               className="record-link"

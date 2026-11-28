@@ -1,3 +1,6 @@
+import { DateText } from "../../../shared/ui/date-text.tsx";
+import { ICON_ACTION } from "../../../shared/ui/constants.ts";
+import { IconAction } from "../../../shared/ui/icon-action.tsx";
 import { PLAN_ACTION, PLAN_EVENT } from "@liquidation/domain/plans/constants";
 import type { PlanEvent } from "@liquidation/domain/plans/types";
 import { TYPE_NAME } from "@liquidation/domain/shared/constants";
@@ -10,7 +13,6 @@ import type {
 } from "./types.ts";
 
 import { planCommand } from "@liquidation/domain/plans/plan";
-import { formatCompactDateTime } from "../../../shared/format.ts";
 import { useLocale } from "../../../shared/messages.ts";
 import {
   collectScreenshots,
@@ -151,7 +153,6 @@ export function ActivityForm({ plan, activity, finish }: ActivityFormProps) {
 }
 
 export function PlanActivity({ plan }: PlanActivityProps) {
-  const { format } = useLocale();
   const p = usePlanMessages();
   const [editing, setEditing] = useState<Activity | null>(null);
   const events = plan.events ?? [];
@@ -183,20 +184,13 @@ export function PlanActivity({ plan }: PlanActivityProps) {
           {events.map((event) => (
             <li key={event.id}>
               <div className="plan-actions">
-                <time
-                  dateTime={event.at}
-                  title={format.date.format(Date.parse(event.at))}
-                >
-                  {formatCompactDateTime(event.at, format.clock)}
-                </time>
+                <DateText value={event.at} withTime />
                 {event.kind === PLAN_EVENT.UPDATE && !editing && (
-                  <button
-                    type="button"
-                    className="secondary"
+                  <IconAction
+                    icon={ICON_ACTION.EDIT}
+                    label={p.editUpdate}
                     onClick={() => setEditing(event)}
-                  >
-                    {p.editUpdate}
-                  </button>
+                  />
                 )}
               </div>
               {event.kind === PLAN_EVENT.UPDATE && (

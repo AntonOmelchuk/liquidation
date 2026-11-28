@@ -9,12 +9,14 @@ import {
   MISSED_REASON,
   MISSED_REASONS,
   PERIOD,
+  REPORT_GRADES,
   WATCH_OUTCOMES,
   WATCHLIST_LIMIT,
+  WEEK_LENGTH,
   WORKSPACE_TEXT_LIMIT,
 } from "./constants.ts";
-import { periodBounds } from "./period.ts";
-import type { MissedReason } from "./types.ts";
+import { periodBounds, shiftDay } from "./period.ts";
+import type { MissedReason, WeeklyWatchlist } from "./types.ts";
 
 const text = z.string().trim().max(WORKSPACE_TEXT_LIMIT);
 const revision = z.number().int().positive();
@@ -45,6 +47,7 @@ const watchItemSchema = z.object({
 export const watchlistInputSchema = z.object({
   outlook: text,
   review: text,
+  grade: z.enum(REPORT_GRADES).optional(),
   items: z
     .array(watchItemSchema)
     .max(WATCHLIST_LIMIT)
@@ -54,6 +57,22 @@ export const watchlistInputSchema = z.object({
       "A symbol can appear once per week.",
     ),
 });
+
+export function watchlistWeeks(
+  entries: readonly WeeklyWatchlist[],
+  today: string,
+) {
+  const current = periodBounds(PERIOD.WEEK, today).start;
+  const latest = entries.reduce<string | undefined>(
+    (latest, { start }) => (!latest || start > latest ? start : latest),
+    undefined,
+  );
+  const primary = latest && latest >= current ? latest : current;
+  return {
+    primary,
+    next: latest === primary ? shiftDay(primary, WEEK_LENGTH) : primary,
+  };
+}
 
 export function isBreakevenReviewReason(reason: MissedReason) {
   return BREAKEVEN_REVIEW_REASONS.some((value) => value === reason);

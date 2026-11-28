@@ -1,4 +1,5 @@
 import type { Trade, Position } from "../trades/types.ts";
+import type { Plan } from "../plans/types.ts";
 import type { z } from "zod";
 import type {
   MISSED_REASONS,
@@ -25,6 +26,20 @@ export type WeeklyWatchlist = Workspace["watchlists"][number];
 export type WatchItem = WeeklyWatchlist["items"][number];
 export type MissedTrade = Workspace["missedTrades"][number];
 export type MissedReason = (typeof MISSED_REASONS)[number];
+
+export type WatchlistActivitySource = {
+  trades: readonly Trade[];
+  positions: readonly Position[];
+  missedTrades: readonly MissedTrade[];
+  plans: readonly Plan[];
+};
+
+export type WatchlistActivityIndex = {
+  trades: ReadonlyMap<string, Trade[]>;
+  positions: ReadonlyMap<string, Position[]>;
+  missedTrades: ReadonlyMap<string, MissedTrade[]>;
+  plans: ReadonlyMap<string, Plan>;
+};
 
 export type CalendarDay = {
   trades: Trade[];

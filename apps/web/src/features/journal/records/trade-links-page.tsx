@@ -1,3 +1,4 @@
+import { DateText } from "../../../shared/ui/date-text.tsx";
 import { netCents, realizedR } from "@liquidation/domain/trades/trade";
 import { EMPTY_VALUE } from "../../../shared/constants.ts";
 import { HTTP_STATUS } from "@liquidation/domain/journal/constants";
@@ -11,11 +12,13 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { PAGE_HASHES } from "../../../app/constants.ts";
 import type { TradeLinksEditorProps } from "./types.ts";
 
-import { isoToLocalDateTime } from "../../../shared/format.ts";
+import { isoToLocalDateTime, numericTone } from "../../../shared/format.ts";
 import { useLocale } from "../../../shared/messages.ts";
 import { TradeSideBadge } from "../../../shared/ui/direction-badge.tsx";
 import { InstrumentIcons } from "../../../shared/ui/instrument-picker.tsx";
-import { Metric, Panel, RecordActions } from "../../../shared/ui/layout.tsx";
+import { Panel, RecordActions } from "../../../shared/ui/layout.tsx";
+import { MetricCard, MetricGrid } from "../../../shared/ui/metric-card.tsx";
+import { METRIC_TONE } from "../../../shared/ui/metric-constants.ts";
 import { JournalRequestError } from "../data/api.ts";
 import { useJournal } from "../data/store.ts";
 import { JournalUnavailable } from "../journal-unavailable.tsx";
@@ -41,6 +44,7 @@ function TradeLinksEditor({ trade }: TradeLinksEditorProps) {
   const updateLinks = useJournal((state) => state.updateTradeLinks);
   const currency = useJournal((state) => state.currency);
   const multiple = realizedR(trade);
+  const net = netCents(trade) / 100;
   const heading = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
@@ -98,9 +102,7 @@ function TradeLinksEditor({ trade }: TradeLinksEditorProps) {
               {trade.symbol}
             </span>
             <TradeSideBadge side={trade.direction} />
-            <time dateTime={trade.openedAt}>
-              {format.date.format(Date.parse(trade.openedAt))}
-            </time>
+            <DateText value={trade.openedAt} withTime />
           </div>
         </div>
       </header>
@@ -114,24 +116,28 @@ function TradeLinksEditor({ trade }: TradeLinksEditorProps) {
           }}
         />
       </div>
-      <section
-        className="metrics trade-review-metrics"
-        aria-label={m.financial}
-      >
-        <Metric
+      <MetricGrid label={m.financial} compact>
+        <MetricCard
           label={t.pnl}
-          value={format.money.format(netCents(trade) / 100) + " " + currency}
+          value={format.money.format(net) + " " + currency}
+          icon="WALLET"
+          tone={numericTone(net)}
+          featured
         />
-        <Metric
+        <MetricCard
           label={t.result}
+          icon="TREND"
+          tone={numericTone(multiple ?? 0) ?? METRIC_TONE.NEUTRAL}
           value={
             multiple === null
               ? EMPTY_VALUE
               : format.money.format(multiple) + " R"
           }
         />
-        <Metric
+        <MetricCard
           label={m.initialRisk}
+          icon="WARNING"
+          tone={trade.risk === null ? undefined : METRIC_TONE.CAUTION}
           detail={
             trade.riskSizing
               ? format.riskPercent.format(trade.riskSizing.percent / 100)
@@ -143,11 +149,13 @@ function TradeLinksEditor({ trade }: TradeLinksEditorProps) {
               : format.money.format(trade.risk) + " " + currency
           }
         />
-        <Metric
+        <MetricCard
           label={t.closed}
           value={format.date.format(Date.parse(trade.closedAt))}
+          icon="CALENDAR"
+          tone={METRIC_TONE.NEUTRAL}
         />
-      </section>
+      </MetricGrid>
       {trade.notes && (
         <Panel title={t.notes}>
           <p className="record-prose">{trade.notes}</p>

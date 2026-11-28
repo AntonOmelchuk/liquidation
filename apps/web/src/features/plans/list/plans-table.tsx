@@ -1,3 +1,5 @@
+import { ICON_ACTION } from "../../../shared/ui/constants.ts";
+import { IconAction } from "../../../shared/ui/icon-action.tsx";
 import { TRASH_KIND } from "@liquidation/domain/journal/trash/constants";
 import { DeleteRecord } from "../../trash/delete-record.tsx";
 import { PAGE_VIEW } from "../../../app/constants.ts";
@@ -7,7 +9,6 @@ import { planHref } from "../../../app/page.ts";
 import { EMPTY_VALUE } from "../../../shared/constants.ts";
 import { numericTone } from "../../../shared/format.ts";
 import { useLocale } from "../../../shared/messages.ts";
-import { PencilIcon } from "../../../shared/ui/action-icons.tsx";
 import { TradeSideBadge } from "../../../shared/ui/direction-badge.tsx";
 import { InstrumentIcons } from "../../../shared/ui/instrument-picker.tsx";
 import { usePlaybookMessages } from "../../playbooks/messages.ts";
@@ -93,19 +94,15 @@ function PlanRow({ plan, actual }: PlanRowProps) {
       </td>
       <td className="plan-table-actions">
         <div className="plan-row-actions">
-          <a
-            className="action-link secondary icon-action"
+          <IconAction
+            icon={ICON_ACTION.EDIT}
+            label={`${p.edit} · ${setup.title}`}
             href={planHref(id, PAGE_VIEW.EDIT)}
-            aria-label={`${p.edit} · ${setup.title}`}
-            title={p.editShort}
-          >
-            <PencilIcon />
-          </a>
+          />
           <DeleteRecord
             kind={TRASH_KIND.PLAN}
             recordKey={id}
             revision={plan.revision}
-            iconOnly
             recordLabel={setup.title}
           />
         </div>

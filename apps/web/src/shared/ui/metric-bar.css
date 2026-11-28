@@ -1,0 +1,26 @@
+.metric-bar {
+  display: flex;
+  block-size: 0.34rem;
+  min-inline-size: 0;
+  overflow: hidden;
+  background: var(--chart-track);
+  border-radius: 999px;
+}
+.metric-bar > span {
+  background-color: var(--section-accent);
+}
+.metric-bar [data-tone="positive"] {
+  background-color: var(--chart-win);
+}
+.metric-bar [data-tone="negative"] {
+  background-color: var(--chart-loss);
+}
+.metric-bar [data-tone="neutral"] {
+  background-color: var(--chart-flat);
+}
+.metric-bar [data-tone="caution"] {
+  background-color: var(--chart-caution);
+}
+.metric-bar [data-tone="muted"] {
+  background-color: var(--muted);
+}

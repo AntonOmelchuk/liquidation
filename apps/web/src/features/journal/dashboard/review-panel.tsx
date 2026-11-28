@@ -14,6 +14,7 @@ import { reportHref } from "../../../app/page.ts";
 import { EMPTY_VALUE } from "../../../shared/constants.ts";
 import { useLocale } from "../../../shared/messages.ts";
 import { Panel } from "../../../shared/ui/layout.tsx";
+import { GradeBadge } from "../../workspace/grade-badge.tsx";
 import { useWorkspaceMessages } from "../../workspace/messages.ts";
 import { PeriodSwitcher } from "../../workspace/period-switcher.tsx";
 import { useJournal } from "../data/store.ts";
@@ -34,7 +35,11 @@ function ReviewSummary({ report }: { report: Report }) {
       <div>
         <dt>{m.reviewProcess}</dt>
         <dd>
-          <strong>{report.grade || EMPTY_VALUE}</strong>
+          {report.grade ? (
+            <GradeBadge value={report.grade} />
+          ) : (
+            <strong>{EMPTY_VALUE}</strong>
+          )}
           {report.process && <p>{report.process}</p>}
         </dd>
       </div>
@@ -59,7 +64,11 @@ function ReviewSummary({ report }: { report: Report }) {
       <div>
         <dt>{m.reviewOpportunity}</dt>
         <dd>
-          <strong>{report.quality || EMPTY_VALUE}</strong>
+          {report.quality ? (
+            <GradeBadge value={report.quality} />
+          ) : (
+            <strong>{EMPTY_VALUE}</strong>
+          )}
         </dd>
       </div>
       <div className="dashboard-review-overview">

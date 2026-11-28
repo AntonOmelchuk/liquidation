@@ -27,8 +27,6 @@ export type PlaybookSetup = PlaybookRules["setups"][number];
 
 export type PlaybookRule = PlaybookSetup["rules"][number];
 
-export type PlaybookVersion = Playbook["versions"][number];
-
 export type PlaybookReference = z.infer<typeof playbookReferenceSchema>;
 
 export type PlaybookReview = Playbook["reviews"][number];

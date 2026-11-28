@@ -1,21 +1,28 @@
 .checkbox-field {
   --checkbox-accent: var(--section-accent);
   position: relative;
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: start;
-  column-gap: 0.62rem;
+  display: inline-flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 0.62rem;
+  inline-size: fit-content;
+  max-inline-size: 100%;
   line-height: 1.35;
   cursor: pointer;
 }
 .checkbox-field:not(:has(.checkbox-text)) {
-  grid-template-columns: auto;
+  justify-content: center;
+  align-items: center;
+  min-inline-size: 1.65rem;
+  min-block-size: 1.65rem;
+  vertical-align: middle;
 }
 .checkbox-text {
   min-width: 0;
   overflow-wrap: anywhere;
 }
 .checkbox-box {
+  flex: none;
   display: grid;
   place-items: center;
   inline-size: 1.15rem;
@@ -38,12 +45,19 @@
   transform: rotate(45deg);
   visibility: hidden;
 }
-.checkbox-field input:checked + .checkbox-box {
+.checkbox-field input:is(:checked, :indeterminate) + .checkbox-box {
   border-color: var(--checkbox-accent);
   background-color: var(--checkbox-accent);
 }
-.checkbox-field input:checked + .checkbox-box::after {
+.checkbox-field input:is(:checked, :indeterminate) + .checkbox-box::after {
   visibility: visible;
+}
+.checkbox-field input:indeterminate + .checkbox-box::after {
+  inline-size: 0.58rem;
+  block-size: 0;
+  margin-block-start: 0;
+  border-width: 0 0 2px;
+  transform: none;
 }
 .checkbox-field:hover:has(input:enabled) .checkbox-box {
   border-color: var(--checkbox-accent);
@@ -72,7 +86,7 @@
     border-color: CanvasText;
     background: Canvas;
   }
-  .checkbox-field input:checked + .checkbox-box {
+  .checkbox-field input:is(:checked, :indeterminate) + .checkbox-box {
     border-color: Highlight;
     background: Highlight;
   }

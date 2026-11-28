@@ -73,6 +73,7 @@ export const REPORT_FIELDS = [
   "next",
 ] as const;
 export const REPORT_GRADES = ["A", "B", "C", "D", "F"] as const;
+export const REPORT_PROGRESS_MAX = 10;
 export const WORKSPACE_TEXT_LIMIT = 4000;
 // A daily thought and the existing outlook can both be present on older dates.
 export const PREPARATION_OUTLOOK_LIMIT = WORKSPACE_TEXT_LIMIT * 2 + 2;

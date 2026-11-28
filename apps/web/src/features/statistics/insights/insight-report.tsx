@@ -15,6 +15,7 @@ import { PAGE_HASHES } from "../../../app/constants.ts";
 import { FILTER_ALL, EMPTY_VALUE } from "../../../shared/constants.ts";
 import { numericTone } from "../../../shared/format.ts";
 import { useLocale } from "../../../shared/messages.ts";
+import { CheckboxField } from "../../../shared/ui/checkbox-field.tsx";
 import { Panel } from "../../../shared/ui/layout.tsx";
 import { SelectField } from "../../../shared/ui/select-field.tsx";
 import { TradeTable } from "../../journal/records/trade-table.tsx";
@@ -126,16 +127,12 @@ export function InsightReport({ trades, labelFor }: InsightReportProps) {
               </option>
             ))}
           </SelectField>
-          <label className="workspace-check">
-            <input
-              type="checkbox"
-              checked={onlySufficient}
-              onChange={(event) =>
-                setOnlySufficient(event.currentTarget.checked)
-              }
-            />
+          <CheckboxField
+            checked={onlySufficient}
+            onChange={(event) => setOnlySufficient(event.currentTarget.checked)}
+          >
             {m.onlySufficient}
-          </label>
+          </CheckboxField>
         </div>
         <p className="analytics-hint">{m.minHint}</p>
       </Panel>

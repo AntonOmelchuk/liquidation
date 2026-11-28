@@ -6,6 +6,7 @@ import { usePlanningMessages } from "../features/workspace/planning/messages.ts"
 import { useTrashMessages } from "../features/trash/messages.ts";
 import { useAccountMessages } from "../features/accounts/messages.ts";
 import { BackupSettings } from "../features/backup/backup-settings.tsx";
+import { DailyQuote } from "../features/inspiration/daily-quote.tsx";
 import { QuoteSettings } from "../features/market/quote-settings.tsx";
 import { useNewsReactionMessages } from "../features/market/history/messages.ts";
 import {
@@ -103,6 +104,7 @@ export function Header({ page }: HeaderProps) {
           {t.settings}
         </button>
       </div>
+      <DailyQuote />
       <dialog ref={dialog} aria-labelledby="settings-title">
         <div className="panel-heading">
           <h2 id="settings-title">{t.settings}</h2>

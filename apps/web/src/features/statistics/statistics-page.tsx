@@ -13,7 +13,7 @@ import type {
 } from "@liquidation/domain/analytics/types";
 import { useMemo, useState } from "react";
 import { FactorButtons } from "../../shared/analytics/factor-buttons.tsx";
-import { PAGE_HASHES } from "../../app/constants.ts";
+import { PAGE, PAGE_HASHES } from "../../app/constants.ts";
 import { JOURNAL_STATUS } from "../journal/data/constants.ts";
 
 import { EMPTY_DATES } from "../../shared/analytics/constants.ts";
@@ -48,12 +48,15 @@ import { PeriodBreakdown } from "./period-breakdown.tsx";
 import { EvidenceStatistics } from "./evidence-statistics.tsx";
 import { useAdvancedStatisticsMessages } from "./advanced-messages.ts";
 import { ComparisonTable } from "../workspace/reports/comparison-table.tsx";
+import { StatisticsTradesTable } from "./statistics-trades-table.tsx";
+import { usePlanningMessages } from "../workspace/planning/messages.ts";
 import { StatisticsSummary } from "./statistics-summary.tsx";
 
 export function StatisticsPage({ account }: { account?: string }) {
   const { t, language, format } = useLocale();
   const s = useStatisticsMessages();
   const a = useAdvancedStatisticsMessages();
+  const planning = usePlanningMessages();
   const { status, trades, plans, positions, workspace, accounts } =
     useJournal();
   const playbooks = useAllKnownPlaybooks();
@@ -132,6 +135,12 @@ export function StatisticsPage({ account }: { account?: string }) {
       <header className="page-heading">
         <h1>{s.title}</h1>
         <div className="workspace-actions">
+          <a
+            className="action-link secondary"
+            href={PAGE_HASHES[PAGE.MISSED_TRADES]}
+          >
+            {planning.missedAnalytics}
+          </a>
           <a className="action-link secondary" href={PAGE_HASHES.mistakes}>
             {s.mistakesPage}
           </a>
@@ -163,7 +172,7 @@ export function StatisticsPage({ account }: { account?: string }) {
         />
         {!invalid && (
           <>
-            <StatisticsSummary metrics={metrics} />
+            <StatisticsSummary metrics={metrics} trades={filtered} />
             <div className="statistics-view-toolbar">
               <FactorButtons
                 label={s.viewMode}
@@ -196,6 +205,12 @@ export function StatisticsPage({ account }: { account?: string }) {
                   onSelect={setSelected}
                 />
               </>
+            ) : view === STATISTICS_VIEW.TRADES ? (
+              <StatisticsTradesTable
+                trades={filtered}
+                labelFor={labelFor}
+                playbooks={playbooks}
+              />
             ) : view === STATISTICS_VIEW.INSIGHTS ? (
               <InsightReport trades={filtered} labelFor={labelFor} />
             ) : (
@@ -214,45 +229,49 @@ export function StatisticsPage({ account }: { account?: string }) {
                 }
               />
             )}
-            <details className="panel analytics-more statistics-glossary">
-              <summary>{s.metricDefinitions}</summary>
-              <MetricGlossary />
-            </details>
-            {filtered.length > 0 && outside.length > 0 && (
-              <details className="panel analytics-more">
-                <summary>{a.comparison}</summary>
-                <ComparisonTable
-                  current={filtered}
-                  previous={outside}
-                  currentLabel={a.selection}
-                  previousLabel={a.outsideSelection}
-                  showChange
-                />
-              </details>
+            {view !== STATISTICS_VIEW.TRADES && (
+              <>
+                <details className="panel analytics-more statistics-glossary">
+                  <summary>{s.metricDefinitions}</summary>
+                  <MetricGlossary />
+                </details>
+                {filtered.length > 0 && outside.length > 0 && (
+                  <details className="panel analytics-more">
+                    <summary>{a.comparison}</summary>
+                    <ComparisonTable
+                      current={filtered}
+                      previous={outside}
+                      currentLabel={a.selection}
+                      previousLabel={a.outsideSelection}
+                      showChange
+                    />
+                  </details>
+                )}
+                <RiskAnalysis trades={filtered} />
+                <PeriodBreakdown trades={filtered} />
+                <EvidenceStatistics trades={filtered} />
+                <section className="statistics-scenario">
+                  <div className="statistics-scenario-controls">
+                    <p className="analytics-hint">{s.comparisonScope}</p>
+                    <SelectField
+                      label={s.compareUnit}
+                      value={unit}
+                      onChange={(event) =>
+                        setUnit(
+                          event.currentTarget.value === SCENARIO_UNIT.R
+                            ? SCENARIO_UNIT.R
+                            : SCENARIO_UNIT.CASH,
+                        )
+                      }
+                    >
+                      <option value={SCENARIO_UNIT.CASH}>{s.unitCash}</option>
+                      <option value={SCENARIO_UNIT.R}>{s.unitR}</option>
+                    </SelectField>
+                  </div>
+                  <PlanPerformancePanel data={comparison} unit={unit} />
+                </section>
+              </>
             )}
-            <RiskAnalysis trades={filtered} />
-            <PeriodBreakdown trades={filtered} />
-            <EvidenceStatistics trades={filtered} />
-            <section className="statistics-scenario">
-              <div className="statistics-scenario-controls">
-                <p className="analytics-hint">{s.comparisonScope}</p>
-                <SelectField
-                  label={s.compareUnit}
-                  value={unit}
-                  onChange={(event) =>
-                    setUnit(
-                      event.currentTarget.value === SCENARIO_UNIT.R
-                        ? SCENARIO_UNIT.R
-                        : SCENARIO_UNIT.CASH,
-                    )
-                  }
-                >
-                  <option value={SCENARIO_UNIT.CASH}>{s.unitCash}</option>
-                  <option value={SCENARIO_UNIT.R}>{s.unitR}</option>
-                </SelectField>
-              </div>
-              <PlanPerformancePanel data={comparison} unit={unit} />
-            </section>
           </>
         )}
       </div>

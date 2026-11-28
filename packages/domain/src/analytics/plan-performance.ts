@@ -41,6 +41,19 @@ export function estimatedMissedCents(
         Math.round(Math.abs(outcome.netR) * Math.round(outcome.risk * 100));
 }
 
+export function missedTradeEstimate({
+  reason,
+  outcome,
+}: Pick<MissedTrade, "reason" | "outcome">) {
+  if (!outcome) return { netR: null, cash: null };
+  const direction = isBreakevenReviewReason(reason) ? -1 : 1;
+  const cents = estimatedMissedCents(outcome);
+  return {
+    netR: direction * outcome.netR,
+    cash: cents === null ? null : (direction * cents) / 100,
+  };
+}
+
 export function executedPlanIds({
   trades,
   positions,

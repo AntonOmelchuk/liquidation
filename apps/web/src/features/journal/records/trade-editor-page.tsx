@@ -1,3 +1,4 @@
+import { DateText } from "../../../shared/ui/date-text.tsx";
 import { entryRiskSizing } from "@liquidation/domain/accounts/entry-risk";
 import {
   calculatedGrossProfit,
@@ -71,7 +72,7 @@ export function TradeEditorPage({ mode, id }: TradeEditorPageProps) {
 }
 
 function TradeEditor({ mode, position }: TradeEditorProps) {
-  const { t, format } = useLocale();
+  const { t } = useLocale();
   const m = useTradeRecordMessages();
   const record = useJournal((state) => state.record);
   const update = useJournal((state) => state.updatePosition);
@@ -228,9 +229,7 @@ function TradeEditor({ mode, position }: TradeEditorProps) {
                 {initial.symbol}
               </span>
               <TradeSideBadge side={initial.direction} />
-              <time dateTime={initial.openedAt}>
-                {format.date.format(Date.parse(initial.openedAt))}
-              </time>
+              <DateText value={initial.openedAt} withTime />
             </div>
           )}
         </div>

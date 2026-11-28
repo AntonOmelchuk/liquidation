@@ -1,6 +1,19 @@
 import { z } from "zod";
-import { ENTRY_TYPE, TRADE_SESSION, TRADE_TAG_LIMITS } from "./constants.ts";
+import {
+  ENTRY_TEST,
+  ENTRY_TYPE,
+  TRADE_SESSION,
+  TRADE_TAG_LIMITS,
+} from "./constants.ts";
 import type { TradeLinks } from "./types.ts";
+
+export function entryTestKey(value: boolean | undefined) {
+  return value === undefined
+    ? ""
+    : value
+      ? ENTRY_TEST.RETESTED
+      : ENTRY_TEST.MARKET_ONLY;
+}
 
 export function tradeTagKey(label: string) {
   return label.trim().toLowerCase();
@@ -30,6 +43,7 @@ export const tradeTagsSchema = z.object({
   style: z.string().trim().min(1).max(TRADE_TAG_LIMITS.style).optional(),
   session: z.enum(TRADE_SESSION).optional(),
   entryType: z.enum(ENTRY_TYPE).optional(),
+  limitEntryTest: z.boolean().optional(),
   mistakes: mistakeLabelsSchema.optional(),
   criticalMistakes: mistakeLabelsSchema.optional(),
   mistakesReviewed: z.boolean().optional(),

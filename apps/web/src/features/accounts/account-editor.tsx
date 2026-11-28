@@ -9,6 +9,7 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { useLocale } from "../../shared/messages.ts";
 import { Panel } from "../../shared/ui/layout.tsx";
+import { CheckboxField } from "../../shared/ui/checkbox-field.tsx";
 import { SelectField } from "../../shared/ui/select-field.tsx";
 import { useJournal } from "../journal/data/store.ts";
 import {
@@ -124,15 +125,13 @@ export function AccountEditor({
           </div>
           <p className="analytics-hint">{m.currencyHint}</p>
           <section className="account-rules">
-            <label className="workspace-check">
-              <input
-                name="enableRules"
-                type="checkbox"
-                checked={enabled}
-                onChange={(event) => setEnabled(event.target.checked)}
-              />
+            <CheckboxField
+              name="enableRules"
+              checked={enabled}
+              onChange={(event) => setEnabled(event.currentTarget.checked)}
+            >
               {m.enableRules}
-            </label>
+            </CheckboxField>
             {enabled && <AccountRulesFields initial={account?.rules} />}
           </section>
         </fieldset>

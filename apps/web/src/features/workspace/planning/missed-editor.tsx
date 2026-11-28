@@ -137,7 +137,7 @@ export function MissedEditor({
         collectScreenshots([images]),
       )
     )
-      onClose();
+      onClose(id);
   }
 
   return (
@@ -289,7 +289,7 @@ export function MissedEditor({
           className="secondary"
           type="button"
           disabled={saving}
-          onClick={onClose}
+          onClick={() => onClose()}
         >
           {t.cancel}
         </button>

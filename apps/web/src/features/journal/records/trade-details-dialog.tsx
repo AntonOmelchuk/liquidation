@@ -1,3 +1,6 @@
+import { DateText } from "../../../shared/ui/date-text.tsx";
+import { ICON_ACTION } from "../../../shared/ui/constants.ts";
+import { IconAction } from "../../../shared/ui/icon-action.tsx";
 import { fromCents } from "@liquidation/domain/shared/money";
 import { priceMetrics } from "@liquidation/domain/analytics/trade-risk";
 import { HOURS_IN_MS } from "@liquidation/domain/analytics/constants";
@@ -164,13 +167,17 @@ export function TradeDetailsDialog({
             )}
             <div>
               <dt>{t.opened}</dt>
-              <dd>{format.date.format(Date.parse(record.openedAt))}</dd>
+              <dd>
+                <DateText value={record.openedAt} withTime />
+              </dd>
             </div>
             {trade && (
               <>
                 <div>
                   <dt>{t.closed}</dt>
-                  <dd>{format.date.format(Date.parse(trade.closedAt))}</dd>
+                  <dd>
+                    <DateText value={trade.closedAt} withTime />
+                  </dd>
                 </div>
                 <div>
                   <dt>{m.duration}</dt>
@@ -243,13 +250,12 @@ export function TradeDetailsDialog({
       )}
       <footer className="trade-detail-footer workspace-actions">
         {"closedAt" in record ? (
-          <a
-            className="action-link secondary"
+          <IconAction
+            icon={ICON_ACTION.EDIT}
+            label={mistake.reviewTrade}
             href={tradeLinksHref(record.id)}
             onClick={onClose}
-          >
-            {mistake.reviewTrade}
-          </a>
+          />
         ) : (
           <>
             <button
@@ -260,13 +266,12 @@ export function TradeDetailsDialog({
             >
               {record.breakeven ? a.restoreRisk : a.moveToBe}
             </button>
-            <a
-              className="action-link secondary"
+            <IconAction
+              icon={ICON_ACTION.EDIT}
+              label={t.editPosition}
               href={positionEditHref(record.id, PAGE_VIEW.EDIT)}
               onClick={onClose}
-            >
-              {t.editPosition}
-            </a>
+            />
             <a
               className="action-link"
               href={positionEditHref(record.id, PAGE_VIEW.CLOSE)}

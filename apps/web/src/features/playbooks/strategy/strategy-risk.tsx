@@ -8,7 +8,15 @@ import {
   strategyRiskSchema,
 } from "@liquidation/domain/playbooks/strategy";
 import type { StrategyRiskInputs } from "@liquidation/domain/playbooks/types";
+import { numericTone } from "../../../shared/format.ts";
 import { useLocale } from "../../../shared/messages.ts";
+import { MetricCard, MetricGrid } from "../../../shared/ui/metric-card.tsx";
+import { METRIC_TONE } from "../../../shared/ui/metric-constants.ts";
+import { metricParts } from "../../../shared/ui/metric-parts.ts";
+import {
+  MetricGauge,
+  MetricLegend,
+} from "../../../shared/ui/metric-visuals.tsx";
 import { SelectField } from "../../../shared/ui/select-field.tsx";
 import { useStrategyMessages } from "./messages.ts";
 import { RR_LIMIT } from "./constants.ts";
@@ -25,25 +33,41 @@ export function StrategyForecast({ risk }: { risk: StrategyRiskInputs }) {
       </p>
     );
   const estimate = forecastStrategy(parsed.data);
-  const metrics = [
-    [s.trades, format.integer.format(estimate.trades)],
-    [s.wins, format.integer.format(estimate.wins)],
-    [s.losses, format.integer.format(estimate.losses)],
-    [s.expectancy, format.money.format(estimate.expectancyR) + " R"],
-    [s.returnRate, format.percentage.format(estimate.returnRate)],
-    [s.finalCapital, format.money.format(estimate.capital)],
-  ];
+  const outcomes = metricParts(format.integer, [
+    [METRIC_TONE.POSITIVE, s.wins, estimate.wins],
+    [METRIC_TONE.NEGATIVE, s.losses, estimate.losses],
+  ]);
   return (
     <div>
       <h3>{s.riskForecast}</h3>
-      <dl className="strategy-facts">
-        {metrics.map(([label, value]) => (
-          <div key={label}>
-            <dt>{label}</dt>
-            <dd>{value}</dd>
-          </div>
-        ))}
-      </dl>
+      <MetricGrid compact>
+        <MetricCard
+          label={s.trades}
+          value={format.integer.format(estimate.trades)}
+          icon="LAYERS"
+          detail={<MetricLegend parts={outcomes} names />}
+        >
+          <MetricGauge parts={outcomes} semicircle />
+        </MetricCard>
+        <MetricCard
+          label={s.expectancy}
+          value={format.money.format(estimate.expectancyR) + " R"}
+          icon="ACTIVITY"
+          tone={numericTone(estimate.expectancyR)}
+        />
+        <MetricCard
+          label={s.returnRate}
+          value={format.percentage.format(estimate.returnRate)}
+          icon="TREND"
+          tone={numericTone(estimate.returnRate)}
+        />
+        <MetricCard
+          label={s.finalCapital}
+          value={format.money.format(estimate.capital)}
+          icon="WALLET"
+          tone={METRIC_TONE.NEUTRAL}
+        />
+      </MetricGrid>
       <p className="subdued">{s.riskHint}</p>
     </div>
   );

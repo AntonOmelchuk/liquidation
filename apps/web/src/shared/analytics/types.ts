@@ -1,3 +1,4 @@
+import type { TradeStatistics } from "@liquidation/domain/analytics/types";
 import type { SORT_DIRECTION } from "./constants.ts";
 
 export type DateRange = { from: string; through: string };
@@ -47,6 +48,14 @@ export type SeriesChartProps = {
   signed?: boolean;
   values: readonly number[];
   label: string;
-  empty: string;
+  empty?: string;
   unit?: string;
+};
+
+export type TradeMetricCardsProps = {
+  stats: TradeStatistics;
+  values: readonly number[];
+  currency?: string;
+  ready?: boolean;
+  overviewOnly?: boolean;
 };

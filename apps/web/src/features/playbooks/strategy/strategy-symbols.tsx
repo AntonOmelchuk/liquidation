@@ -1,3 +1,5 @@
+import { ICON_ACTION } from "../../../shared/ui/constants.ts";
+import { IconAction } from "../../../shared/ui/icon-action.tsx";
 import { instrumentSymbolSchema } from "@liquidation/domain/instruments/symbol";
 import { STRATEGY_ROW_LIMIT } from "@liquidation/domain/playbooks/constants";
 import { useState } from "react";
@@ -43,16 +45,13 @@ export function StrategySymbols({ symbols, onChange }: SymbolListProps) {
           <li key={item}>
             <InstrumentIcons symbol={item} />
             {item}
-            <button
-              type="button"
-              className="secondary"
-              aria-label={s.remove + " " + item}
+            <IconAction
+              icon={ICON_ACTION.DELETE}
+              label={s.remove + " " + item}
               onClick={() =>
                 onChange(symbols.filter((value) => value !== item))
               }
-            >
-              ×
-            </button>
+            />
           </li>
         ))}
       </ul>

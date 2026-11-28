@@ -1,3 +1,5 @@
+import { ICON_ACTION } from "../../../shared/ui/constants.ts";
+import { IconAction } from "../../../shared/ui/icon-action.tsx";
 import { TRASH_KIND } from "@liquidation/domain/journal/trash/constants";
 import { highlightHref, tradeLinksHref } from "../../../app/page.ts";
 import { ScreenshotGallery } from "../../../shared/screenshots/screenshot-gallery.tsx";
@@ -46,12 +48,11 @@ export function HighlightDetailsPage({
               window.location.hash = highlightHref();
             }}
           />
-          <a
-            className="action-link secondary"
+          <IconAction
+            icon={ICON_ACTION.EDIT}
+            label={m.edit}
             href={highlightHref(entry.id, true)}
-          >
-            {m.edit}
-          </a>
+          />
           {trade && !tradeInTrash && (
             <a className="record-link" href={tradeLinksHref(trade.id)}>
               {h.viewJournalTrade} ↗

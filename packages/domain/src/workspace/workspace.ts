@@ -6,6 +6,7 @@ import {
   PERIODS,
   PREPARATION_OUTLOOK_LIMIT,
   PREPARATION_PERIODS,
+  REPORT_PROGRESS_MAX,
   TASK_LIMIT,
   TASK_TEXT_LIMIT,
   WORKSPACE_RECORD,
@@ -55,7 +56,7 @@ const assessment = z.object({
 const report = z.object({
   grade,
   quality: grade,
-  progress: z.number().int().min(1).max(10).optional(),
+  progress: z.number().int().min(1).max(REPORT_PROGRESS_MAX).optional(),
   focus: text,
   process: text,
   learned: text,

@@ -1,0 +1,64 @@
+.metric-gauge {
+  flex: none;
+  width: clamp(2.8rem, 4vw, 4.15rem);
+  height: auto;
+  fill: none;
+  stroke-width: 8;
+}
+.metric-semicircle {
+  width: clamp(3rem, 4.35vw, 4.6rem);
+}
+.metric-gauge-track {
+  stroke: var(--chart-track);
+}
+.metric-gauge-segment {
+  stroke: var(--metric-part-fill, var(--section-accent));
+}
+:is(.metric-gauge-segment, .metric-legend li)[data-tone="positive"] {
+  --metric-part-fill: var(--chart-win);
+  --metric-part-ink: var(--pnl-positive);
+}
+:is(.metric-gauge-segment, .metric-legend li)[data-tone="negative"] {
+  --metric-part-fill: var(--chart-loss);
+  --metric-part-ink: var(--pnl-negative);
+}
+:is(.metric-gauge-segment, .metric-legend li)[data-tone="neutral"] {
+  --metric-part-fill: var(--chart-flat);
+  --metric-part-ink: var(--chart-flat);
+}
+:is(.metric-gauge-segment, .metric-legend li)[data-tone="caution"] {
+  --metric-part-fill: var(--chart-caution);
+  --metric-part-ink: var(--chart-caution);
+}
+:is(.metric-gauge-segment, .metric-legend li)[data-tone="muted"] {
+  --metric-part-fill: var(--muted);
+  --metric-part-ink: var(--muted);
+}
+.metric-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.4rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.metric-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.13rem 0.35rem;
+  border-radius: 0.35rem;
+  color: var(--metric-part-ink, var(--section-accent));
+  background: color-mix(
+    in srgb,
+    var(--metric-part-fill, var(--section-accent)) 10%,
+    var(--surface)
+  );
+}
+.metric-legend-dot {
+  flex: none;
+  width: 0.39rem;
+  height: 0.39rem;
+  border-radius: 50%;
+  background: var(--metric-part-fill, var(--section-accent));
+}

@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { expect, test } from "vitest";
 import { createJournal } from "../../../apps/local-server/src/journal.ts";
 
-test("saves versioned strategy examples without changing the standard template", async () => {
+test("saves editable strategy examples without changing the standard template", async () => {
   const directory = await mkdtemp(join(tmpdir(), "liquidation-strategy-"));
   try {
     const journal = createJournal(directory);
@@ -74,20 +74,18 @@ test("saves versioned strategy examples without changing the standard template",
     });
     const reopened = await createJournal(directory).read();
     const edited = reopened.playbooks.find(({ id }) => id === backtest.id)!;
+    expect(edited.rules.strategy?.examples).toEqual([]);
+    expect(edited.legacyVersions).toBeUndefined();
     expect(
-      edited.versions.map((version) => version.strategy?.examples.length),
-    ).toEqual([1, 0]);
-    expect(
-      reopened.playbooks.find(({ id }) => id === create.id)?.versions[0]
-        .strategy,
+      reopened.playbooks.find(({ id }) => id === create.id)?.rules.strategy,
     ).toBeUndefined();
-    expect((await journal.readScreenshot(shot))?.bytes).toEqual(png);
+    expect(await journal.readScreenshot(shot)).toBeNull();
   } finally {
     await rm(directory, { recursive: true, force: true });
   }
 });
 
-test("retains setup examples and playbook gallery images across versions and purges them after deletion", async () => {
+test("keeps setup examples attached to the editable playbook and purges them after deletion", async () => {
   const directory = await mkdtemp(
     join(tmpdir(), "liquidation-playbook-images-"),
   );
@@ -140,20 +138,17 @@ test("retains setup examples and playbook gallery images across versions and pur
       revision: 1,
       rules: {
         ...create.rules,
-        screenshotIds: undefined,
         setups: create.rules.setups.map((setup) => ({
           ...setup,
-          screenshotIds: undefined,
+          name: "Reclaim",
         })),
       },
     });
-    expect(updated.playbooks[0].versions).toHaveLength(2);
-    expect(updated.playbooks[0].versions[0].setups[0].screenshotIds).toEqual([
+    expect(updated.playbooks[0].rules.setups[0].name).toBe("Reclaim");
+    expect(updated.playbooks[0].rules.setups[0].screenshotIds).toEqual([
       setupId,
     ]);
-    expect(updated.playbooks[0].versions[0].screenshotIds).toEqual([
-      overviewId,
-    ]);
+    expect(updated.playbooks[0].rules.screenshotIds).toEqual([overviewId]);
     expect((await journal.readScreenshot(setupId))?.bytes).toEqual(png);
     await journal.updateTrash({
       action: "move",

@@ -1,0 +1,31 @@
+.daily-quote {
+  display: flex;
+  flex: 1 0 100%;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.3rem 0.65rem;
+  min-width: 0;
+  margin: 0;
+  padding-block-start: 0.55rem;
+  border-block-start: 1px solid var(--border);
+  font-size: 0.86rem;
+}
+
+.daily-quote strong {
+  color: var(--section-accent);
+  font-size: 0.77rem;
+}
+
+.daily-quote q {
+  max-inline-size: 70ch;
+  font-size: 2em;
+  font-weight: 650;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.daily-quote cite,
+.daily-quote a {
+  color: var(--muted);
+  font-size: 0.77rem;
+}

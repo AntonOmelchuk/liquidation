@@ -1,3 +1,5 @@
+import { ICON_ACTION } from "../../../shared/ui/constants.ts";
+import { IconAction } from "../../../shared/ui/icon-action.tsx";
 import { TRASH_KIND } from "@liquidation/domain/journal/trash/constants";
 import { trashRecordKey } from "@liquidation/domain/journal/trash/trash";
 import {
@@ -162,14 +164,23 @@ export function PeriodThoughtsPanel({
           )}
           {!entry && <p>{p.noThought}</p>}
           <div className="workspace-actions">
-            <button
-              type="button"
-              className="secondary"
-              disabled={saving}
-              onClick={() => setEditing(true)}
-            >
-              {entry ? p.editThought : p.writeThought}
-            </button>
+            {entry ? (
+              <IconAction
+                icon={ICON_ACTION.EDIT}
+                label={p.editThought}
+                disabled={saving}
+                onClick={() => setEditing(true)}
+              />
+            ) : (
+              <button
+                type="button"
+                className="secondary"
+                disabled={saving}
+                onClick={() => setEditing(true)}
+              >
+                {p.writeThought}
+              </button>
+            )}
             {entry && (
               <DeleteRecord
                 kind={preparation ? TRASH_KIND.PREPARATION : TRASH_KIND.THOUGHT}

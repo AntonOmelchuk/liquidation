@@ -1,3 +1,4 @@
+import { DateText } from "../../shared/ui/date-text.tsx";
 import { currencyFlag } from "@liquidation/domain/instruments/instruments";
 import {
   CALENDAR_SOURCE,
@@ -15,11 +16,12 @@ import { CheckboxField } from "../../shared/ui/checkbox-field.tsx";
 import { InstrumentIcons } from "../../shared/ui/instrument-picker.tsx";
 import { Panel } from "../../shared/ui/layout.tsx";
 import {
-  CALENDAR_CLOCK_MS,
+  MARKET_CALENDAR_HREF,
+  MARKET_CALENDAR_ID,
   MARKET_LINKS,
   RELEASE_TIMING,
 } from "./constants.ts";
-import { useCalendarFeed } from "./feeds.ts";
+import { useMarketCalendar } from "./calendar-context.tsx";
 import { useNewsReactionMessages } from "./history/messages.ts";
 import { useMarketMessages } from "./messages.ts";
 import { ReleaseReactionPanel } from "./release-reaction-panel.tsx";
@@ -28,22 +30,22 @@ export function CalendarPanel() {
   const m = useMarketMessages();
   const news = useNewsReactionMessages();
   const { t, format } = useLocale();
-  const feed = useCalendarFeed();
+  const { feed, now, today } = useMarketCalendar();
   const [important, setImportant] = useState(true);
   const [expanded, setExpanded] = useState<string>();
   const reactionId = useId();
-  const [now, setNow] = useState(Date.now);
   useEffect(() => {
-    const refreshTime = () => setNow(Date.now());
-    const timer = window.setInterval(refreshTime, CALENDAR_CLOCK_MS);
-    document.addEventListener("visibilitychange", refreshTime);
-    return () => {
-      window.clearInterval(timer);
-      document.removeEventListener("visibilitychange", refreshTime);
+    const reveal = () => {
+      if (window.location.hash === MARKET_CALENDAR_HREF)
+        document
+          .getElementById(MARKET_CALENDAR_ID)
+          ?.scrollIntoView({ block: "start" });
     };
+    reveal();
+    window.addEventListener("hashchange", reveal);
+    return () => window.removeEventListener("hashchange", reveal);
   }, []);
 
-  const today = localDay(new Date(now).toISOString());
   const source = feed?.source ?? CALENDAR_SOURCE.BIQUOTE;
   const events = feed?.events.filter(
     (event) =>
@@ -69,7 +71,7 @@ export function CalendarPanel() {
 
   return (
     <Panel
-      id="market-calendar"
+      id={MARKET_CALENDAR_ID}
       title={m.calendar}
       detail={formatCompactDay(today)}
     >
@@ -112,11 +114,7 @@ export function CalendarPanel() {
       {feed?.state === CALENDAR_STATE.STALE && (
         <p className="market-status" role="status">
           {m.calendarStale}{" "}
-          {feed.fetchedAt && (
-            <time dateTime={feed.fetchedAt}>
-              {format.date.format(Date.parse(feed.fetchedAt))}
-            </time>
-          )}
+          {feed.fetchedAt && <DateText value={feed.fetchedAt} withTime />}
         </p>
       )}
       {available &&

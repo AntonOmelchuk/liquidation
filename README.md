@@ -36,14 +36,14 @@ Enter a position’s opening and closing times in your computer’s local time. 
 
 Open and closed trades appear in single-line rows. The main Journal groups closed trades by closing week by default. The grouping selector also supports months, quarters and an ungrouped list. Each period shows its date range, trade count, win rate, net P&L and total realized R. The closing date determines the closed-trade group, while open positions display their entry date and time. Use the page controls below the closed-trade table to show 10 or 20 trades at a time. Group totals and dashboard metrics use the full filtered sample.
 
-Click a row or focus its instrument button and press Enter to open the detail dialog. It provides the full timestamps, account, monetary risk, financial result, prices, realized R, playbook and rule version, setup, linked plan, recorded checklist answers and reasons, classifications and notes. The closed-trade outcome uses cost-adjusted net P&L (Win, Loss or BE for an exact zero result). The open-position outcome shows whether a move to breakeven has been recorded. All initial risk values are in journal currency.
+Click a row or focus its instrument button and press Enter to open the detail dialog. It provides the full timestamps, account, monetary risk, financial result, prices, realized R, playbook, setup, linked plan, recorded checklist answers and reasons, classifications and notes. The closed-trade outcome uses cost-adjusted net P&L (Win, Loss or BE for an exact zero result). The open-position outcome shows whether a move to breakeven has been recorded. All initial risk values are in journal currency.
 
 Use **Review trade** for the editable associations, checklists, price evidence, screenshots and mistakes of a closed trade. Use **Edit position** or **Close position** to navigate from an open-position dialog to the corresponding full-page form. **Move to BE** and **Restore initial risk** are available directly in the detail dialog. Delete moves a record to Trash after confirmation. The compact ledger is also used on account pages, plan and playbook details, the calendar drill-down, statistics and review reports.
 
 ### Open, record and review trades on full pages
 
 1. Select **Record trade** on Journal to log an open position. The entry time defaults to your current local time and can be edited. Record the symbol and direction, select an account, and enter risk as a percentage. The form shows the corresponding 1R in the journal currency. To enter a historical trade, select **Record a closed trade** above the closed-trade table and fill in its closing details.
-2. Select the account, plan, playbook and setup. A plan can suggest its saved playbook version. Choosing a setup reveals all of its entry rules and the playbook's common filters. Check the followed rules. Each newly recorded unchecked rule requires a nonblank explanation. A position keeps the rules version that was selected at entry.
+2. Select the account, plan, playbook and setup. A plan can suggest its linked playbook. Choosing a setup reveals all of its entry rules and the playbook's common filters. Check the followed rules. Each newly recorded unchecked rule requires a nonblank explanation. A position keeps the rule text it was assessed against at entry.
 3. Under **Trade screenshots**, attach entry and setup charts. Paste images into the focused drop area, drag files there or choose images. You may reorder them with the arrow buttons or by dragging. Open positions can be edited later to add more evidence.
 4. Click the position's row and choose **Close position**. Choose the P&L calculation method and assess management rules. Existing entry evidence and saved explanations remain in the editor. Add exit and review charts, select mistakes and save review notes.
 5. Click any closed trade and select **Review trade** to update its context, setup, checklist, prices, chart evidence and review. The details window displays the saved entry and exit galleries. Select a thumbnail to enlarge the image in the journal. Use **Close** or Escape to return to the record. Use the remove control in the editor to detach an image.
@@ -66,6 +66,8 @@ Enter commission and swap with their original signs. The preview and saved net P
 
 **Today's economic calendar** appears below the daily and weekly review. It shows the current day in the browser's local time zone. The server checks the [biquote calendar](https://biquote.io/docs/#calendar) once per minute while the page is open and shows actual, forecast and previous readings when published. Events marked **All day** use their published date and leave reading cells blank. Releases awaiting a confirmed time show **To be confirmed**. The [Forex Factory weekly export](https://www.forexfactory.com/calendar) provides a cached backup schedule. If both requests fail, the calendar can show the last successful feed with its fetch time. The medium and high impact filter controls visible releases, past scheduled times are dimmed, and the nearest upcoming time is highlighted.
 
+While Liquidation is visible, a toast lists high-impact timed releases when they enter the 15-minute window. Releases scheduled for the same time share a reminder. If the window has already started when you open the app, the toast uses the remaining minutes. **Open calendar** jumps to the calendar. Open position rows show a **News** badge for relevant high-impact releases still ahead today. Matching uses both currencies of an FX pair, maps CNH to CNY, and uses configured currencies for metals, indices and selected futures. The badge lists the releases on hover and highlights the 15-minute window. Untimed events can show a badge without starting a countdown.
+
 After a scheduled release, open **Price move** and select an instrument. It compares the mid-price close immediately before the scheduled time with closes at five and fifteen minutes afterward. The panel shows the difference in FX pips or USD for metals, and in percent. It uses complete one-minute candles from biquote, with complete five-minute candles as a fallback on matching boundaries. Empty windows can indicate an unfinished interval, missing data or a date outside the provider's rolling candle history.
 
 ### News reaction history
@@ -83,6 +85,8 @@ On startup the collector checks releases from the previous 24 hours that the cal
 The Journal ticker shows the instrument, latest price and daily percentage change when available. **Settings → Market ticker → Ticker instruments** saves up to eight FX and metal symbols in the browser. Clear the selection to hide the ticker. The local server fetches the latest [biquote](https://biquote.io/docs/) mid-prices as one batch every five seconds while the tab is visible. Hover over a price to see its last update. Metals display two decimals, JPY pairs three and other FX pairs five. Hover or focus the strip to pause scrolling, or turn off **Animate ticker** in Settings. The strip is static when reduced motion is enabled.
 
 Both feeds work without API keys. The external services receive the public market-data requests and selected ticker symbols. Trading records, account details and screenshots stay in the local journal.
+
+The header shows a quote of the day. In English the local server fetches the [ZenQuotes daily quote](https://docs.zenquotes.io/zenquotes-documentation/) and caches the result for its local day. Ukrainian uses a local rotation, which also supplies an English reflection when the service is unavailable.
 
 ## Accounts and cash flows
 
@@ -142,10 +146,11 @@ The P&L calendar opens on the month of the most recent trade close or open-posit
 
 ### Weekly watchlist
 
-1. Open **Weekly watchlist** and select a week. Weeks run Monday through Sunday in the local calendar. Use the previous and next week links to plan ahead or review earlier weeks.
+1. Use **Create watchlist** from the journal or **Weekly watchlist** page. When this week's list already exists, the main action starts the week after the latest saved list. To select a particular empty week, move to it with the date field and use its creation action. Each week runs Monday through Sunday in the browser's local calendar.
 2. Write the weekly outlook. Search the instrument catalog or type a custom symbol and select **Add asset**. Each symbol appears once per week. Record its market narrative, levels, conditions and screenshots.
 3. Expand **Linked plans** on an asset. The selector lists available plans for that symbol covering at least one day of the week, as well as unscheduled plans. Existing links remain visible. Select the plans you intend to track, or create a plan in another tab and choose **Refresh plans**.
-4. At the end of the week, set an outcome for each asset and write its review. Outcomes include **Awaiting review**, **No setup**, **Opportunity observed**, **Traded** and **Missed opportunity**. Save a separate weekly conclusion. The read view shows closed-trade P&L and count for entries made that week, positions from the week that remain open, and recorded missed entries per symbol. These figures use current journal data. The dashboard shows the current week's saved watchlist.
+4. At the end of the week, set an outcome for each asset and write its review. Outcomes include **Awaiting review**, **No setup**, **Opportunity observed**, **Traded** and **Missed opportunity**. Save a weekly conclusion and an optional A–F grade. The read view shows closed-trade P&L and count for entries made that week, positions from the week that remain open, and recorded missed entries per symbol.
+5. The latest prepared week opens in full. Select a date from the compact history to revisit it. Each history row shows reviewed assets, worked plans among linked plans with an outcome, recorded missed entries, mistakes, P&L and the saved grade. Mistake counts and P&L use closed trades opened that week in watched instruments. A dash marks a metric without data. On the dashboard, the preview follows the current calendar week.
 
 ## Best Trades, Lectures and Notes
 
@@ -158,11 +163,11 @@ The P&L calendar opens on the month of the most recent trade close or open-posit
 
 Open **Plans** to create a market narrative and an execution plan for a day or a date range. **Waiting** is the default status. Choose another status in the plan form while creating or editing it. Select the plan name to open it, **Edit** to change its fields, or the status badge to go straight to the review fields.
 
-- **Active and upcoming** contains plans in **Waiting** or **In progress**, including those whose date range has ended. **Past plans** contains plans with a recorded outcome or a void action. Plan dates apply to search filters and trade-link eligibility. **Narrative** shows the market outlook and **Side** shows the planned trade direction. The list uses `DD.MM.YY` dates and icon actions for editing and moving plans to Trash. **Result** displays the total realized R of linked closed trades with measured risk. A dash indicates that no realized R is available.
+- **Active and upcoming** contains plans in **Waiting** or **In progress**, including those whose date range has ended. **Past plans** contains plans with a recorded outcome or a void action. Plan dates apply to search filters and trade-link eligibility. **Narrative** shows the market outlook and **Side** shows the planned trade direction. The list uses `DD.MM.YYYY` dates and icon actions for editing and moving plans to Trash. **Result** displays the total realized R of linked closed trades with measured risk. A dash indicates that no realized R is available.
 - Add an analysis block for each timeframe. Attach screenshots to the analysis, execution plan, timeline entries or post-session review. Paste from the clipboard while the screenshot area is focused, drop images from your file manager or use **Choose images**. Reorder screenshots by dragging them or using the arrow buttons. Select a thumbnail to view the image inside the journal.
 - The accepted formats are PNG, JPEG, WebP and GIF. Each section can hold 12 images, each file can be up to 8 MiB, and a save can include up to 32 MiB of new screenshots. Save the plan between larger batches.
 - **Original setup** preserves the first saved version of the plan with its images. Timeline updates are dated and can be edited. **Void plan** records an invalidation reason and moves the plan to the past section. **Restore plan** records a separate event.
-- In the plan form, choose a playbook and rule version from **Playbook**. In **Linked trades**, select existing trades and positions to include. Each row shows the side beside the ticker and the entry time as `DD.MM.YY · HH:MM`. Search by ticker, entry date or notes. Clear a selection to detach a record previously linked to the plan. Saving a selected trade that belongs to a different plan moves it to this plan. Trade outcomes and trade-level playbook assignments are preserved.
+- In the plan form, choose a playbook from **Playbook**. In **Linked trades**, select existing trades and positions to include. Each row shows the side beside the ticker and the entry time as `DD.MM.YYYY · HH:MM`. Search by ticker, entry date or notes. Clear a selection to detach a record previously linked to the plan. Saving a selected trade that belongs to a different plan moves it to this plan. Trade outcomes and trade-level playbook assignments are preserved.
 - Choose a plan in the trade or position form. The selector offers plans covering the trade’s local entry day and retains an existing link during edits. Undated plans from older journals stay selectable until you set dates. The link survives closing the position. Use **Review trade** on a closed record to change its plan, playbook, checklists or entry timeframe.
 - **Overall plan win rate** divides the number of plans marked **Worked** or **Worked without my entry** by all saved plans. For example, 12 confirmed scenarios out of 20 saved plans produces 60%.
 - **Reviewed plan win rate** divides confirmed scenarios by the sum of confirmed scenarios and plans marked **Did not work**. With 12 confirmed, three failed and five awaiting a worked/failed decision, this figure is 80%. A **Did not work** review requires a reason. Saving a completed outcome moves the plan to **Past plans** even if its original period has days left.
@@ -185,30 +190,32 @@ To estimate an effect, enter the time price reached the target or original stop 
 
 ### Plan performance
 
-Open **Plans → Plan performance** and choose a breakdown by instrument, playbook version, both together or trade side. Combine the start date, instrument, playbook version, review status and side filters. Unscheduled plans use their local creation date. The start and end dates are inclusive. Select a column heading to sort, and select a group name to open its exact set of plans.
+Open **Plans → Plan performance** and choose a breakdown by instrument, playbook, both together or trade side. Combine the start date, instrument, playbook, review status and side filters. Unscheduled plans use their local creation date. The start and end dates are inclusive. Select a column heading to sort, and select a group name to open its exact set of plans.
 
 Each row shows the plan count, win rate among decided plans, linked closed trades and actual R. The **With initial risk** count shows how many trades contribute to actual R when the figures differ. **Missed opportunities** counts plans marked **Missed opportunity** or **Worked without my entry**. **Missed result (R)** sums eligible assessed misses for those plans, including their linked missed-entry records when present. Date filtering chooses plans. Their actual result uses all linked closed trades.
+
+Open **Missed trades** from the journal to see recorded opportunities with their estimated R and potential P&L grouped by instrument and reason. Click a ticker to see the full notes and screenshots. Opportunities with actual execution through a linked plan are kept in the list and excluded from the potential result. Break-even reviews have their own summary.
 
 ## Playbooks
 
 1. Open **Playbooks → New playbook** and choose **Standard**, **Backtest strategy** or **BTA community strategy**. Add an overview, one or more setups, common entry filters and management rules. Short labels appear in checklists. Add a description to explain when a rule is met.
-2. Choose a playbook while recording a trade, editing its context, or closing a position. Starting a new trade from a linked plan suggests the plan’s playbook and rule version. Choose a setup to reveal its rules and common filters automatically. Check each rule that was followed and explain each unchecked rule. New entries require their displayed checklist, and position closing records the management checklist. Historical associations can retain an unrecorded assessment when evidence is unavailable.
+2. Choose a playbook while recording a trade, editing its context, or closing a position. Starting a new trade from a linked plan suggests the plan’s playbook. Choose a setup to reveal its rules and common filters automatically. Check each rule that was followed and explain each unchecked rule. New entries require their displayed checklist, and position closing records the management checklist. Historical associations can retain an unrecorded assessment when evidence is unavailable.
 3. Select **Review trade** to connect a past trade. Choose a playbook without a setup or checklist to keep a historical association without recording adherence. Pick a setup and record its rules when you have evidence for the assessment. A previously unrecorded historical checklist can be left unrecorded.
-4. The playbook page shows linked positions, results by setup and rule exceptions with the reasons attached to individual trades. Choose a rules version to inspect its sample. Clean entry and management rates use trades with the corresponding checklist as their denominators.
-5. Editing a setup or a rule creates a new version. Existing trade checklists keep their saved rules. Changes to the overview, status and limits use the current version. Retired books remain available through existing links and version history.
+4. The playbook page shows linked positions, results by setup and rule exceptions with the reasons attached to individual trades. Clean entry and management rates use trades with the corresponding checklist as their denominators.
+5. Editing a setup or a rule updates the playbook. Existing trades keep their recorded checklist rules and exceptions. Retired books remain available through existing links.
 6. Set **Closed trades per review** to track review blocks. Add a dated review from the playbook page and attach screenshots. Review progress counts closed trades linked to that playbook.
 
-The list is a compact table of playbooks, templates, status, version, trade count, win rate, net P&L, R and review progress. Search by title or overview and filter by status. Open any book for its versioned rules, results and reviews.
+The list is a compact table of playbooks, templates, status, trade count, win rate, net P&L, R and review progress. Search by title or overview and filter by status. Open any book for its rules, results and reviews.
 
 ### Images and setup examples
 
-In every playbook template, use **Playbook images** in the overview and **Setup examples** inside each setup. Attach PNG, JPEG, WebP or GIF charts using the chooser, paste or drop. Reorder or remove images while editing. Each section accepts up to 12 images, with the same file and save limits as plan screenshots. The images in a setup are saved with its rules version. Adding or removing an image creates a version, so switching to a previous version still displays the corresponding examples. The strategy templates also have their own illustrated trading models, chart studies and management examples.
+In every playbook template, use **Playbook images** in the overview and **Setup examples** inside each setup. Attach PNG, JPEG, WebP or GIF charts using the chooser, paste or drop. Reorder or remove images while editing. Each section accepts up to 12 images, with the same file and save limits as plan screenshots. The strategy templates also have their own illustrated trading models, chart studies and management examples.
 
 The trade form compares journal activity at the entry time with any configured limits. Weekly and monthly trade counts use the journal’s local dates. Weekly loss uses realized R from closed trades with initial risk. The original risk limit uses the currency in which you enter trades.
 
 ### Backtest strategy template
 
-The strategy editor groups the document into nine sections. The section index jumps to the corresponding part of the editor or the saved version.
+The strategy editor groups the document into nine sections. The section index jumps to the corresponding part of the editor or the saved playbook.
 
 | Section             | Contents                                                                          |
 | ------------------- | --------------------------------------------------------------------------------- |
@@ -222,13 +229,13 @@ The strategy editor groups the document into nine sections. The section index ju
 | Risk management     | Rules, forecast inputs, projected results and trading limits                      |
 | Position management | Management checklist and illustrated execution scenarios                          |
 
-Select a saved version to see its model and management images and the rules in effect at that time. A change to the strategy document creates a new version. Existing playbooks use the standard template. In **Backtests**, pin the strategy version you want to test and record simulated trades there.
+Open a playbook to see its models, rules and illustrations. Link the playbook in **Backtests** to record simulated trades against it.
 
 The forecast estimates trade count from the configured weekly or monthly frequency and months in market. It uses fixed monetary risk on starting capital, with expectancy in R calculated as win probability × average win R − loss probability. Projected return multiplies expectancy by trade count and risk percentage. Actual results use the journal's recorded trades.
 
 ### BTA community strategy template
 
-The third template is an editable strategy workspace guided by the section structure of the public [BTA strategy for community](https://btatrading.notion.site/strategy-for-community). It contains sixteen indexed sections, with the standard rule and version workflows shared by the other templates. Fill in your own descriptions, criteria and examples.
+The third template is an editable strategy workspace guided by the section structure of the public [BTA strategy for community](https://btatrading.notion.site/strategy-for-community). It contains sixteen indexed sections, with the standard rule workflow shared by the other templates. Fill in your own descriptions, criteria and examples.
 
 | Sections                                    | Contents                                                                                      |
 | ------------------------------------------- | --------------------------------------------------------------------------------------------- |
@@ -239,7 +246,7 @@ The third template is an editable strategy workspace guided by the section struc
 | Chart examples, journal and tools           | Illustrated charts, review routines, resources and tools                                      |
 | Self-control                                | Self-assessment, emotional checklist and illustrated psychology cases                         |
 
-Save the document, then select a version on the details page to review its criteria and charts. Saved strategy changes create a new version. The chart examples and psychology cases use the same local screenshot storage as trading models and management scenarios. Use **Backtests** to test the version and attach it to journal trades and plans through the playbook selector.
+Save the document to review its criteria and charts on the details page. The chart examples and psychology cases use the same local screenshot storage as trading models and management scenarios. Use **Backtests** to test the playbook and attach it to journal trades and plans through the playbook selector.
 
 ## Statistics
 
@@ -255,7 +262,7 @@ The Statistics page opens in **Overview**, with individual sortable tables inspi
 | ------------------ | -------------------------------------------------------------------------------------------------------------------------- |
 | Market & execution | Instrument, side, win/loss/flat, entry type and mistake tags                                                               |
 | Time & session     | Entry timeframe, entry weekday and hour, calendar month of closing and closing year, session or kill zone and holding time |
-| Strategy & setups  | Trading style, playbook total, saved rule version and setup within a version                                               |
+| Strategy & setups  | Trading style, playbook and setup                                                                                          |
 
 ### Read, sort and inspect results
 
@@ -290,11 +297,13 @@ Trades from existing journals appear with their available data. Optional fields 
 
 ### Trading insights and historical selection tests
 
-Select **Trading insights** in Statistics to generate a fully local report from the currently filtered closed trades. It examines instruments, direction, accounts, weekdays, sessions, timeframes, entry hours, month of year, year, entry type, holding time, trading style, playbook, version and setup. Each group shows count, win rate, net P&L, net expectancy, measured average R and profit factor.
+Select **Trading insights** in Statistics to generate a fully local report from the currently filtered closed trades. It examines instruments, direction, accounts, weekdays, sessions, timeframes, entry hours, month of year, year, entry type, holding time, trading style, playbook and setup. Each group shows count, win rate, net P&L, net expectancy, measured average R and profit factor.
 
 Profitable and losing groups are displayed separately. A group with fewer than 20 trades is flagged as a small sample. The strongest and weakest headline groups require at least 20 trades and a comparison group in the sample. The ranking uses average monetary net result per trade; the measured R column helps compare different risk sizes. Choose a single factor or inspect all factors. The optional AI Review remains available for broader questions.
 
 Select **Test keeping** or **Test exclusion** to recalculate the actual historical sample with one group rule. Check multiple rows and test the selected groups to retain or remove any trade matching at least one of them. Overlapping groups never count the same trade twice. The comparison includes trade count, WR, P&L, profit factor, expectancy, risk coverage, realized drawdown and losing streak. Expand **Trades retained** and **Trades excluded** to inspect those decisions. These are in-sample historical hypotheses for future observation or independent backtesting.
+
+In **Statistics → All trades**, sort and page through all closed trades that match the active filters. **Test** records whether price returned to the planned level for a limit entry. The actual order type is recorded separately. Select a ticker to open the trade details.
 
 ## Mistake analytics
 
@@ -311,7 +320,7 @@ The mistake month history preserves both year and month so changes over time rem
 
 The selected trade sample also powers the cumulative cash and R curves, seven R distribution buckets, the R drawdown with peak, trough and recovery dates, and the period table. Select an R bucket or a day/week/month/quarter/year row to inspect the underlying trades. The distribution and R drawdown have a measured-risk denominator. The **Losses of 1.2R or worse** section uses net R including commissions and swap, and sums the excess loss beyond 1R.
 
-The prices table reports the sample size for each individual price metric. The BE table distinguishes trades with a recorded stop-to-entry move and trades with no such move recorded. Rule adherence uses the saved versions and checklists, with a list of results on trades that recorded each rule exception. The selection-comparison table compares the current filtered set with other closed journal trades. Profit factor is always displayed with two decimal places when finite.
+The prices table reports the sample size for each individual price metric. The BE table distinguishes trades with a recorded stop-to-entry move and trades with no such move recorded. Rule adherence uses the recorded rules and checklists, with a list of results on trades that recorded each rule exception. The selection-comparison table compares the current filtered set with other closed journal trades. Profit factor is always displayed with two decimal places when finite.
 
 ### Actual and missed performance
 
@@ -382,10 +391,10 @@ Liquidation sends code-generated group identifiers and aggregate metrics to the 
 
 ## Manual backtests
 
-1. Open **Backtests → New backtest** and write the hypothesis and the test conditions. Optionally pin a playbook and rules version.
+1. Open **Backtests → New backtest** and write the hypothesis and the test conditions. Optionally link a playbook.
 2. Add a simulated trade. Enter a symbol, side, dates, entry price, initial stop and exit price. Record the costs in R, a note and any screenshots. Use **Edit simulated trade** to correct a saved observation.
 3. Liquidation calculates gross R from the price move in the trade’s direction divided by the distance to the initial stop. It deducts the entered costs for net R.
-4. Review the session’s win rate and total R. A linked version also shows the actual closed trades recorded under that same version. The comparison includes the count of trades with an initial risk. Simulated trades live in their own collection and appear in Backtests.
+4. Review the session’s win rate and total R. A linked playbook also shows the actual closed trades recorded under that playbook. The comparison includes the count of trades with an initial risk. Click a simulated trade’s ticker to open its own page with prices, notes and screenshots.
 
 ## Data location and backup
 
@@ -402,9 +411,9 @@ The ZIP is processed on the local server. The maximum archive and unpacked sizes
 
 ### Deleting and restoring records
 
-The **Delete** action is available for closed trades, open positions, plans, playbooks, backtests, notes, lectures, best-trade examples, review cards, daily/weekly market review entries, daily thoughts, weekly watchlists, missed entries, account cash movements and empty accounts. Confirm **Move to trash** to remove an active record. In Plans, Delete is also available directly in each table row next to Edit. Statistics use active trades and eligible active missed records. Related records retain their historical references and show the deleted plan, playbook or trade as **In trash**. Images and saved playbook versions stay with the recoverable record.
+The **Delete** action is available for closed trades, open positions, plans, playbooks, backtests, notes, lectures, best-trade examples, review cards, daily/weekly market review entries, daily thoughts, weekly watchlists, missed entries, account cash movements and empty accounts. Confirm **Move to trash** to remove an active record. In Plans, Delete is also available directly in each table row next to Edit. Statistics use active trades and eligible active missed records. Related records retain their historical references and show the deleted plan, playbook or trade as **In trash**. Images and saved playbooks stay with the recoverable record.
 
-Open **Trash** from the navigation and select **Restore** to return a record to its original collection. If a newer record occupies the same date or identity, move that record to trash before restoring the earlier one. Restoring a missed trade also requires its linked plan to have no other active missed entry. Changing a record in another open tab can require a refresh before a delete or save. The trash is included in `journal.json` and its backups. Select **Delete permanently** and confirm to remove a trash entry. The server refuses permanent deletion while an active or trashed record still references it, preserving the journal’s associations and version history. Images that lose their final reference to any saved record or historical version are removed from the screenshot folder after the journal update.
+Open **Trash** from the navigation and select **Restore** to return a record to its original collection. If a newer record occupies the same date or identity, move that record to trash before restoring the earlier one. Restoring a missed trade also requires its linked plan to have no other active missed entry. Changing a record in another open tab can require a refresh before a delete or save. The trash is included in `journal.json` and its backups. Select **Delete permanently** and confirm to remove a trash entry. The server refuses permanent deletion while an active or trashed record still references it, preserving the journal’s associations. Images that lose their final reference to any saved record or preserved illustration are removed from the screenshot folder after the journal update.
 
 ## Repository layout
 
@@ -453,7 +462,7 @@ The current release supports multiple accounts in one journal currency. Trading 
 - `packages/domain/src/accounts` owns account contracts, computed balances, funding and firm-day risk.
 - `apps/web/src/features/journal` owns the journal API, Zustand state, form, table and chart.
 - `apps/web/src/features/plans` owns the plan editor, status filters, plan table and scenarios.
-- `apps/web/src/features/playbooks` owns strategies, versioned rules, checklists and reviews.
+- `apps/web/src/features/playbooks` owns strategies, rules, checklists and reviews.
 - `apps/web/src/features/statistics` and `apps/web/src/features/backtests` own the analytics and manual test workflows.
 - `apps/web/src/features/review` owns the local report, Markdown export, model interaction and rule comparisons.
 - `apps/web/src/features/workspace` owns review cards, recent-trade comparisons, lectures, notes, featured trades, daily thoughts, watchlists and missed-entry forms.
@@ -472,6 +481,6 @@ test_journal_dir=$(mktemp -d)
 LIQUIDATION_DATA_DIR="$test_journal_dir" pnpm dev
 ```
 
-Create a dated plan with two analysis blocks and attach an image. Link a position to that plan and a playbook. Change a management rule before closing the position, then confirm that the close form still shows the rule from the saved version. Attach entry and exit screenshots, select the trade’s account, session and entry type, explain an unchecked setup rule, and mark a reviewed mistake critical. Verify Mistakes and simulate a historical factor exclusion in Trading insights. In Statistics combine filters, reverse a column sort and open the trades behind a row. In Plans verify the same plan appears in the correct playbook version. Add a simulated trade to a backtest. Reload to verify images, classifications, links and versions. Run `pnpm check` for the formatting, lint, type, domain, HTTP and build checks.
+Create a dated plan with two analysis blocks and attach an image. Link a position to that plan and a playbook. Change a management rule before closing the position, then confirm that the close form still shows the rule recorded at entry. Attach entry and exit screenshots, select the trade’s account, session and entry type, explain an unchecked setup rule, and mark a reviewed mistake critical. Verify Mistakes and simulate a historical factor exclusion in Trading insights. In Statistics combine filters, reverse a column sort and open the trades behind a row. In Plans verify the plan appears under the linked playbook. Add a simulated trade to a backtest. Reload to verify images, classifications and links. Run `pnpm check` for the formatting, lint, type, domain, HTTP and build checks.
 
 If `nvm use` reports a missing `.nvmrc`, confirm that the terminal is in the project directory and that the checkout includes that file. If `pnpm` works in one terminal but fails in another, compare `node --version` and `pnpm --version` in both. Initialize nvm for the affected shell and select Node 24 there.

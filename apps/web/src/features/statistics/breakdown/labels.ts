@@ -1,3 +1,5 @@
+import { tradeRecordMessages } from "../../journal/records/messages.ts";
+import { tradePlaybookRules } from "@liquidation/domain/playbooks/playbook";
 import { capitalizeFirst } from "../../../shared/format.ts";
 import { LANGUAGE, LOCALES } from "../../../shared/constants.ts";
 import { mistakeLabel } from "../../mistakes/messages.ts";
@@ -7,6 +9,7 @@ import type { Trade } from "@liquidation/domain/trades/types";
 import type { AnalyticsOption } from "../../../shared/analytics/types.ts";
 
 import {
+  ENTRY_TEST,
   ENTRY_TYPE,
   TRADE_SESSION,
   TRADE_SIDE,
@@ -30,14 +33,28 @@ export function createFactorLabels(
   messages: StatisticsMessages,
   accountOptions: readonly AnalyticsOption[],
 ): FactorLabel {
+  const language =
+    locale === LOCALES[LANGUAGE.UKRAINIAN]
+      ? LANGUAGE.UKRAINIAN
+      : LANGUAGE.ENGLISH;
+  const tests = tradeRecordMessages(language);
   const books = new Map(playbooks.map((book) => [book.id, book]));
+  const setups = new Map<string, string>();
   const accounts = new Map(
     accountOptions.map(({ key, label }) => [key, label]),
   );
   const styles = new Map<string, string>();
   const mistakeTags = new Map<string, string>();
   for (const trade of trades) {
-    const { account, mistakes } = trade;
+    const { account, mistakes, playbook } = trade;
+    if (playbook?.setupId) {
+      const book = books.get(playbook.id);
+      const name =
+        book?.rules.setups.find(({ id }) => id === playbook.setupId)?.name ??
+        tradePlaybookRules(book, playbook)?.setupName;
+      const key = playbook.id + ":" + playbook.setupId;
+      if (name !== undefined && !setups.has(key)) setups.set(key, name);
+    }
     const accountKey = tradeAccountKey(trade);
     if (account && !accounts.has(accountKey)) accounts.set(accountKey, account);
     if (trade.style && !styles.has(tradeTagKey(trade.style)))
@@ -66,21 +83,11 @@ export function createFactorLabels(
     switch (factor) {
       case TRADE_FACTOR.PLAYBOOK:
         return books.get(key)?.title ?? messages.unknown;
-      case TRADE_FACTOR.VERSION: {
-        const [id, version] = key.split(":");
-        const title = books.get(id)?.title ?? messages.unknown;
-        return `${title} · ${version ? `v${version}` : messages.unversioned}`;
-      }
       case TRADE_FACTOR.SETUP: {
-        const [bookId, version, setupId] = key.split(":");
-        const book = books.get(bookId);
-        const name = book?.versions
-          .find(({ number }) => number === Number(version))
-          ?.setups.find(({ id }) => id === setupId)?.name;
+        const [bookId] = key.split(":");
         return [
-          name || messages.unnamedSetup,
-          book?.title ?? messages.unknown,
-          "v" + version,
+          setups.get(key) || messages.unnamedSetup,
+          books.get(bookId)?.title ?? messages.unknown,
         ].join(" · ");
       }
       case TRADE_FACTOR.WEEKDAY:
@@ -125,6 +132,10 @@ export function createFactorLabels(
             ? LANGUAGE.UKRAINIAN
             : LANGUAGE.ENGLISH,
         );
+      case TRADE_FACTOR.LIMIT_ENTRY_TEST:
+        return key === ENTRY_TEST.RETESTED
+          ? tests.entryTestYes
+          : tests.entryTestNo;
       case TRADE_FACTOR.SESSION:
         return key === TRADE_SESSION.OUTSIDE ? common.outsideSession : key;
       default:

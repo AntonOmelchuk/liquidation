@@ -45,11 +45,28 @@ export type Route =
       view: typeof PAGE_VIEW.DETAILS | typeof PAGE_VIEW.EDIT;
       id: string;
     }
+  | {
+      page: typeof PAGE.MISSED_TRADES;
+      view: typeof PAGE_VIEW.LIST | typeof PAGE_VIEW.NEW;
+      day?: string;
+    }
+  | {
+      page: typeof PAGE.MISSED_TRADES;
+      view: typeof PAGE_VIEW.DETAILS | typeof PAGE_VIEW.EDIT;
+      id: string;
+    }
+  | {
+      page: typeof PAGE.BACKTESTS;
+      view: typeof PAGE_VIEW.SAMPLES;
+      id: string;
+      sampleId?: string;
+      editing: boolean;
+    }
   | { page: typeof PAGE.TRASH }
   | { page: typeof PAGE.ACCOUNTS; id?: string }
   | { page: typeof PAGE.CARDS; day?: string }
   | { page: typeof PAGE.THOUGHTS; day?: string; period?: PreparationPeriod }
-  | { page: typeof PAGE.WATCHLIST; day?: string }
+  | { page: typeof PAGE.WATCHLIST; day?: string; view?: typeof PAGE_VIEW.NEW }
   | {
       page: typeof PAGE.BACKTESTS;
       view: typeof PAGE_VIEW.LIST | typeof PAGE_VIEW.NEW;

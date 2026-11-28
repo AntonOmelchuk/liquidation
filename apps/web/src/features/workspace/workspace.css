@@ -1,6 +1,5 @@
 .workspace-actions,
-.workspace-tabs,
-.workspace-check {
+.workspace-tabs {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -30,9 +29,6 @@
   margin: 0.25rem 0 0;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
-}
-.workspace-page .workspace-comparison {
-  min-width: 31rem;
 }
 .workspace-page h2,
 .workspace-page h3 {

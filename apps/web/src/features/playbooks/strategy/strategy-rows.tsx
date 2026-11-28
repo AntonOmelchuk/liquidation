@@ -1,3 +1,5 @@
+import { ICON_ACTION } from "../../../shared/ui/constants.ts";
+import { IconAction } from "../../../shared/ui/icon-action.tsx";
 import {
   STRATEGY_ROW_LIMIT,
   STRATEGY_SHORT_LIMIT,
@@ -90,15 +92,13 @@ export function StrategyRows<T extends StrategyRow>({
                   </button>
                 </>
               )}
-              <button
-                className="secondary"
-                type="button"
+              <IconAction
+                icon={ICON_ACTION.DELETE}
+                label={s.remove}
                 onClick={() =>
                   onChange(rows.filter((item) => item.id !== row.id))
                 }
-              >
-                {s.remove}
-              </button>
+              />
             </div>
           </div>
         );

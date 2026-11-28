@@ -1,8 +1,10 @@
+import { ICON_ACTION } from "../../shared/ui/constants.ts";
+import { IconAction } from "../../shared/ui/icon-action.tsx";
+import { DateText } from "../../shared/ui/date-text.tsx";
 import {
   TRASH_ACTION,
   TRASH_KIND,
 } from "@liquidation/domain/journal/trash/constants";
-import { trashRecordKey } from "@liquidation/domain/journal/trash/trash";
 import type { TrashEntry } from "@liquidation/domain/journal/trash/types";
 import { useRef, useState } from "react";
 import { PAGE_HASHES } from "../../app/constants.ts";
@@ -33,9 +35,13 @@ function recordName(entry: TrashEntry) {
     case TRASH_KIND.ACCOUNT:
       return entry.value.name;
     case TRASH_KIND.MOVEMENT:
-      return entry.value.notes || entry.value.at.slice(0, 10);
-    default:
-      return trashRecordKey(entry.value);
+      return entry.value.notes || <DateText value={entry.value.at} />;
+    case TRASH_KIND.REPORT:
+    case TRASH_KIND.PREPARATION:
+    case TRASH_KIND.WATCHLIST:
+      return <DateText value={entry.value.start} />;
+    case TRASH_KIND.THOUGHT:
+      return <DateText value={entry.value.day} />;
   }
 }
 
@@ -129,7 +135,9 @@ export default function TrashPage() {
                         </small>
                       )}
                     </td>
-                    <td>{format.date.format(Date.parse(entry.at))}</td>
+                    <td>
+                      <DateText value={entry.at} withTime />
+                    </td>
                     <td>
                       <div className="workspace-actions">
                         <button
@@ -140,18 +148,16 @@ export default function TrashPage() {
                         >
                           {m.restore}
                         </button>
-                        <button
-                          type="button"
-                          className="secondary record-delete"
+                        <IconAction
+                          icon={ICON_ACTION.DELETE}
+                          label={m.purge}
                           disabled={Boolean(busy)}
                           onClick={() => {
                             setSelected(entry);
                             setPurgeError(false);
                             dialog.current?.showModal();
                           }}
-                        >
-                          {m.purge}
-                        </button>
+                        />
                       </div>
                     </td>
                   </tr>

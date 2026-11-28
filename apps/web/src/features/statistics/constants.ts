@@ -1,5 +1,6 @@
 import { TRADE_FACTOR } from "@liquidation/domain/analytics/constants";
 import {
+  ENTRY_TEST,
   ENTRY_TYPE,
   TRADE_SESSION,
   TRADE_SIDE,
@@ -13,6 +14,7 @@ export const FACTOR_SECTIONS = {
     TRADE_FACTOR.ACCOUNT,
     TRADE_FACTOR.OUTCOME,
     TRADE_FACTOR.ENTRY_TYPE,
+    TRADE_FACTOR.LIMIT_ENTRY_TEST,
     TRADE_FACTOR.MISTAKE,
   ],
   timing: [
@@ -24,18 +26,14 @@ export const FACTOR_SECTIONS = {
     TRADE_FACTOR.SESSION,
     TRADE_FACTOR.DURATION,
   ],
-  strategy: [
-    TRADE_FACTOR.STYLE,
-    TRADE_FACTOR.PLAYBOOK,
-    TRADE_FACTOR.VERSION,
-    TRADE_FACTOR.SETUP,
-  ],
+  strategy: [TRADE_FACTOR.STYLE, TRADE_FACTOR.PLAYBOOK, TRADE_FACTOR.SETUP],
 } as const;
 
 export const STATISTICS_VIEW = {
   OVERVIEW: "overview",
   BREAKDOWN: "breakdown",
   INSIGHTS: "insights",
+  TRADES: "trades",
 } as const;
 export const OVERVIEW_SECTIONS = {
   execution: [
@@ -63,6 +61,7 @@ export const KNOWN_FACTOR_KEYS: Partial<
     String(index + 1),
   ),
   [TRADE_FACTOR.ENTRY_TYPE]: Object.values(ENTRY_TYPE),
+  [TRADE_FACTOR.LIMIT_ENTRY_TEST]: Object.values(ENTRY_TEST),
   [TRADE_FACTOR.MONTH]: Array.from({ length: 12 }, (_, index) =>
     String(index + 1).padStart(2, "0"),
   ),
@@ -116,3 +115,12 @@ export const CHRONOLOGICAL_FACTORS: ReadonlySet<TradeFactor> = new Set([
   TRADE_FACTOR.YEAR,
   TRADE_FACTOR.DURATION,
 ]);
+
+export const TRADE_LEDGER_SORT = {
+  ENTRY_DATE: "opened",
+  CLOSE_DATE: "closed",
+  SYMBOL: "symbol",
+  RISK: "risk",
+  RR: "rr",
+  NET: "net",
+} as const;

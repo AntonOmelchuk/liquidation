@@ -1,4 +1,7 @@
-import { currentVersion } from "@liquidation/domain/playbooks/playbook";
+import { ICON_ACTION } from "../../../shared/ui/constants.ts";
+import { IconAction } from "../../../shared/ui/icon-action.tsx";
+import { tradeCurves } from "@liquidation/domain/analytics/trade-risk";
+import { playbookRulesScreenshotIds } from "@liquidation/domain/playbooks/playbook";
 import { getPlaybookTemplate } from "@liquidation/domain/playbooks/strategy";
 import { TRASH_KIND } from "@liquidation/domain/journal/trash/constants";
 import { DeleteRecord } from "../../trash/delete-record.tsx";
@@ -6,14 +9,18 @@ import {
   adherence,
   playbookResults,
 } from "@liquidation/domain/playbooks/playbook-performance";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { PAGE_HASHES } from "../../../app/constants.ts";
 import { playbookHref } from "../../../app/page.ts";
+import { SeriesChart } from "../../../shared/analytics/series-chart.tsx";
 import { EMPTY_VALUE } from "../../../shared/constants.ts";
+import { numericTone } from "../../../shared/format.ts";
 import { useLocale } from "../../../shared/messages.ts";
 import { ScreenshotGallery } from "../../../shared/screenshots/screenshot-gallery.tsx";
-import { Metric, Panel } from "../../../shared/ui/layout.tsx";
-import { SelectField } from "../../../shared/ui/select-field.tsx";
+import { Panel } from "../../../shared/ui/layout.tsx";
+import { MetricBar } from "../../../shared/ui/metric-bar.tsx";
+import { MetricCard, MetricGrid } from "../../../shared/ui/metric-card.tsx";
+import { METRIC_TONE } from "../../../shared/ui/metric-constants.ts";
 import { useJournal } from "../../journal/data/store.ts";
 import { JournalUnavailable } from "../../journal/journal-unavailable.tsx";
 import { TradeTable } from "../../journal/records/trade-table.tsx";
@@ -50,7 +57,6 @@ export default function PlaybookDetailsPage({ id }: { id: string }) {
   const allTrades = useJournal((state) => state.trades);
   const allPositions = useJournal((state) => state.positions);
   const heading = useRef<HTMLHeadingElement>(null);
-  const [number, setNumber] = useState<number>();
   const loaded = Boolean(book);
 
   useEffect(() => {
@@ -70,20 +76,23 @@ export default function PlaybookDetailsPage({ id }: { id: string }) {
     );
   }
 
-  const latest = currentVersion(book);
-  const version =
-    book.versions.find((item) => item.number === number) ?? latest;
+  const { rules } = book;
+  const activeImages = new Set(playbookRulesScreenshotIds(rules));
+  const legacyImages = [
+    ...new Set(book.legacyVersions?.flatMap(playbookRulesScreenshotIds)),
+  ].filter((id) => !activeImages.has(id));
   const trades = (allTrades ?? []).filter(
     ({ playbook }) => playbook?.id === id,
   );
   const positions = allPositions.filter(({ playbook }) => playbook?.id === id);
   const results = playbookResults(trades);
+  const { cash } = tradeCurves(trades);
   const entry = adherence(trades, "entry");
   const exit = adherence(trades, "management");
   const rate = (value: number | null) =>
     value === null ? EMPTY_VALUE : format.percentage.format(value);
   const limits = LIMIT_NAMES.filter((name) => book.limits[name] !== undefined);
-  const setups = version.setups.map((setup) => (
+  const setups = rules.setups.map((setup) => (
     <section className="setup-editor" key={setup.id}>
       <h4>{setup.name || b.onlySetup}</h4>
       {setup.description && <p className="record-prose">{setup.description}</p>}
@@ -111,8 +120,7 @@ export default function PlaybookDetailsPage({ id }: { id: string }) {
             <span className="playbook-status" data-status={book.status}>
               {b[book.status]}
             </span>
-            <span>v{latest.number}</span>
-            <span>{s[getPlaybookTemplate(latest.strategy)]}</span>
+            <span>{s[getPlaybookTemplate(rules.strategy)]}</span>
           </div>
         </div>
         <div className="workspace-actions">
@@ -124,60 +132,85 @@ export default function PlaybookDetailsPage({ id }: { id: string }) {
               window.location.hash = PAGE_HASHES.playbooks;
             }}
           />
-          <a className="action-link" href={playbookHref(id, true)}>
-            {b.edit}
-          </a>
+          <IconAction
+            icon={ICON_ACTION.EDIT}
+            label={b.edit}
+            href={playbookHref(id, true)}
+          />
         </div>
       </div>
-      <section className="metrics playbook-metrics" aria-label={b.checklists}>
-        <Metric
+      <MetricGrid label={b.checklists}>
+        <MetricCard
           label={t.pnl}
           value={format.money.format(results.net)}
+          icon="TREND"
+          tone={numericTone(results.net)}
+          featured
           detail={`${t.count} · ${format.integer.format(results.count)}`}
-        />
-        <Metric
+        >
+          <SeriesChart
+            compact
+            signed
+            values={cash.length ? [0, ...cash.map(({ value }) => value)] : []}
+            label={t.cumulative}
+          />
+        </MetricCard>
+        <MetricCard
           label={b.clean}
           value={rate(entry.rate)}
-          detail={`${b.sample} · ${format.integer.format(entry.count)}`}
+          icon="CHECKLIST"
+          detail={
+            <>
+              <span>
+                {b.sample} · {format.integer.format(entry.count)}
+              </span>
+              {entry.rate !== null && (
+                <MetricBar
+                  segments={[{ tone: METRIC_TONE.POSITIVE, ratio: entry.rate }]}
+                />
+              )}
+            </>
+          }
         />
-        <Metric
+        <MetricCard
           label={b.held}
           value={rate(exit.rate)}
-          detail={`${b.sample} · ${format.integer.format(exit.count)}`}
+          icon="TARGET"
+          tone={METRIC_TONE.NEUTRAL}
+          detail={
+            <>
+              <span>
+                {b.sample} · {format.integer.format(exit.count)}
+              </span>
+              {exit.rate !== null && (
+                <MetricBar
+                  segments={[{ tone: METRIC_TONE.NEUTRAL, ratio: exit.rate }]}
+                />
+              )}
+            </>
+          }
         />
-      </section>
+      </MetricGrid>
       <div className="layout">
         {book.overview && (
           <Panel title={b.strategy}>
             <p className="record-prose">{book.overview}</p>
           </Panel>
         )}
-        <Panel
-          title={b.history}
-          detail={
-            <SelectField
-              label={b.version}
-              value={version.number}
-              onChange={(event) => setNumber(Number(event.target.value))}
-            >
-              {book.versions.toReversed().map(({ number, at }) => (
-                <option key={number} value={number}>
-                  v{number} ·{" "}
-                  {number === latest.number
-                    ? b.currentVersion
-                    : format.date.format(Date.parse(at))}
-                </option>
-              ))}
-            </SelectField>
-          }
-        >
-          {Boolean(version.screenshotIds?.length) && (
+        <Panel title={b.rules}>
+          {Boolean(rules.screenshotIds?.length) && (
             <div className="playbook-overview-images">
               <h3>{b.images}</h3>
-              <ScreenshotGallery ids={version.screenshotIds} />
+              <ScreenshotGallery ids={rules.screenshotIds} />
             </div>
           )}
-          {!version.strategy && (
+          {legacyImages.length > 0 && (
+            <details className="playbook-overview-images">
+              <summary>{b.savedImages}</summary>
+              <ScreenshotGallery ids={legacyImages} />
+            </details>
+          )}
+          {!rules.strategy && (
             <div className="playbook-rule-columns">
               <div>
                 <h3>{b.setups}</h3>
@@ -185,26 +218,26 @@ export default function PlaybookDetailsPage({ id }: { id: string }) {
               </div>
               <div>
                 <h3>{b.filters}</h3>
-                <RulesList rules={version.filters} />
+                <RulesList rules={rules.filters} />
               </div>
               <div>
                 <h3>{b.management}</h3>
-                <RulesList rules={version.management} />
+                <RulesList rules={rules.management} />
               </div>
             </div>
           )}
         </Panel>
-        {version.strategy && (
+        {rules.strategy && (
           <StrategyDetails
-            strategy={version.strategy}
+            strategy={rules.strategy}
             setups={
               <div>
                 <h3>{b.setups}</h3>
                 {setups}
               </div>
             }
-            technical={<RulesList rules={version.filters} />}
-            management={<RulesList rules={version.management} />}
+            technical={<RulesList rules={rules.filters} />}
+            management={<RulesList rules={rules.management} />}
           />
         )}
         {limits.length > 0 && (
@@ -225,7 +258,7 @@ export default function PlaybookDetailsPage({ id }: { id: string }) {
           </Panel>
         )}
         <SetupResults book={book} trades={trades} />
-        <RuleResults book={book} version={version} trades={trades} />
+        <RuleResults book={book} trades={trades} />
         <Panel
           title={b.linked}
           detail={`${b.linkedOpen} · ${positions.length}`}

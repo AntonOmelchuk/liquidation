@@ -14,7 +14,7 @@ import { indexPlanExecution } from "@liquidation/domain/plans/plan-execution";
 import { getPlanPeriod } from "@liquidation/domain/plans/plan-lifecycle";
 import { EMPTY_VALUE } from "../../shared/constants.ts";
 import { useLocale } from "../../shared/messages.ts";
-import { Metric, Panel } from "../../shared/ui/layout.tsx";
+import { Panel } from "../../shared/ui/layout.tsx";
 import { SelectField } from "../../shared/ui/select-field.tsx";
 import { useJournal } from "../journal/data/store.ts";
 import { DEFAULT_PLAN_FILTERS } from "./list/constants.ts";
@@ -22,6 +22,7 @@ import { filterPlans, planTableGroups } from "./list/filters.ts";
 import { usePlanMessages } from "./messages.ts";
 
 import { PlanAnalytics } from "./analytics/plan-analytics.tsx";
+import { PlanOverviewCards } from "./analytics/plan-overview-cards.tsx";
 import { PlanPerformancePanel } from "./analytics/plan-performance.tsx";
 import { PlansTable } from "./list/plans-table.tsx";
 import "./plans.css";
@@ -60,16 +61,12 @@ export function PlansPage() {
     const actual = execution.get(id)?.actual;
     return actual?.closed ? [actual] : [];
   });
-  const positivePlans = executed.filter(({ net }) => net > 0).length;
   const profitable = pastResults.filter(({ net }) => net > 0).length;
   const measuredPast = pastResults.filter(({ totalR }) => totalR !== null);
   const pastR = measuredPast.length
     ? measuredPast.reduce((sum, { totalR }) => sum + (totalR ?? 0), 0)
     : null;
   const count = (value: number) => format.integer.format(value);
-
-  const showRate = (rate: number | null) =>
-    rate === null ? EMPTY_VALUE : format.percentage.format(rate);
 
   return (
     <main>
@@ -93,61 +90,11 @@ export function PlansPage() {
       ) : (
         <div className="layout">
           <section aria-label={p.allPlans} className="plan-overall">
-            <div className="metrics plan-metrics">
-              <Metric
-                label={p.allPlans}
-                value={count(plans.length)}
-                detail={
-                  p.reviewed +
-                  " · " +
-                  count(data.decided) +
-                  " · " +
-                  p.awaitingDecision +
-                  " " +
-                  count(plans.length - data.decided)
-                }
-              />
-              <Metric
-                label={p.planWinRate}
-                value={showRate(data.allPlanWinRate)}
-                detail={
-                  count(data.worked) +
-                  "/" +
-                  count(plans.length) +
-                  " · " +
-                  p.confirmedPlans
-                }
-              />
-              <Metric
-                label={p.reviewedWinRate}
-                value={showRate(data.planWinRate)}
-                detail={
-                  count(data.worked) +
-                  "/" +
-                  count(data.decided) +
-                  " · " +
-                  p.reviewedWinRateHint
-                }
-              />
-              <Metric
-                label={p.executionWinRate}
-                value={showRate(
-                  executed.length ? positivePlans / executed.length : null,
-                )}
-                detail={
-                  count(positivePlans) +
-                  "/" +
-                  count(executed.length) +
-                  " · " +
-                  p.pastTotals
-                }
-              />
-              <Metric
-                label={p.missedWinRate}
-                value={showRate(data.missedWinRate)}
-                detail={p.assessed + " · " + count(data.assessedMisses)}
-              />
-            </div>
+            <PlanOverviewCards
+              data={data}
+              totalPlans={plans.length}
+              executed={executed}
+            />
             <ul className="plan-status-summary" aria-label={p.status}>
               {PLAN_STATUSES.map((value) => (
                 <li key={value} className="plan-status" data-status={value}>

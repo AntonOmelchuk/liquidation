@@ -31,12 +31,7 @@ export function summarizePlanGroups(
     const playbook =
       combined || grouping === PLAN_GROUPING.PLAYBOOK ? reference : undefined;
     const direction = grouping === PLAN_GROUPING.SIDE ? side : undefined;
-    const key = JSON.stringify([
-      instrument,
-      playbook?.id,
-      playbook?.version,
-      direction,
-    ]);
+    const key = JSON.stringify([instrument, playbook?.id, direction]);
     const cohort = cohorts.get(key);
     if (cohort) cohort.plans.push(plan);
     else cohorts.set(key, { instrument, playbook, direction, plans: [plan] });

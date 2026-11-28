@@ -1,3 +1,4 @@
+import { missedStatistics } from "@liquidation/domain/analytics/missed-statistics";
 import { comparePlanPerformance } from "@liquidation/domain/analytics/plan-performance";
 import { summarizeBreakevenReviews } from "@liquidation/domain/analytics/breakeven-review";
 import { summarizePlanGroups } from "@liquidation/domain/analytics/plan-analytics";
@@ -12,7 +13,15 @@ import type { Plan } from "@liquidation/domain/plans/types";
 import type { Trade } from "@liquidation/domain/trades/types";
 import { PERIOD } from "@liquidation/domain/workspace/constants";
 import { periodBounds } from "@liquidation/domain/workspace/period";
-import type { MissedTrade } from "@liquidation/domain/workspace/types";
+import { watchlistWeeks } from "@liquidation/domain/workspace/planning";
+import type {
+  MissedTrade,
+  WeeklyWatchlist,
+} from "@liquidation/domain/workspace/types";
+import {
+  indexWatchlistActivity,
+  watchlistSummary,
+} from "@liquidation/domain/workspace/watchlist-analytics";
 import { workspaceCommand } from "@liquidation/domain/workspace/workspace";
 import { expect, test } from "vitest";
 
@@ -57,6 +66,107 @@ const trade: Trade = {
   risk: 25,
   notes: "",
 };
+
+const watchlist: WeeklyWatchlist = {
+  start: "2026-11-23",
+  revision: 1,
+  outlook: "",
+  review: "",
+  items: [],
+};
+
+test("opens the latest prepared watchlist and offers the following week before Monday", () => {
+  expect(watchlistWeeks([], "2026-11-28")).toEqual({
+    primary: "2026-11-23",
+    next: "2026-11-23",
+  });
+  for (const weekend of ["2026-11-28", "2026-11-29"]) {
+    expect(watchlistWeeks([watchlist], weekend)).toEqual({
+      primary: "2026-11-23",
+      next: "2026-11-30",
+    });
+  }
+  const next = { ...watchlist, start: "2026-11-30" };
+  expect(watchlistWeeks([next, watchlist], "2026-11-28")).toEqual({
+    primary: "2026-11-30",
+    next: "2026-12-07",
+  });
+  expect(watchlistWeeks([watchlist], "2026-11-30")).toEqual({
+    primary: "2026-11-30",
+    next: "2026-11-30",
+  });
+});
+
+test("summarizes linked decisions and active journal records for only the watched symbols and entry week", () => {
+  const worked: Plan = { ...basePlan, review: { status: "worked" } };
+  const failed: Plan = {
+    ...basePlan,
+    id: crypto.randomUUID(),
+    review: { status: "failed", reason: "No confirmation" },
+  };
+  const voided: Plan = {
+    ...worked,
+    id: crypto.randomUUID(),
+    events: [
+      {
+        id: crypto.randomUUID(),
+        kind: "void",
+        at: closed,
+        reason: "Invalid setup",
+      },
+    ],
+  };
+  const item: WeeklyWatchlist = {
+    ...watchlist,
+    items: [
+      {
+        symbol: "EURUSD",
+        narrative: "bullish",
+        notes: "",
+        planIds: [worked.id, failed.id, voided.id],
+        outcome: "missed",
+        review: "",
+        screenshotIds: [],
+      },
+    ],
+  };
+  const activity = indexWatchlistActivity(
+    {
+      plans: [voided, worked, failed],
+      positions: [],
+      missedTrades: [
+        baseMiss,
+        { ...baseMiss, reason: "worked-after-be" },
+        { ...baseMiss, missedAt: "2026-11-30T00:00:00Z" },
+      ],
+      trades: [
+        {
+          ...trade,
+          closedAt: "2026-11-30T14:00:00Z",
+          mistakes: ["FOMO", "fomo", "Early entry"],
+        },
+        { ...trade, symbol: "GBPUSD", mistakes: ["Oversized"] },
+        { ...trade, openedAt: "2026-11-22T23:59:00Z", mistakes: ["Oversized"] },
+      ],
+    },
+    (iso) => iso.slice(0, 10),
+  );
+  expect(watchlistSummary(item, activity)).toMatchObject({
+    reviewedAssets: 1,
+    missedAssets: 1,
+    worked: 1,
+    decided: 2,
+    missedCount: 1,
+    mistakes: 2,
+    net: 50,
+  });
+  expect(
+    watchlistSummary({ ...item, start: "2026-11-30" }, activity),
+  ).toMatchObject({
+    mistakes: null,
+    net: null,
+  });
+});
 
 test("combines signed estimates with actual results and counts linked opportunities exactly once", () => {
   const records = {
@@ -274,4 +384,57 @@ test("supports a distinct community template and includes illustrated examples i
     screenshotIds: [screenshot],
   });
   expect(strategyScreenshotIds(strategy)).toEqual([screenshot]);
+});
+
+test("groups missed opportunities by reason and ticker, including zero while excluding duplicated execution and BE", () => {
+  const executedPlan = crypto.randomUUID();
+  const rows: MissedTrade[] = [
+    baseMiss,
+    {
+      ...baseMiss,
+      id: crypto.randomUUID(),
+      symbol: "XAUUSD",
+      outcome: { closedAt: closed, netR: -1 },
+    },
+    {
+      ...baseMiss,
+      id: crypto.randomUUID(),
+      reason: "timing",
+      outcome: { closedAt: closed, netR: 0, risk: 20 },
+    },
+    {
+      ...baseMiss,
+      id: crypto.randomUUID(),
+      reason: "distraction",
+      outcome: null,
+    },
+    { ...baseMiss, id: crypto.randomUUID(), planId: executedPlan },
+    { ...baseMiss, id: crypto.randomUUID(), reason: "worked-after-be" },
+  ];
+  const { total, reasons, instruments } = missedStatistics(
+    rows,
+    new Set([executedPlan]),
+  );
+  expect(total).toEqual({
+    count: 5,
+    assessed: 3,
+    withCash: 2,
+    netR: 2,
+    cash: 12000,
+  });
+  expect(reasons.find(({ key }) => key === "timing")).toMatchObject({
+    count: 1,
+    netR: 0,
+    cash: 0,
+  });
+  expect(reasons.find(({ key }) => key === "distraction")).toMatchObject({
+    count: 1,
+    netR: null,
+    cash: null,
+  });
+  expect(instruments.find(({ key }) => key === "XAUUSD")).toMatchObject({
+    count: 1,
+    netR: -1,
+    cash: null,
+  });
 });

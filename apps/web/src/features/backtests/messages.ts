@@ -17,6 +17,8 @@ const en = {
   thesis: "Hypothesis and conditions",
   samples: "Simulated trades",
   noSamples: "No simulated trades yet.",
+  sampleDetail: "Simulated trade",
+  sampleMissing: "Simulated trade not found.",
   addSample: "Add simulated trade",
   editSample: "Edit simulated trade",
   saveSample: "Save simulated trade",
@@ -30,10 +32,10 @@ const en = {
     "This backtest changed in another tab. Reload the journal before editing again.",
   saveError: "Could not save the backtest. Your changes are still in the form.",
   noPlaybook: "No playbook",
-  playbookVersion: "Playbook and version",
+  playbook: "Playbook",
   comparison: "Backtest versus journal",
   backtest: "Backtest",
-  actual: "Actual trades with this version",
+  actual: "Actual trades with this playbook",
   expectancy: "Average R",
 };
 
@@ -53,6 +55,8 @@ const uk: Record<keyof typeof en, string> = {
   thesis: "Гіпотеза й умови тесту",
   samples: "Тестові угоди",
   noSamples: "Тестових угод ще немає.",
+  sampleDetail: "Тестова угода",
+  sampleMissing: "Тестову угоду не знайдено.",
   addSample: "Додати тестову угоду",
   editSample: "Редагувати тестову угоду",
   saveSample: "Зберегти тестову угоду",
@@ -66,10 +70,10 @@ const uk: Record<keyof typeof en, string> = {
     "Цей бектест змінився в іншій вкладці. Перезавантаж журнал перед редагуванням.",
   saveError: "Не вдалося зберегти бектест. Зміни залишилися у формі.",
   noPlaybook: "Без плейбука",
-  playbookVersion: "Плейбук і версія",
+  playbook: "Плейбук",
   comparison: "Бектест і фактичний журнал",
   backtest: "Бектест",
-  actual: "Фактичні угоди за цією версією",
+  actual: "Фактичні угоди за цим плейбуком",
   expectancy: "Середній R",
 };
 

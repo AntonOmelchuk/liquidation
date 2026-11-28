@@ -1,5 +1,6 @@
+import { tradePlaybookRules } from "@liquidation/domain/playbooks/playbook";
 import type { Trade } from "@liquidation/domain/trades/types";
-import type { RuleResultsProps, SetupResultsProps } from "./types.ts";
+import type { SetupResultsProps } from "./types.ts";
 
 import {
   playbookResults,
@@ -17,13 +18,14 @@ export function SetupResults({ book, trades }: SetupResultsProps) {
   const b = usePlaybookMessages();
   const { t, format } = useLocale();
   const names = new Map(
-    book.versions.flatMap(({ setups }) =>
-      setups.map(({ id, name }) => [id, name] as const),
-    ),
+    book.rules.setups.map(({ id, name }) => [id, name] as const),
   );
   const groups = new Map<string | undefined, Trade[]>();
   for (const trade of trades) {
-    const id = trade.playbook?.setupId;
+    const link = trade.playbook;
+    const id = link?.setupId;
+    if (link && id && !names.has(id))
+      names.set(id, tradePlaybookRules(book, link)?.setupName ?? "");
     const group = groups.get(id) ?? [];
     group.push(trade);
     groups.set(id, group);
@@ -78,16 +80,16 @@ export function SetupResults({ book, trades }: SetupResultsProps) {
   );
 }
 
-export function RuleResults({ book, version, trades }: RuleResultsProps) {
+export function RuleResults({ book, trades }: SetupResultsProps) {
   const b = usePlaybookMessages();
   const { t, format } = useLocale();
-  const data = ruleOutcomes(book, version, trades);
+  const data = ruleOutcomes(book, trades);
   const r = (value: number | null) =>
     value === null ? EMPTY_VALUE : format.money.format(value);
   return (
     <Panel
       title={b.rulesImpact}
-      detail={`v${version.number} · ${b.sample} ${format.integer.format(data.assessed)}`}
+      detail={`${b.sample} ${format.integer.format(data.assessed)}`}
     >
       {data.assessed > 0 ? (
         <div className="table">

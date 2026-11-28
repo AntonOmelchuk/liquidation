@@ -1,3 +1,4 @@
+import type { Playbook } from "@liquidation/domain/playbooks/types";
 import type { useTradeGroupSelection } from "./group-selection.tsx";
 import type {
   TradeFactor,
@@ -8,7 +9,11 @@ import type { Trade } from "@liquidation/domain/trades/types";
 
 import type { DateRange } from "../../shared/analytics/types.ts";
 import type { useLocale } from "../../shared/messages.ts";
-import type { STATISTICS_VIEW, TRADE_COLUMN } from "./constants.ts";
+import type {
+  STATISTICS_VIEW,
+  TRADE_COLUMN,
+  TRADE_LEDGER_SORT,
+} from "./constants.ts";
 import type { useStatisticsMessages } from "./messages.ts";
 
 export type FactorLabel = (factor: TradeFactor, key: string) => string;
@@ -31,7 +36,10 @@ export type TradeBreakdownFiltersProps = {
 export type StatisticsMessages = ReturnType<typeof useStatisticsMessages>;
 export type CommonMessages = ReturnType<typeof useLocale>["t"];
 
-export type StatisticsSummaryProps = { metrics: TradeStatistics };
+export type StatisticsSummaryProps = {
+  metrics: TradeStatistics;
+  trades: readonly Trade[];
+};
 
 export type TradeAnalysisProps = { trades: readonly Trade[] };
 
@@ -40,4 +48,12 @@ export type GroupSelectionProps = { selection: GroupSelection };
 export type GroupCheckboxProps = GroupSelectionProps & {
   groupKey: string;
   label: string;
+};
+
+export type StatisticsTradeSort =
+  (typeof TRADE_LEDGER_SORT)[keyof typeof TRADE_LEDGER_SORT];
+
+export type StatisticsTradesTableProps = TradeAnalysisProps & {
+  labelFor: FactorLabel;
+  playbooks: readonly Playbook[];
 };

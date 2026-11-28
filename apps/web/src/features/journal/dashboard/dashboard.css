@@ -240,6 +240,9 @@ table.pnl-calendar {
   color: var(--muted);
 }
 .calendar-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.18rem 0.65rem;
   margin: 0.55rem 0 0;
   padding: 0;
   list-style: none;
@@ -250,6 +253,22 @@ table.pnl-calendar {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
+}
+.calendar-legend i {
+  flex: none;
+  width: 0.43rem;
+  height: 0.43rem;
+  border-radius: 50%;
+  background: var(--chart-series);
+}
+.calendar-legend [data-tone="win"] {
+  --chart-series: var(--chart-win);
+}
+.calendar-legend [data-tone="loss"] {
+  --chart-series: var(--chart-loss);
+}
+.calendar-legend [data-tone="flat"] {
+  --chart-series: var(--chart-flat);
 }
 .calendar-drilldown {
   margin-top: 1rem;

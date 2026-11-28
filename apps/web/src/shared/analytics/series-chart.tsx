@@ -13,7 +13,7 @@ export function SeriesChart({
   const { format } = useLocale();
   const gradient = useId();
   const lineGradient = useId();
-  if (!values.length) return <p className="subdued">{empty}</p>;
+  if (!values.length) return empty ? <p className="subdued">{empty}</p> : null;
   let maximum = signed ? 0 : values[0];
   let minimum = signed ? 0 : values[0];
   for (const value of values) {

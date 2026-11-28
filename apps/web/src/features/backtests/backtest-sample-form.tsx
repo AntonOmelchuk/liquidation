@@ -21,13 +21,6 @@ import { useJournal } from "../journal/data/store.ts";
 import { useBacktestMessages } from "./messages.ts";
 import type { BacktestSampleFormProps } from "./types.ts";
 
-function readDate(data: FormData, name: string, existing?: string) {
-  const value = data.get(name);
-  return existing && value === isoToLocalDateTime(existing)
-    ? existing
-    : localDateTimeToIso(value);
-}
-
 export function BacktestSampleForm({
   run,
   sample,
@@ -61,8 +54,8 @@ export function BacktestSampleForm({
         symbol: data.get("symbol"),
         direction: data.get("direction"),
         timeframe: String(data.get("timeframe") ?? "").trim() || undefined,
-        openedAt: readDate(data, "openedAt", sample?.openedAt),
-        closedAt: readDate(data, "closedAt", sample?.closedAt),
+        openedAt: localDateTimeToIso(data.get("openedAt"), sample?.openedAt),
+        closedAt: localDateTimeToIso(data.get("closedAt"), sample?.closedAt),
         entry: data.get(BACKTEST_SAMPLE_FIELD.ENTRY)
           ? Number(data.get(BACKTEST_SAMPLE_FIELD.ENTRY))
           : null,
@@ -90,7 +83,7 @@ export function BacktestSampleForm({
     setSaving(true);
     try {
       await saveSample(command.data, files);
-      finish();
+      finish(id);
     } catch (failure) {
       setError(
         failure instanceof JournalRequestError && failure.status === 409
@@ -103,7 +96,6 @@ export function BacktestSampleForm({
 
   return (
     <form className="timeline-form" onSubmit={save}>
-      <h3>{sample ? b.editSample : b.addSample}</h3>
       <fieldset disabled={saving}>
         <InstrumentPicker value={symbol} onChange={setSymbol} />
         <SelectField
@@ -193,7 +185,7 @@ export function BacktestSampleForm({
           </p>
         )}
         <div className="wide record-form-actions">
-          <button type="button" className="secondary" onClick={finish}>
+          <button type="button" className="secondary" onClick={() => finish()}>
             {t.cancel}
           </button>
           <button type="submit">{saving ? t.saving : b.saveSample}</button>

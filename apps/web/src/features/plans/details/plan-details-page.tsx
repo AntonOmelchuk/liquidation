@@ -1,3 +1,5 @@
+import { ICON_ACTION } from "../../../shared/ui/constants.ts";
+import { IconAction } from "../../../shared/ui/icon-action.tsx";
 import { PLAN_ACTION } from "@liquidation/domain/plans/constants";
 import { TRASH_KIND } from "@liquidation/domain/journal/trash/constants";
 import { DeleteRecord } from "../../trash/delete-record.tsx";
@@ -94,9 +96,11 @@ export function PlanDetailsPage({ id }: { id: string }) {
           >
             {voiding ? p.restorePlan : p.voidPlan}
           </button>
-          <a className="action-link" href={planHref(id, PLAN_ACTION.EDIT)}>
-            {p.edit}
-          </a>
+          <IconAction
+            icon={ICON_ACTION.EDIT}
+            label={p.edit}
+            href={planHref(id, PLAN_ACTION.EDIT)}
+          />
         </div>
       </div>
       <div className="layout">
@@ -127,12 +131,20 @@ export function PlanDetailsPage({ id }: { id: string }) {
         <Panel
           title={p.recap}
           detail={
-            <a
-              className="action-link secondary"
-              href={planHref(id, PAGE_VIEW.REVIEW)}
-            >
-              {recap ? p.editReview : p.addReview}
-            </a>
+            recap ? (
+              <IconAction
+                icon={ICON_ACTION.EDIT}
+                label={p.editReview}
+                href={planHref(id, PAGE_VIEW.REVIEW)}
+              />
+            ) : (
+              <a
+                className="action-link secondary"
+                href={planHref(id, PAGE_VIEW.REVIEW)}
+              >
+                {p.addReview}
+              </a>
+            )
           }
         >
           {recap ? (

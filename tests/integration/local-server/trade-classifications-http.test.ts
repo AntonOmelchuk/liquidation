@@ -59,12 +59,15 @@ test("persists classifications through position close, edits and a reload", asyn
         timeframe: "M15",
         session: "LKZ",
         entryType: "market",
+        limitEntryTest: true,
       },
     });
     expect(opened.status).toBe(200);
-    const { id, revision, account } = journalSchema.parse(await opened.json())
-      .positions[0];
+    const { id, revision, account, limitEntryTest } = journalSchema.parse(
+      await opened.json(),
+    ).positions[0];
     expect(account).toBe("Evaluation");
+    expect(limitEntryTest).toBe(true);
 
     const closing = {
       action: "close",
@@ -79,6 +82,7 @@ test("persists classifications through position close, edits and a reload", asyn
           account,
           timeframe: "M15",
           entryType: "limit",
+          limitEntryTest: false,
           mistakes: ["Early entry", "early entry"],
         },
       },
@@ -91,12 +95,17 @@ test("persists classifications through position close, edits and a reload", asyn
       account: "Evaluation",
       timeframe: "M15",
       entryType: "limit",
+      limitEntryTest: false,
       mistakes: ["Early entry"],
     });
     expect(trade.session).toBeUndefined();
     expect(netCents(trade)).toBe(4200);
     const previous = tradeLinksSchema.parse(trade);
-    const edited = { id, previous, next: { session: "NYKZ" } };
+    const edited = {
+      id,
+      previous,
+      next: { session: "NYKZ", limitEntryTest: true },
+    };
     expect((await post(JOURNAL_ROUTES.tradeLinks, edited)).status).toBe(200);
     expect((await post(JOURNAL_ROUTES.tradeLinks, edited)).status).toBe(200);
     expect(
@@ -121,6 +130,7 @@ test("persists classifications through position close, edits and a reload", asyn
     expect(persisted.trades[1]).toEqual(legacy);
     expect(tradeLinksSchema.parse(persisted.trades[0])).toEqual({
       session: "NYKZ",
+      limitEntryTest: true,
     });
     expect(netCents(persisted.trades[0])).toBe(4200);
   } finally {

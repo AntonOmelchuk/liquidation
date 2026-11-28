@@ -1,9 +1,3 @@
-.record-delete {
-  color: #ffaaa5;
-}
-[data-theme="light"] .record-delete {
-  color: #a32a36;
-}
 .trash-confirm {
   background: #a92d3d;
   color: #fff;

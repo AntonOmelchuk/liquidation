@@ -9,6 +9,7 @@ import {
 import type { AnalyticsOption } from "../../../shared/analytics/types.ts";
 import { LOCALES } from "../../../shared/constants.ts";
 import { useLocale } from "../../../shared/messages.ts";
+import { DateText } from "../../../shared/ui/date-text.tsx";
 import { InfoTip } from "../../../shared/ui/info-tip.tsx";
 import { Panel } from "../../../shared/ui/layout.tsx";
 import { useAccountOptions } from "../../accounts/account-options.ts";
@@ -145,7 +146,7 @@ export function TradeBreakdownFilters({
             onClick={() => onDates({ ...dates, from: "" })}
             aria-label={s.removeFilter + " · " + t.fromDate}
           >
-            {t.fromDate} · {dates.from}
+            {t.fromDate} · <DateText value={dates.from} />
             <span aria-hidden="true">×</span>
           </button>
         )}
@@ -156,7 +157,7 @@ export function TradeBreakdownFilters({
             onClick={() => onDates({ ...dates, through: "" })}
             aria-label={s.removeFilter + " · " + t.toDate}
           >
-            {t.toDate} · {dates.through}
+            {t.toDate} · <DateText value={dates.through} />
             <span aria-hidden="true">×</span>
           </button>
         )}

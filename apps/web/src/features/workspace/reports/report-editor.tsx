@@ -2,6 +2,7 @@ import {
   PERIOD,
   REPORT_FIELDS,
   REPORT_GRADES,
+  REPORT_PROGRESS_MAX,
   WORKSPACE_RECORD,
   WORKSPACE_TEXT_LIMIT,
 } from "@liquidation/domain/workspace/constants";
@@ -152,7 +153,7 @@ export function ReportEditor({
                   name="progress"
                   type="number"
                   min={1}
-                  max={10}
+                  max={REPORT_PROGRESS_MAX}
                   step={1}
                   defaultValue={report?.progress}
                 />

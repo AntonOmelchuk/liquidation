@@ -1,3 +1,5 @@
+import { ICON_ACTION } from "../../shared/ui/constants.ts";
+import { IconAction } from "../../shared/ui/icon-action.tsx";
 import { TRASH_KIND } from "@liquidation/domain/journal/trash/constants";
 import { useState } from "react";
 import { numericTone } from "../../shared/format.ts";
@@ -62,14 +64,12 @@ export function AccountMovements({ account }: AccountDetailsProps) {
                   <td>{record.notes}</td>
                   <td>
                     <div className="workspace-actions">
-                      <button
-                        type="button"
-                        className="secondary"
+                      <IconAction
+                        icon={ICON_ACTION.EDIT}
+                        label={m.editMovement}
                         disabled={Boolean(draft)}
                         onClick={() => setDraft({ id: record.id })}
-                      >
-                        {m.editMovement}
-                      </button>
+                      />
                       <DeleteRecord
                         kind={TRASH_KIND.MOVEMENT}
                         recordKey={record.id}

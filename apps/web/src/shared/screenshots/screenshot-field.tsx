@@ -1,3 +1,5 @@
+import { ICON_ACTION } from "../ui/constants.ts";
+import { IconAction } from "../ui/icon-action.tsx";
 import {
   MAX_SCREENSHOTS_PER_SECTION,
   SCREENSHOT_TYPES,
@@ -133,18 +135,15 @@ export function ScreenshotField({
                 >
                   →
                 </button>
-                <button
-                  type="button"
-                  className="secondary"
-                  aria-label={`${messages.remove} · ${index + 1}`}
+                <IconAction
+                  icon={ICON_ACTION.DELETE}
+                  label={`${messages.remove} · ${index + 1}`}
                   disabled={disabled}
                   onClick={() => {
                     setError(null);
                     onChange(value.filter(({ id }) => id !== shot.id));
                   }}
-                >
-                  ×
-                </button>
+                />
               </div>
             </li>
           ))}

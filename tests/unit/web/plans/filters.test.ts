@@ -84,7 +84,7 @@ test("uses the inclusive plan start date or the local creation date", () => {
   );
 });
 
-test("combines plan start date, instrument, status, side and exact playbook version", () => {
+test("combines plan start date, instrument, status, side and the playbook", () => {
   const book = "ed8baeb1-1681-4cbf-9c5e-84a0648cc107";
   const dated = {
     ...plans[0],
@@ -107,7 +107,7 @@ test("combines plan start date, instrument, status, side and exact playbook vers
   } as const;
   expect(
     filterPlanAnalytics(all, { ...filters, playbook: planPlaybookKey(v2) }),
-  ).toEqual([v2]);
+  ).toEqual([v1, v2]);
   expect(filterPlanAnalytics(all, { ...filters, playbook: "" })).toEqual([
     dated,
   ]);

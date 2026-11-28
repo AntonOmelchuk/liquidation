@@ -4,6 +4,7 @@ import { createFormatters } from "./format.ts";
 
 const en = {
   settings: "Settings",
+  dailyQuote: "Quote of the day",
   navigation: "Main navigation",
   journalNav: "Journal",
   plansNav: "Plans",
@@ -106,6 +107,7 @@ const en = {
 
 const uk: Record<keyof typeof en, string> = {
   settings: "Налаштування",
+  dailyQuote: "Цитата дня",
   navigation: "Головна навігація",
   journalNav: "Журнал",
   plansNav: "Плани",

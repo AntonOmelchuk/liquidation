@@ -8,14 +8,10 @@ import { useMemo, useState } from "react";
 import { EMPTY_VALUE } from "../../../shared/constants.ts";
 import { numericTone } from "../../../shared/format.ts";
 import { useLocale } from "../../../shared/messages.ts";
-import { SelectField } from "../../../shared/ui/select-field.tsx";
-import {
-  TRADE_GROUPING,
-  TRADE_PAGE_SIZES,
-  TRADE_TABLE_MODE,
-} from "./constants.ts";
+import { TRADE_GROUPING, TRADE_TABLE_MODE } from "./constants.ts";
 import { newestTradeRecord } from "./order.ts";
 import { useTradeRecordMessages } from "./messages.ts";
+import { TradePagination } from "./trade-pagination.tsx";
 import { TradeDetailsDialog } from "./trade-details-dialog.tsx";
 import { TradeRecordRows } from "./trade-record-rows.tsx";
 import type { TradeTableProps } from "./types.ts";
@@ -172,54 +168,16 @@ export function TradeTable({
         </table>
       </div>
       {pagination && (
-        <nav className="trade-pagination" aria-label={m.pagination}>
-          <SelectField
-            label={m.tradesPerPage}
-            value={size}
-            onChange={(event) => {
-              const next = TRADE_PAGE_SIZES.find(
-                (value) => value === Number(event.currentTarget.value),
-              );
-              if (!next) return;
-              pagination.onPageSizeChange(next);
-              setPage(0);
-            }}
-          >
-            {TRADE_PAGE_SIZES.map((value) => (
-              <option key={value} value={value}>
-                {value}
-              </option>
-            ))}
-          </SelectField>
-          <span role="status" className="trade-page-count">
-            {format.integer.format(start + 1)}–
-            {format.integer.format(start + visibleRows.length)} {m.of}{" "}
-            {format.integer.format(rows.length)}
-          </span>
-          <div className="trade-page-actions">
-            <button
-              type="button"
-              className="secondary"
-              aria-label={m.previousPage}
-              disabled={page === 0}
-              onClick={() => setPage(page - 1)}
-            >
-              ←
-            </button>
-            <span>
-              {m.page} {page + 1} / {pages}
-            </span>
-            <button
-              type="button"
-              className="secondary"
-              aria-label={m.nextPage}
-              disabled={page === pages - 1}
-              onClick={() => setPage(page + 1)}
-            >
-              →
-            </button>
-          </div>
-        </nav>
+        <TradePagination
+          count={rows.length}
+          page={page}
+          pageSize={pagination.pageSize}
+          onPage={setPage}
+          onPageSizeChange={(value) => {
+            pagination.onPageSizeChange(value);
+            setPage(0);
+          }}
+        />
       )}
       {record && (
         <TradeDetailsDialog

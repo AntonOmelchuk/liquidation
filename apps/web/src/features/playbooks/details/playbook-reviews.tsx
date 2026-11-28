@@ -1,3 +1,6 @@
+import { DateText } from "../../../shared/ui/date-text.tsx";
+import { ICON_ACTION } from "../../../shared/ui/constants.ts";
+import { IconAction } from "../../../shared/ui/icon-action.tsx";
 import { PLAYBOOK_ACTION } from "@liquidation/domain/playbooks/constants";
 import { playbookCommand } from "@liquidation/domain/playbooks/playbook";
 import { playbookReviewProgress } from "@liquidation/domain/playbooks/playbook-performance";
@@ -159,17 +162,13 @@ export function PlaybookReviews({ book, count }: PlaybookReviewsProps) {
           {book.reviews.toReversed().map((review) => (
             <li key={review.id}>
               <div className="plan-actions">
-                <time dateTime={review.at}>
-                  {format.date.format(Date.parse(review.at))}
-                </time>
+                <DateText value={review.at} withTime />
                 {!editing && (
-                  <button
-                    type="button"
-                    className="secondary"
+                  <IconAction
+                    icon={ICON_ACTION.EDIT}
+                    label={b.editReview}
                     onClick={() => setEditing(review.id)}
-                  >
-                    {b.editReview}
-                  </button>
+                  />
                 )}
               </div>
               {editing === review.id ? (

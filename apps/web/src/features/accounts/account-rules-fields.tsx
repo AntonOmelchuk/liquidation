@@ -4,6 +4,7 @@ import {
   LIMIT_UNIT,
   MAX_LOSS_MODE,
 } from "@liquidation/domain/accounts/constants";
+import { CheckboxField } from "../../shared/ui/checkbox-field.tsx";
 import { SelectField } from "../../shared/ui/select-field.tsx";
 import { useAccountMessages } from "./messages.ts";
 import type { AccountRulesFieldsProps, LimitFieldProps } from "./types.ts";
@@ -110,22 +111,18 @@ export function AccountRulesFields({ initial }: AccountRulesFieldsProps) {
           />
         </label>
       </div>
-      <label className="workspace-check">
-        <input
-          type="checkbox"
-          name="countClosed"
-          defaultChecked={initial?.countClosed ?? true}
-        />
+      <CheckboxField
+        name="countClosed"
+        defaultChecked={initial?.countClosed ?? true}
+      >
         {m.dailyCountsClosed}
-      </label>
-      <label className="workspace-check">
-        <input
-          type="checkbox"
-          name="countOpenRisk"
-          defaultChecked={initial?.countOpenRisk ?? true}
-        />
+      </CheckboxField>
+      <CheckboxField
+        name="countOpenRisk"
+        defaultChecked={initial?.countOpenRisk ?? true}
+      >
         {m.dailyCountsOpen}
-      </label>
+      </CheckboxField>
       <p className="analytics-hint">{m.rulesHint}</p>
     </div>
   );

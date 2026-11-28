@@ -57,7 +57,7 @@ function BacktestEditor({ run }: BacktestEditorProps) {
     event.preventDefault();
     if (saving) return;
     const data = new FormData(event.currentTarget);
-    const [bookId, version] = String(data.get("playbook") ?? "").split("/");
+    const bookId = String(data.get("playbook") ?? "");
     const command = backtestCommand.safeParse({
       action: run ? BACKTEST_ACTION.EDIT : BACKTEST_ACTION.CREATE,
       revision,
@@ -65,7 +65,7 @@ function BacktestEditor({ run }: BacktestEditorProps) {
       metadata: {
         title: data.get("title"),
         thesis: data.get("thesis"),
-        playbook: bookId ? { id: bookId, version: Number(version) } : undefined,
+        playbook: bookId ? { id: bookId } : undefined,
       },
     });
     if (!command.success) {
@@ -115,31 +115,16 @@ function BacktestEditor({ run }: BacktestEditorProps) {
               />
             </label>
             <SelectField
-              label={b.playbookVersion}
+              label={b.playbook}
               name="playbook"
-              defaultValue={
-                run?.playbook
-                  ? `${run.playbook.id}/${run.playbook.version}`
-                  : ""
-              }
+              defaultValue={run?.playbook?.id ?? ""}
             >
               <option value="">{b.noPlaybook}</option>
               {books.map((book) => (
-                <optgroup
-                  key={book.id}
-                  label={
-                    book.title +
-                    (active.some(({ id }) => id === book.id)
-                      ? ""
-                      : " · " + deleted)
-                  }
-                >
-                  {book.versions.toReversed().map(({ number }) => (
-                    <option key={number} value={`${book.id}/${number}`}>
-                      v{number}
-                    </option>
-                  ))}
-                </optgroup>
+                <option key={book.id} value={book.id}>
+                  {book.title}
+                  {!active.some(({ id }) => id === book.id) && " · " + deleted}
+                </option>
               ))}
             </SelectField>
             <label className="wide">

@@ -170,16 +170,6 @@
 .playbook-detail-page .panel {
   padding: clamp(0.8rem, 1.15vw, 1.15rem);
 }
-.metrics.playbook-metrics {
-  gap: 0.65rem;
-}
-.metrics.playbook-metrics article {
-  padding: 0.75rem 1rem;
-}
-.metrics.playbook-metrics strong {
-  font-size: clamp(1.1rem, 1.65vw, 1.75rem);
-  margin-top: 0.35rem;
-}
 .playbook-overview-images {
   margin-top: 1rem;
 }

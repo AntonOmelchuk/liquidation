@@ -28,6 +28,10 @@ export const ENTRY_TYPE = {
   LIMIT: "limit",
   STOP: "stop",
 } as const;
+export const ENTRY_TEST = {
+  RETESTED: "retested",
+  MARKET_ONLY: "market-only",
+} as const;
 export const TRADE_TAG_LIMITS = {
   account: 80,
   style: 80,

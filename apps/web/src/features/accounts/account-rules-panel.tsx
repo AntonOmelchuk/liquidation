@@ -2,6 +2,9 @@ import { EMPTY_VALUE } from "../../shared/constants.ts";
 import { numericTone } from "../../shared/format.ts";
 import { useLocale } from "../../shared/messages.ts";
 import { Panel } from "../../shared/ui/layout.tsx";
+import { MetricBar } from "../../shared/ui/metric-bar.tsx";
+import { MetricCard, MetricGrid } from "../../shared/ui/metric-card.tsx";
+import { METRIC_TONE } from "../../shared/ui/metric-constants.ts";
 import { useAccountMessages } from "./messages.ts";
 import type { AccountRulesPanelProps } from "./types.ts";
 
@@ -17,79 +20,109 @@ export function AccountRulesPanel({
       : format.money.format(amount) + " " + account.currency;
   const rules = account.rules;
   if (!rules) return null;
+  const {
+    dailyUsed,
+    dailyLimit,
+    target,
+    targetRemaining,
+    tradingDays,
+    minimumDays,
+  } = progress;
+  const dailyTone =
+    dailyLimit !== null && dailyUsed >= dailyLimit
+      ? METRIC_TONE.NEGATIVE
+      : METRIC_TONE.CAUTION;
   return (
     <Panel title={m.rules} detail={progress.firmDay + " · " + rules.timeZone}>
-      <dl className="statistics-facts account-rule-progress">
+      <MetricGrid compact>
         {rules.dailyLimit && (
           <>
-            <div>
-              <dt>{m.dailyUsed}</dt>
-              <dd>
-                {money(progress.dailyUsed)} / {money(progress.dailyLimit)}
-              </dd>
-            </div>
-            <div>
-              <dt>{m.dailyRemaining}</dt>
-              <dd
-                className={
-                  progress.dailyRemaining !== null
-                    ? numericTone(progress.dailyRemaining)
-                    : undefined
-                }
-              >
-                {money(progress.dailyRemaining)}
-                {progress.dailyIncomplete && <small>{m.incomplete}</small>}
-              </dd>
-            </div>
+            <MetricCard
+              label={m.dailyUsed}
+              value={money(dailyUsed) + " / " + money(dailyLimit)}
+              icon="ACTIVITY"
+              tone={dailyUsed > 0 ? dailyTone : undefined}
+              detail={
+                dailyLimit && !progress.dailyIncomplete ? (
+                  <MetricBar
+                    segments={[
+                      {
+                        tone: dailyTone,
+                        ratio: Math.min(1, dailyUsed / dailyLimit),
+                      },
+                    ]}
+                  />
+                ) : undefined
+              }
+            />
+            <MetricCard
+              label={m.dailyRemaining}
+              value={money(progress.dailyRemaining)}
+              icon="WARNING"
+              tone={numericTone(progress.dailyRemaining ?? 0)}
+              detail={progress.dailyIncomplete ? m.incomplete : undefined}
+            />
           </>
         )}
         {rules.maxLoss && (
           <>
-            <div>
-              <dt>
-                {m.maxLossRemaining} · {m[rules.maxLossMode]}
-              </dt>
-              <dd
-                className={
-                  progress.remaining !== null
-                    ? numericTone(progress.remaining)
-                    : undefined
-                }
-              >
-                {money(progress.remaining)}
-              </dd>
-            </div>
-            <div>
-              <dt>{m.atStops}</dt>
-              <dd
-                className={
-                  progress.remainingAtStops !== null
-                    ? numericTone(progress.remainingAtStops)
-                    : undefined
-                }
-              >
-                {money(progress.remainingAtStops)}
-                {progress.maxLossIncomplete && <small>{m.incomplete}</small>}
-              </dd>
-            </div>
+            <MetricCard
+              label={m.maxLossRemaining}
+              value={money(progress.remaining)}
+              icon="DRAWDOWN"
+              tone={numericTone(progress.remaining ?? 0)}
+              detail={m[rules.maxLossMode]}
+            />
+            <MetricCard
+              label={m.atStops}
+              value={money(progress.remainingAtStops)}
+              icon="WARNING"
+              tone={numericTone(progress.remainingAtStops ?? 0)}
+              detail={progress.maxLossIncomplete ? m.incomplete : undefined}
+            />
           </>
         )}
         {rules.target && (
-          <div>
-            <dt>{m.targetRemaining}</dt>
-            <dd>
-              {money(progress.targetRemaining)} / {money(progress.target)}
-            </dd>
-          </div>
+          <MetricCard
+            label={m.targetRemaining}
+            value={money(targetRemaining) + " / " + money(target)}
+            icon="TARGET"
+            tone={METRIC_TONE.NEUTRAL}
+            detail={
+              target && targetRemaining !== null ? (
+                <MetricBar
+                  segments={[
+                    {
+                      tone: METRIC_TONE.POSITIVE,
+                      ratio: Math.max(0, 1 - targetRemaining / target),
+                    },
+                  ]}
+                />
+              ) : undefined
+            }
+          />
         )}
-        <div>
-          <dt>{m.tradingDays}</dt>
-          <dd>
-            {progress.tradingDays}
-            {progress.minimumDays ? " / " + progress.minimumDays : ""}
-          </dd>
-        </div>
-      </dl>
+        <MetricCard
+          label={m.tradingDays}
+          value={
+            format.integer.format(tradingDays) +
+            (minimumDays ? " / " + format.integer.format(minimumDays) : "")
+          }
+          icon="CALENDAR"
+          detail={
+            minimumDays ? (
+              <MetricBar
+                segments={[
+                  {
+                    tone: METRIC_TONE.ACCENT,
+                    ratio: Math.min(1, tradingDays / minimumDays),
+                  },
+                ]}
+              />
+            ) : undefined
+          }
+        />
+      </MetricGrid>
       <p className="analytics-hint">{m.rulesHint}</p>
     </Panel>
   );
