@@ -1,6 +1,5 @@
 import {
   filterStatisticTrades,
-  playbookVersionKey,
   tradeBreakdown,
   tradeFactorKeys,
 } from "@liquidation/domain/analytics/trade-factors";
@@ -99,6 +98,7 @@ test("combines exact filters and keeps unclassified trades available", () => {
     direction: "short",
     session: "NYKZ",
     entryType: "limit",
+    limitEntryTest: true,
     playbook: { id: book, version: 2, setupId },
     mistakes: ["Early entry", "Loose stop"],
   } satisfies Trade;
@@ -106,6 +106,7 @@ test("combines exact filters and keeps unclassified trades available", () => {
     ...tagged,
     id: "4a047d28-0555-4dfb-b1fb-acfea3c1e577",
     playbook: { id: book, version: 1, setupId },
+    limitEntryTest: false,
   };
   const newerClose = {
     ...tagged,
@@ -122,21 +123,25 @@ test("combines exact filters and keeps unclassified trades available", () => {
       account: "evaluation",
       session: "NYKZ",
       direction: "short",
-      version: playbookVersionKey(book, 2),
+      limitEntryTest: "retested",
       mistake: "early entry",
     }),
   ).toEqual([tagged]);
   expect(filterStatisticTrades(trades, window, { account: "" })).toEqual([
     record,
   ]);
-  expect(tradeFactorKeys(tagged, "setup")).toEqual([
-    playbookVersionKey(book, 2) + ":" + setupId,
-  ]);
+  expect(tradeFactorKeys(tagged, "setup")).toEqual([book + ":" + setupId]);
   expect(
     filterStatisticTrades(trades, window, {
-      setup: playbookVersionKey(book, 1) + ":" + setupId,
+      setup: book + ":" + setupId,
     }),
+  ).toEqual([olderVersion, tagged]);
+  expect(
+    filterStatisticTrades(trades, window, { limitEntryTest: "market-only" }),
   ).toEqual([olderVersion]);
+  expect(filterStatisticTrades(trades, window, { limitEntryTest: "" })).toEqual(
+    [record],
+  );
   expect(tradeFactorKeys(tagged, "hour")).toEqual([
     String(new Date(tagged.openedAt).getHours()).padStart(2, "0"),
   ]);

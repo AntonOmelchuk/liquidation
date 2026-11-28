@@ -1,0 +1,82 @@
+.workspace-comparison {
+  min-inline-size: 35rem;
+}
+.workspace-comparison thead th {
+  font-size: 0.9rem;
+  font-weight: 680;
+  background: var(--surface-raised);
+}
+.workspace-comparison thead th:nth-child(2) {
+  color: var(--section-accent);
+  background: color-mix(in srgb, var(--section-accent) 11%, var(--surface));
+}
+.workspace-comparison tbody td:first-of-type {
+  background: color-mix(in srgb, var(--section-accent) 4%, var(--surface));
+}
+.workspace-comparison :is(th, td) {
+  padding: clamp(0.55rem, 1vw, 0.8rem) clamp(0.7rem, 1.25vw, 1.1rem);
+  vertical-align: middle;
+}
+.workspace-comparison tbody th {
+  font-size: 0.95rem;
+  font-weight: 645;
+}
+.workspace-comparison :is(th, td):not(:first-child) {
+  text-align: end;
+  text-transform: none;
+}
+.comparison-cell {
+  display: grid;
+  justify-items: end;
+  gap: 0.35rem;
+}
+.comparison-cell .metric-bar {
+  inline-size: min(100%, 8.5rem);
+}
+.comparison-value {
+  display: inline-block;
+  font-size: 1.06rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.comparison-value[data-tone] {
+  padding: 0.18rem 0.48rem;
+  border-radius: 0.42rem;
+}
+.comparison-value[data-tone="positive"] {
+  color: var(--pnl-positive);
+  background: color-mix(in srgb, var(--pnl-positive) 11%, var(--surface));
+}
+.comparison-value[data-tone="negative"] {
+  color: var(--pnl-negative);
+  background: color-mix(in srgb, var(--pnl-negative) 11%, var(--surface));
+}
+.comparison-missing {
+  color: var(--muted);
+}
+.review-comparison-intro {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem 1rem;
+  margin-block: 0.85rem;
+}
+.review-comparison-intro p {
+  margin: 0;
+}
+.review-positions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.38rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  color: var(--text);
+  background: var(--surface-raised);
+  font-size: 0.9rem;
+}
+.review-positions .review-icon {
+  color: var(--section-accent);
+}

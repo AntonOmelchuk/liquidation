@@ -5,7 +5,6 @@ import {
   PLAYBOOK_TEMPLATE,
 } from "@liquidation/domain/playbooks/constants";
 import {
-  currentVersion,
   playbookCommand,
   playbookRulesScreenshotIds,
 } from "@liquidation/domain/playbooks/playbook";
@@ -81,7 +80,7 @@ function PlaybookEditor({ book, template }: PlaybookEditorProps) {
   const [revision] = useState(() => book?.revision);
   const [rules, setRules] = useState<PlaybookRules>(() =>
     book
-      ? currentVersion(book)
+      ? book.rules
       : {
           setups: [emptySetup()],
           filters: [],

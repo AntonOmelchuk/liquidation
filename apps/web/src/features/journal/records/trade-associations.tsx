@@ -1,16 +1,14 @@
 import { tradeTagKey } from "@liquidation/domain/trades/trade-tags";
 import { reviewedMistakes } from "@liquidation/domain/trades/mistakes";
 import { mistakeLabel, useMistakeMessages } from "../../mistakes/messages.ts";
-import {
-  entryRules,
-  linkedVersion,
-} from "@liquidation/domain/playbooks/playbook";
+import { tradePlaybookRules } from "@liquidation/domain/playbooks/playbook";
 import { CHECKLIST_PHASE } from "@liquidation/domain/playbooks/constants";
 import {
   deletedPlan,
   deletedPlaybook,
 } from "@liquidation/domain/journal/trash/trash";
 import { TRADE_SESSION } from "@liquidation/domain/trades/constants";
+import { TradeTestBadge } from "./trade-test-badge.tsx";
 import type { TradeLinks } from "@liquidation/domain/trades/types";
 import { accountHref, planHref, playbookHref } from "../../../app/page.ts";
 import { EMPTY_VALUE } from "../../../shared/constants.ts";
@@ -29,6 +27,7 @@ export function TradeAssociations({
   style,
   session,
   entryType,
+  limitEntryTest,
   mistakes,
   criticalMistakes,
   mistakesReviewed,
@@ -53,21 +52,21 @@ export function TradeAssociations({
     state.accounts.find(({ id }) => id === accountId),
   );
   const historicalBook = book ?? oldBook;
-  const version =
-    historicalBook && playbook && linkedVersion(historicalBook, playbook);
-  const setup = version?.setups.find(({ id }) => id === playbook?.setupId);
+  const rules = playbook
+    ? tradePlaybookRules(historicalBook, playbook)
+    : undefined;
   const checks = [
     {
       phase: CHECKLIST_PHASE.ENTRY,
       title: b.filters,
       answers: playbook?.entry,
-      rules: version ? entryRules(version, setup?.id) : [],
+      rules: rules?.entry ?? [],
     },
     {
       phase: CHECKLIST_PHASE.MANAGEMENT,
       title: b.management,
       answers: playbook?.management,
-      rules: version?.management ?? [],
+      rules: rules?.management ?? [],
     },
   ];
   return (
@@ -106,6 +105,12 @@ export function TradeAssociations({
           <dd>{entryType ? t[entryType] : EMPTY_VALUE}</dd>
         </div>
         <div>
+          <dt>{m.entryTest}</dt>
+          <dd>
+            <TradeTestBadge value={limitEntryTest} />
+          </dd>
+        </div>
+        <div>
           <dt>{t.linkedPlan}</dt>
           <dd>
             {plan ? (
@@ -131,12 +136,15 @@ export function TradeAssociations({
             ) : (
               EMPTY_VALUE
             )}
-            {version && " · v" + version.number}
           </dd>
         </div>
         <div>
           <dt>{b.setup}</dt>
-          <dd>{setup ? setup.name || b.onlySetup : EMPTY_VALUE}</dd>
+          <dd>
+            {rules?.setupName === undefined
+              ? EMPTY_VALUE
+              : rules.setupName || b.onlySetup}
+          </dd>
         </div>
         <div className="wide">
           <dt>{t.mistakes}</dt>

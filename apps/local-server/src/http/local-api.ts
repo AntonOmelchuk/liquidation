@@ -1,3 +1,4 @@
+import { DAILY_QUOTE_ROUTE } from "@liquidation/domain/inspiration/constants";
 import { isJournalRoute } from "@liquidation/domain/journal/journal";
 import { isMarketRoute } from "@liquidation/domain/market/contracts";
 import type { IncomingMessage, ServerResponse } from "node:http";
@@ -9,12 +10,14 @@ import {
   startReactionCollection,
 } from "../market/reaction-history.ts";
 import { createReleaseReactionReader } from "../market/release-reaction.ts";
+import { dailyQuoteHandler } from "./daily-quote-handler.ts";
 import { journalHandler } from "./journal-handler.ts";
 import { marketHandler } from "./market-handler.ts";
 
 export function localApiHandler() {
   const storage = createJournal();
   const journal = journalHandler(storage);
+  const dailyQuote = dailyQuoteHandler();
   const readCalendar = createCalendarFeed();
   const history = createReactionHistory({
     readCalendar,
@@ -31,6 +34,10 @@ export function localApiHandler() {
 
   function handle(request: IncomingMessage, response: ServerResponse) {
     const path = request.url?.split("?", 1)[0];
+    if (path === DAILY_QUOTE_ROUTE) {
+      void dailyQuote(request, response);
+      return true;
+    }
     if (isJournalRoute(path)) {
       void journal(request, response);
       return true;

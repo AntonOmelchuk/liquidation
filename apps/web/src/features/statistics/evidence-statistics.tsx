@@ -47,14 +47,12 @@ export function EvidenceStatistics({ trades }: TradeAnalysisProps) {
   );
   const exceptions = books
     .flatMap((book) =>
-      book.versions.flatMap((version) =>
-        ruleOutcomes(book, version, trades).rows.map((row) => ({
-          key: book.id + ":" + version.number + ":" + row.rule.id,
-          book: book.title + " · v" + version.number,
-          ...row,
-          records: row.misses.map(({ trade }) => trade),
-        })),
-      ),
+      ruleOutcomes(book, trades).rows.map((row) => ({
+        key: book.id + ":" + row.rule.id,
+        book: book.title,
+        ...row,
+        records: row.misses.map(({ trade }) => trade),
+      })),
     )
     .sort((left, right) => left.results.net - right.results.net);
   const ruleSelection = useTradeGroupSelection(exceptions);

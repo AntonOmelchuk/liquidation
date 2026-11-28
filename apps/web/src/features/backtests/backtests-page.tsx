@@ -1,3 +1,5 @@
+import { ICON_ACTION } from "../../shared/ui/constants.ts";
+import { IconAction } from "../../shared/ui/icon-action.tsx";
 import { TRASH_KIND } from "@liquidation/domain/journal/trash/constants";
 import { deletedPlaybook } from "@liquidation/domain/journal/trash/trash";
 import { useTrashMessages } from "../trash/messages.ts";
@@ -6,21 +8,25 @@ import {
   sampleResult,
 } from "@liquidation/domain/backtests/backtest";
 import { realizedR } from "@liquidation/domain/trades/trade";
-import { useState } from "react";
 import { NEW_BACKTEST_HREF, PAGE_HASHES } from "../../app/constants.ts";
-import { backtestHref, playbookHref } from "../../app/page.ts";
-import { EMPTY_VALUE, NEW_DRAFT } from "../../shared/constants.ts";
+import {
+  backtestHref,
+  backtestSampleHref,
+  playbookHref,
+} from "../../app/page.ts";
+import { SeriesChart } from "../../shared/analytics/series-chart.tsx";
+import { EMPTY_VALUE } from "../../shared/constants.ts";
 import { numericTone } from "../../shared/format.ts";
 import { useLocale } from "../../shared/messages.ts";
-import { TradeSideBadge } from "../../shared/ui/direction-badge.tsx";
-import { ScreenshotGallery } from "../../shared/screenshots/screenshot-gallery.tsx";
-import { InstrumentIcons } from "../../shared/ui/instrument-picker.tsx";
-import { Metric, Panel } from "../../shared/ui/layout.tsx";
+import { Panel } from "../../shared/ui/layout.tsx";
+import { MetricBar } from "../../shared/ui/metric-bar.tsx";
+import { MetricCard, MetricGrid } from "../../shared/ui/metric-card.tsx";
+import { METRIC_TONE } from "../../shared/ui/metric-constants.ts";
 import { JOURNAL_STATUS } from "../journal/data/constants.ts";
 import { useJournal } from "../journal/data/store.ts";
 import { DeleteRecord } from "../trash/delete-record.tsx";
 import { JournalUnavailable } from "../journal/journal-unavailable.tsx";
-import { BacktestSampleForm } from "./backtest-sample-form.tsx";
+import { BacktestSamplesTable } from "./backtest-samples-table.tsx";
 import { useBacktestMessages } from "./messages.ts";
 import type { BacktestComparisonProps, BacktestMetricsProps } from "./types.ts";
 
@@ -28,26 +34,62 @@ function BacktestMetrics({ samples }: BacktestMetricsProps) {
   const { t, format } = useLocale();
   const b = useBacktestMessages();
   const result = backtestResults(samples);
+  const ordered = samples.toSorted(
+    (a, b) => Date.parse(a.openedAt) - Date.parse(b.openedAt),
+  );
+  let total = 0;
+  const values = ordered.length
+    ? [
+        0,
+        ...ordered.map((sample) => {
+          total += sampleResult(sample);
+          return total;
+        }),
+      ]
+    : [];
   return (
-    <div className="metrics">
-      <Metric label={b.samples} value={format.integer.format(result.count)} />
-      <Metric
+    <MetricGrid compact>
+      <MetricCard
+        label={b.samples}
+        value={format.integer.format(result.count)}
+        icon="FLASK"
+        tone={METRIC_TONE.NEUTRAL}
+      />
+      <MetricCard
         label={t.win}
         value={
           result.winRate === null
             ? EMPTY_VALUE
             : format.percentage.format(result.winRate)
         }
+        icon="TARGET"
+        detail={
+          result.winRate !== null && (
+            <MetricBar
+              segments={[{ tone: METRIC_TONE.POSITIVE, ratio: result.winRate }]}
+            />
+          )
+        }
       />
-      <Metric
+      <MetricCard
         label={t.result}
         value={
           result.totalR === null
             ? EMPTY_VALUE
             : `${format.money.format(result.totalR)} R`
         }
-      />
-    </div>
+        icon="TREND"
+        tone={numericTone(result.totalR ?? 0)}
+      >
+        <SeriesChart
+          compact
+          signed
+          values={values}
+          label={t.cumulative}
+          unit=" R"
+        />
+      </MetricCard>
+    </MetricGrid>
   );
 }
 
@@ -148,8 +190,8 @@ function BacktestComparison({ run, trades }: BacktestComparisonProps) {
                 <th scope="row">{label}</th>
                 <td>{format.integer.format(count)}</td>
                 <td>{format.integer.format(measured)}</td>
-                <td>{average(totalR)}</td>
-                <td>{average(mean)}</td>
+                <td className={numericTone(totalR ?? 0)}>{average(totalR)}</td>
+                <td className={numericTone(mean ?? 0)}>{average(mean)}</td>
               </tr>
             ))}
           </tbody>
@@ -160,7 +202,6 @@ function BacktestComparison({ run, trades }: BacktestComparisonProps) {
 }
 
 export function BacktestDetailsPage({ id }: { id: string }) {
-  const { format } = useLocale();
   const b = useBacktestMessages();
   const run = useJournal((state) =>
     state.backtests.find((entry) => entry.id === id),
@@ -173,8 +214,6 @@ export function BacktestDetailsPage({ id }: { id: string }) {
   );
   const deleted = useTrashMessages().deleted;
   const trades = useJournal((state) => state.trades);
-  const [editing, setEditing] = useState<string | null>(null);
-  const finish = () => setEditing(null);
   if (!run)
     return (
       <JournalUnavailable
@@ -186,10 +225,7 @@ export function BacktestDetailsPage({ id }: { id: string }) {
 
   const attached = run.playbook;
   const actual = attached
-    ? (trades ?? []).filter(
-        ({ playbook }) =>
-          playbook?.id === attached.id && playbook.version === attached.version,
-      )
+    ? (trades ?? []).filter(({ playbook }) => playbook?.id === attached.id)
     : [];
   return (
     <main className="playbook-detail-page">
@@ -201,12 +237,12 @@ export function BacktestDetailsPage({ id }: { id: string }) {
           <h1>{run.title}</h1>
           {book && attached && (
             <a className="record-link" href={playbookHref(book.id)}>
-              {book.title} · v{attached.version}
+              {book.title}
             </a>
           )}
           {!book && oldBook && attached && (
             <span>
-              {oldBook.title} · v{attached.version} · {deleted}
+              {oldBook.title} · {deleted}
             </span>
           )}
         </div>
@@ -215,14 +251,15 @@ export function BacktestDetailsPage({ id }: { id: string }) {
             kind={TRASH_KIND.BACKTEST}
             recordKey={id}
             revision={run.revision}
-            disabled={editing !== null}
             afterDelete={() => {
               window.location.hash = PAGE_HASHES.backtests;
             }}
           />
-          <a className="action-link" href={backtestHref(id, true)}>
-            {b.edit}
-          </a>
+          <IconAction
+            icon={ICON_ACTION.EDIT}
+            label={b.edit}
+            href={backtestHref(id, true)}
+          />
         </div>
       </header>
       <BacktestMetrics samples={run.samples} />
@@ -236,88 +273,18 @@ export function BacktestDetailsPage({ id }: { id: string }) {
         <Panel
           title={b.samples}
           detail={
-            <button
-              className="secondary"
-              type="button"
-              disabled={editing !== null}
-              onClick={() => setEditing(NEW_DRAFT)}
+            <a
+              className="action-link secondary"
+              href={backtestSampleHref(run.id)}
             >
-              {b.addSample}
-            </button>
+              ＋ {b.addSample}
+            </a>
           }
         >
-          {editing === NEW_DRAFT && (
-            <BacktestSampleForm run={run} finish={finish} />
-          )}
           {run.samples.length ? (
-            <ol className="plan-timeline">
-              {run.samples
-                .toSorted(
-                  (a, b) => Date.parse(b.openedAt) - Date.parse(a.openedAt),
-                )
-                .map((sample) => {
-                  const result = sampleResult(sample);
-                  return (
-                    <li key={sample.id}>
-                      <div className="plan-actions">
-                        <span className="instrument-label">
-                          <InstrumentIcons symbol={sample.symbol} />
-                          <strong>{sample.symbol}</strong>
-                        </span>
-                        <TradeSideBadge side={sample.direction} />
-                        {sample.timeframe && <span>{sample.timeframe}</span>}
-                        <time dateTime={sample.openedAt}>
-                          {format.date.format(Date.parse(sample.openedAt))}
-                        </time>
-                        <strong className={numericTone(result)}>
-                          {format.money.format(result)} R
-                        </strong>
-                        {editing === null && (
-                          <button
-                            className="secondary"
-                            type="button"
-                            onClick={() => setEditing(sample.id)}
-                          >
-                            {b.editSample}
-                          </button>
-                        )}
-                      </div>
-                      {editing === sample.id ? (
-                        <BacktestSampleForm
-                          run={run}
-                          sample={sample}
-                          finish={finish}
-                        />
-                      ) : (
-                        <>
-                          <dl className="playbook-facts">
-                            <div>
-                              <dt>{b.entryPrice}</dt>
-                              <dd>{format.price.format(sample.entry)}</dd>
-                            </div>
-                            <div>
-                              <dt>{b.stopPrice}</dt>
-                              <dd>{format.price.format(sample.stop)}</dd>
-                            </div>
-                            <div>
-                              <dt>{b.exitPrice}</dt>
-                              <dd>{format.price.format(sample.exit)}</dd>
-                            </div>
-                            <div>
-                              <dt>{b.costsR}</dt>
-                              <dd>{format.money.format(sample.costsR)} R</dd>
-                            </div>
-                          </dl>
-                          {sample.notes && <p>{sample.notes}</p>}
-                          <ScreenshotGallery ids={sample.screenshotIds} />
-                        </>
-                      )}
-                    </li>
-                  );
-                })}
-            </ol>
+            <BacktestSamplesTable run={run} />
           ) : (
-            !editing && <p>{b.noSamples}</p>
+            <p>{b.noSamples}</p>
           )}
         </Panel>
       </div>

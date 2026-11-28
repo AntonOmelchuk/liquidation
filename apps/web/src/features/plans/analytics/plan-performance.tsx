@@ -4,6 +4,9 @@ import type { OutcomeChartProps, PlanPerformancePanelProps } from "./types.ts";
 
 import { useLocale } from "../../../shared/messages.ts";
 import { Panel } from "../../../shared/ui/layout.tsx";
+import { numericTone } from "../../../shared/format.ts";
+import { MetricCard, MetricGrid } from "../../../shared/ui/metric-card.tsx";
+import { METRIC_TONE } from "../../../shared/ui/metric-constants.ts";
 import { usePlanMessages } from "../messages.ts";
 
 function OutcomeChart({ points, unit }: OutcomeChartProps) {
@@ -121,20 +124,26 @@ export function PlanPerformancePanel({
       detail={unit === SCENARIO_UNIT.R ? p.unitR : p.unitCash}
     >
       {series.points.length > 0 && (
-        <dl className="comparison-legend">
-          <div data-series="realized">
-            <dt>{p.realized}</dt>
-            <dd>{multiple(series.realized)}</dd>
-          </div>
-          <div data-series="scenario">
-            <dt>{p.scenario}</dt>
-            <dd>{multiple(series.scenario)}</dd>
-          </div>
-          <div>
-            <dt>{p.difference}</dt>
-            <dd>{multiple(series.missed)}</dd>
-          </div>
-        </dl>
+        <MetricGrid compact>
+          <MetricCard
+            label={p.realized}
+            value={multiple(series.realized)}
+            tone={METRIC_TONE.ACCENT}
+            icon="TREND"
+          />
+          <MetricCard
+            label={p.scenario}
+            value={multiple(series.scenario)}
+            tone={METRIC_TONE.NEUTRAL}
+            icon="LAYERS"
+          />
+          <MetricCard
+            label={p.difference}
+            value={multiple(series.missed)}
+            tone={numericTone(series.missed)}
+            icon="ACTIVITY"
+          />
+        </MetricGrid>
       )}
       <OutcomeChart points={series.points} unit={unit} />
       {series.points.length > 0 && (

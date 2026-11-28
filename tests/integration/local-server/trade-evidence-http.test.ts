@@ -280,7 +280,15 @@ test("historical unchecked rules without reasons remain editable when adding cha
     );
     expect((await journal.read()).trades[0]).toMatchObject({
       entryScreenshotIds: [chartId],
-      playbook: legacy.playbook,
+      playbook: {
+        id: bookId,
+        setupId,
+        entry: legacy.playbook.entry,
+        recordedRules: {
+          setupName: "Sweep",
+          entry: [{ id: ruleId, label: "Sweep first", detail: "" }],
+        },
+      },
     });
     expect(await journal.readScreenshot(chartId)).not.toBeNull();
   } finally {

@@ -1,12 +1,10 @@
-import { playbookVersionKey } from "@liquidation/domain/analytics/trade-factors";
 import type { Plan } from "@liquidation/domain/plans/types";
 
 import { filterPlansByStartDate } from "../list/filters.ts";
 import type { PlanAnalyticsFilters } from "./types.ts";
 
 export function planPlaybookKey(plan: Plan) {
-  const reference = plan.setup.playbook;
-  return reference ? playbookVersionKey(reference.id, reference.version) : "";
+  return plan.setup.playbook?.id ?? "";
 }
 
 export function filterPlanAnalytics(

@@ -3,6 +3,8 @@ import type { Position, Trade } from "@liquidation/domain/trades/types";
 import type { REPORT_FIELDS } from "@liquidation/domain/workspace/constants";
 import type { Report, ReviewPeriod } from "@liquidation/domain/workspace/types";
 import type { ReactNode } from "react";
+import type { MetricBarProps } from "../../../shared/ui/types.ts";
+import type { REPORT_ICON_PATHS } from "./constants.ts";
 
 export type ReportPageProps = {
   period?: ReviewPeriod;
@@ -16,6 +18,16 @@ export type ComparisonProps = {
   previousLabel: string;
   showChange: boolean;
 };
+export type ComparisonRow = {
+  label: string;
+  values: readonly [number | null, number | null];
+  formatter: Intl.NumberFormat;
+  signed?: boolean;
+  baseline?: number;
+  lowerIsBetter?: boolean;
+  bars?: readonly [MetricBarProps, MetricBarProps];
+};
+export type ReviewIconName = keyof typeof REPORT_ICON_PATHS;
 export type ReviewSubject = Position | Trade;
 export type ReportTextField = (typeof REPORT_FIELDS)[number];
 export type ReportFormProps = {

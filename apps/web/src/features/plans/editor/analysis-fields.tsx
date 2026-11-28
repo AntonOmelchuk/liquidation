@@ -1,3 +1,5 @@
+import { ICON_ACTION } from "../../../shared/ui/constants.ts";
+import { IconAction } from "../../../shared/ui/icon-action.tsx";
 import { MAX_PLAN_ANALYSIS_BLOCKS } from "@liquidation/domain/plans/constants";
 import type { PlanAnalysisBlock } from "@liquidation/domain/plans/types";
 import type { AnalysisDraft, AnalysisFieldsProps } from "./types.ts";
@@ -63,16 +65,13 @@ export function AnalysisFields({
                 required={Boolean(text.trim() || screenshots.length)}
               />
             </label>
-            <button
-              type="button"
-              className="secondary"
-              aria-label={`${p.removeAnalysis} · ${index + 1}`}
+            <IconAction
+              icon={ICON_ACTION.DELETE}
+              label={`${p.removeAnalysis} · ${index + 1}`}
               onClick={() =>
                 onChange(blocks.filter((block) => block.id !== id))
               }
-            >
-              {p.removeAnalysis}
-            </button>
+            />
           </div>
           <label>
             {p.analysisNotes}

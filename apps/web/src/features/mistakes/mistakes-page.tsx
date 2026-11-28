@@ -22,7 +22,10 @@ import {
 import { EMPTY_VALUE, LOCALES } from "../../shared/constants.ts";
 import { capitalizeFirst } from "../../shared/format.ts";
 import { useLocale } from "../../shared/messages.ts";
-import { Metric, Panel } from "../../shared/ui/layout.tsx";
+import { Panel } from "../../shared/ui/layout.tsx";
+import { MetricBar } from "../../shared/ui/metric-bar.tsx";
+import { MetricCard, MetricGrid } from "../../shared/ui/metric-card.tsx";
+import { METRIC_TONE } from "../../shared/ui/metric-constants.ts";
 import { useAccountOptions } from "../accounts/account-options.ts";
 import { useAccountMessages } from "../accounts/messages.ts";
 import { JOURNAL_STATUS } from "../journal/data/constants.ts";
@@ -56,6 +59,8 @@ export default function MistakesPage() {
     [account, dates, invalid, trades],
   );
   const report = useMemo(() => mistakeAnalytics(filtered), [filtered]);
+  const coverage = report.closed ? report.reviewed / report.closed : null;
+  const affected = report.reviewed ? report.affected / report.reviewed : null;
   const focused = report.rows.find((row) => row.key === focus);
   const periods = useMemo(
     () => ({
@@ -153,38 +158,62 @@ export default function MistakesPage() {
         </Panel>
         {!invalid && (
           <>
-            <section
-              className="metrics statistics-metrics"
-              aria-label={m.title}
-            >
-              <Metric
+            <MetricGrid label={m.title}>
+              <MetricCard
                 label={m.coverage}
                 value={report.reviewed + "/" + report.closed}
-                detail={percent(
-                  report.closed ? report.reviewed / report.closed : null,
-                )}
+                icon="CHECKLIST"
+                detail={
+                  coverage !== null && (
+                    <>
+                      <span>{percent(coverage)}</span>
+                      <MetricBar
+                        segments={[
+                          { tone: METRIC_TONE.ACCENT, ratio: coverage },
+                        ]}
+                      />
+                    </>
+                  )
+                }
               />
-              <Metric
+              <MetricCard
                 label={m.affected}
                 value={format.integer.format(report.affected)}
-                detail={percent(
-                  report.reviewed ? report.affected / report.reviewed : null,
-                )}
+                icon="ACTIVITY"
+                tone={report.affected ? METRIC_TONE.NEGATIVE : undefined}
+                detail={
+                  affected !== null && (
+                    <>
+                      <span>{percent(affected)}</span>
+                      <MetricBar
+                        segments={[
+                          { tone: METRIC_TONE.NEGATIVE, ratio: affected },
+                        ]}
+                      />
+                    </>
+                  )
+                }
               />
-              <Metric
+              <MetricCard
                 label={m.count}
                 value={format.integer.format(report.occurrences)}
+                icon="LAYERS"
+                tone={METRIC_TONE.NEUTRAL}
               />
-              <Metric
+              <MetricCard
                 label={m.criticalTrades}
                 value={format.integer.format(report.critical)}
+                icon="WARNING"
+                tone={report.critical ? METRIC_TONE.NEGATIVE : undefined}
                 detail={m.critical + " · " + report.criticalOccurrences}
               />
-              <Metric
+              <MetricCard
                 label={m.recurrence}
                 value={format.integer.format(report.recurring)}
+                icon="REPEAT"
+                tone={report.recurring ? METRIC_TONE.CAUTION : undefined}
               />
-            </section>
+            </MetricGrid>
             <Panel title={m.summary}>
               <p className="analytics-hint">{m.metricHint}</p>
               <MistakeSummaryTable

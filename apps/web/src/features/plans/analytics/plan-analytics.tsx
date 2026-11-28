@@ -66,9 +66,7 @@ export function PlanAnalytics({
   const options = useMemo(() => {
     const names = new Map(playbooks.map(({ id, title }) => [id, title]));
     const showBook = (reference?: PlaybookReference) =>
-      reference
-        ? `${names.get(reference.id) ?? b.missing} · v${reference.version}`
-        : b.none;
+      reference ? (names.get(reference.id) ?? b.missing) : b.none;
     const compare = new Intl.Collator(LOCALES[language], { numeric: true })
       .compare;
     const symbols = [...new Set(plans.map(({ setup }) => setup.symbol))]

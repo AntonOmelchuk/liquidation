@@ -13,7 +13,7 @@ const en = {
   statisticsSteps: [
     "Choose the closing-date range and account. Open any filter category to restrict the selection further. Remove a filter using its chip, or reset the entire selection.",
     "Use Overview to compare the main dimensions. Check any rows for a unique-trade subtotal. The month table combines each calendar month across all years. Click a table header to change sorting. Select a group name to inspect the trades behind its numbers.",
-    "Use Trade breakdown for one factor, including entry hour, trade outcome, strategy version and holding time. The grouped dropdown changes the dimension being compared. It leaves every active filter in place.",
+    "Use Trade breakdown for one factor, including entry hour, trade outcome, playbook and holding time. The grouped dropdown changes the dimension being compared. It leaves every active filter in place.",
     "Review the performance curves, drawdown, distribution of R, period summaries and rule adherence below. The actual-versus-potential scenario uses all trades and assessed misses in the selected date range.",
     "Open Trading insights to compare profitable and losing groups, then test historical inclusion or exclusion rules. Samples below 20 trades are preliminary.",
     "Open Mistakes for recurrence, critical exceptions, review coverage and changes across the latest and previous reviewed trades.",
@@ -33,7 +33,7 @@ const en = {
     "Create a dated plan with chart examples, analysis blocks, a playbook and intended risk. Link existing trades or choose the plan when recording a position. Update its status, reason and review after the opportunity. Add assessed missed entries when appropriate.",
   strategies: "Playbooks",
   strategiesText:
-    "Choose a template, define setups and rules, add chart examples and review your execution. Link trades and plans to a specific strategy version and setup. Checklists and setup examples are retained with that version.",
+    "Choose a template, define setups and rules, add chart examples and review your execution. Link trades and plans to a playbook and setup. Each trade keeps the rules it was assessed against.",
   backtests: "Backtests",
   backtestsText:
     "Create a separate backtest for a strategy, record manual samples, risk, result and notes, and examine the sample's performance. Backtest samples have their own statistics.",
@@ -62,7 +62,7 @@ const uk: typeof en = {
   statisticsSteps: [
     "Обери дати закриття та рахунок. Відкрий категорію фільтрів для уточнення вибірки. Зніми окремий фільтр натисканням на його позначку або скинь усі разом.",
     "В огляді порівнюй основні фактори в окремих таблицях. Позначай рядки для підсумку вибраних угод. Таблиця місяців об’єднує однойменні місяці всіх років. Натисни на заголовок колонки для зміни сортування. Натисни на назву групи, щоб побачити угоди, з яких отримано цифри.",
-    "У розбивці угод аналізуй один фактор, зокрема годину входу, результат угоди, версію стратегії або час утримання. Меню групування змінює фактор порівняння і зберігає всі активні фільтри.",
+    "У розбивці угод аналізуй один фактор, зокрема годину входу, результат угоди, плейбук або час утримання. Меню групування змінює фактор порівняння і зберігає всі активні фільтри.",
     "Нижче переглянь криві результатів, просадку, розподіл R, підсумки за періодами та дотримання правил. Сценарій фактичного й потенційного результату використовує всі угоди та оцінені пропуски за вибрані дати.",
     "Відкрий «Висновки», щоб порівняти прибуткові й збиткові групи та перевірити історичний відбір або виключення. Вибірки до 20 угод дають попередні висновки.",
     "Відкрий «Помилки» для аналізу повторень, критичних винятків, повноти рев’ю та зміни частоти між останніми й попередніми угодами.",
@@ -82,7 +82,7 @@ const uk: typeof en = {
     "Створи датований план з прикладами графіків, блоками аналізу, плейбуком і запланованим ризиком. Прив’яжи наявні угоди або обери план під час запису позиції. Після можливості онови статус, причину й рев’ю. Додавай оцінені пропущені входи, коли це потрібно.",
   strategies: "Плейбуки",
   strategiesText:
-    "Обери шаблон, опиши сетапи та правила, додай приклади графіків і проаналізуй виконання. Прив’язуй угоди й плани до версії стратегії та сетапу. Чеклісти й приклади сетапів зберігаються з відповідною версією.",
+    "Обери шаблон, опиши сетапи та правила, додай приклади графіків і проаналізуй виконання. Прив’язуй угоди й плани до плейбука та сетапу. Кожна угода зберігає правила, за якими її оцінено.",
   backtests: "Бектести",
   backtestsText:
     "Створи окремий бектест для стратегії, записуй тестові угоди, ризик, результат і нотатки, переглядай результативність вибірки. Бектести мають власну статистику.",

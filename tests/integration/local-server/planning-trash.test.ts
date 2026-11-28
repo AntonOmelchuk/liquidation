@@ -7,10 +7,7 @@ import {
 import { journalSchema } from "@liquidation/domain/journal/journal";
 import { TRASH_KIND } from "@liquidation/domain/journal/trash/constants";
 import { PLAYBOOK_TEMPLATE } from "@liquidation/domain/playbooks/constants";
-import {
-  currentVersion,
-  playbookCommand,
-} from "@liquidation/domain/playbooks/playbook";
+import { playbookCommand } from "@liquidation/domain/playbooks/playbook";
 import { emptyPlaybookStrategy } from "@liquidation/domain/playbooks/strategy";
 import { workspaceCommand } from "@liquidation/domain/workspace/workspace";
 import { once } from "node:events";
@@ -116,12 +113,11 @@ test("trash preserves linked plans and versioned playbooks through a real positi
         symbol: "EURUSD",
         direction: "long",
         entryCondition: "Study",
-        playbook: { id: bookId, version: 1 },
+        playbook: { id: bookId },
       },
     });
     const playbook = {
       id: bookId,
-      version: 1,
       setupId,
       entry: [{ ruleId, met: true }],
     };
@@ -209,7 +205,7 @@ test("trash preserves linked plans and versioned playbooks through a real positi
     expect(state.trades[0].planId).toBe(planId);
     expect(state.playbooks[0].revision).toBe(2);
     expect(
-      currentVersion(state.playbooks[0]).strategy?.community?.chartExamples[0]
+      state.playbooks[0].rules.strategy?.community?.chartExamples[0]
         .screenshotIds,
     ).toEqual([image]);
     expect(Buffer.from((await journal.readScreenshot(image))!.bytes)).toEqual(
@@ -289,11 +285,19 @@ test("persists independent thoughts, watchlist reviews and missed trades and han
           input: {
             ...watch.input,
             review: "One missed opportunity",
+            grade: "C",
             items: [{ ...watch.input.items[0], outcome: "missed" }],
           },
         })
       ).status,
     ).toBe(200);
+    const nextWatch = {
+      record: "watchlist",
+      start: "2026-11-30",
+      input: { outlook: "Plan ahead", review: "", items: [] },
+    };
+    expect((await post(workspace, nextWatch)).status).toBe(200);
+    expect((await post(workspace, nextWatch)).status).toBe(409);
     const miss = {
       record: "missed",
       id: crypto.randomUUID(),
@@ -325,11 +329,18 @@ test("persists independent thoughts, watchlist reviews and missed trades and han
     });
     state = await journal.read();
     expect(state.workspace.missedTrades).toEqual([]);
-    expect(state.workspace.watchlists[0]).toMatchObject({
-      revision: 2,
-      review: "One missed opportunity",
-    });
-    expect(state.workspace.watchlists[0].items[0].outcome).toBe("missed");
+    expect(state.workspace.watchlists).toEqual([
+      expect.objectContaining({
+        start: watch.start,
+        revision: 2,
+        review: "One missed opportunity",
+        grade: "C",
+        items: [
+          expect.objectContaining({ outcome: "missed", planIds: [planId] }),
+        ],
+      }),
+      { start: nextWatch.start, revision: 1, ...nextWatch.input },
+    ]);
     expect(state.workspace.thoughts[0].revision).toBe(2);
     expect(state.workspace.thoughts[0].text).toBe("New thought");
 

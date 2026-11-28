@@ -1,3 +1,5 @@
+import { ICON_ACTION } from "../../../shared/ui/constants.ts";
+import { IconAction } from "../../../shared/ui/icon-action.tsx";
 import {
   LECTURE_BLOCK,
   LECTURE_BLOCK_LIMIT,
@@ -67,18 +69,15 @@ export function LectureBlocks({
               >
                 ↓
               </button>
-              <button
-                className="secondary"
-                type="button"
-                aria-label={l.removeBlock + " · " + (index + 1)}
+              <IconAction
+                icon={ICON_ACTION.DELETE}
+                label={l.removeBlock + " · " + (index + 1)}
                 onClick={() =>
                   onChange((current) =>
                     current.filter(({ id }) => id !== block.id),
                   )
                 }
-              >
-                ×
-              </button>
+              />
             </div>
           </div>
           {block.type === LECTURE_BLOCK.TEXT ? (

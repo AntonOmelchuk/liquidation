@@ -11,6 +11,7 @@ import type {
 } from "@liquidation/domain/workspace/types";
 import { workspaceDaySchema } from "@liquidation/domain/workspace/workspace";
 import { useSyncExternalStore } from "react";
+import { MARKET_CALENDAR_HREF } from "../features/market/constants.ts";
 import {
   LEGACY_LEARNING_HREF,
   NEW_BACKTEST_HREF,
@@ -54,6 +55,29 @@ export function backtestHref(id: string, editing = false) {
   return `${PAGE_HASHES.backtests}/${id}${editing ? `/${PAGE_VIEW.EDIT}` : ""}`;
 }
 
+export function backtestSampleHref(
+  id: string,
+  sampleId?: string,
+  editing = false,
+) {
+  const base = `${backtestHref(id)}/${PAGE_VIEW.SAMPLES}`;
+  if (!sampleId) return base + "/" + PAGE_VIEW.NEW;
+  return base + "/" + sampleId + (editing ? "/" + PAGE_VIEW.EDIT : "");
+}
+
+export function missedTradeHref(id: string, editing = false) {
+  return (
+    PAGE_HASHES[PAGE.MISSED_TRADES] +
+    "/" +
+    id +
+    (editing ? "/" + PAGE_VIEW.EDIT : "")
+  );
+}
+
+export function newMissedTradeHref(day?: string) {
+  return missedTradeHref(PAGE_VIEW.NEW) + (day ? "/" + day : "");
+}
+
 export function highlightHref(id?: string, editing = false) {
   const root = PAGE_HASHES[PAGE.BEST_TRADES];
   return id ? root + "/" + id + (editing ? "/" + PAGE_VIEW.EDIT : "") : root;
@@ -91,8 +115,9 @@ export function thoughtHref(
     ? root + "/" + period + "/" + periodBounds(period, day).start
     : root + "/" + day;
 }
-export function watchlistHref(day: string) {
-  return PAGE_HASHES.watchlist + "/" + periodBounds(PERIOD.WEEK, day).start;
+export function watchlistHref(day: string, view?: typeof PAGE_VIEW.NEW) {
+  const start = periodBounds(PERIOD.WEEK, day).start;
+  return PAGE_HASHES.watchlist + "/" + start + (view ? "/" + view : "");
 }
 
 export function accountHref(id: string) {
@@ -106,6 +131,7 @@ export function cardsHref(day: string) {
 }
 
 export function routeFor(hash: string): Route {
+  if (hash === MARKET_CALENDAR_HREF) return { page: PAGE.JOURNAL };
   if (hash === PAGE_HASHES.mistakes) return { page: PAGE.MISTAKES };
   if (hash === PAGE_HASHES[PAGE.NEWS_REACTIONS])
     return { page: PAGE.NEWS_REACTIONS };
@@ -121,6 +147,28 @@ export function routeFor(hash: string): Route {
     return { page: PAGE.LECTURES, view: PAGE_VIEW.LIST };
   if (hash === RECENT_REVIEW_HREF) return { page: PAGE.REPORTS, recent: true };
   const [page, id, action, section, ...rest] = hash.split("/");
+  if (
+    page === PAGE_HASHES.backtests &&
+    id &&
+    action === PAGE_VIEW.SAMPLES &&
+    section
+  ) {
+    if (!rest.length && section === PAGE_VIEW.NEW)
+      return {
+        page: PAGE.BACKTESTS,
+        id,
+        view: PAGE_VIEW.SAMPLES,
+        editing: true,
+      };
+    if (!rest.length || (rest.length === 1 && rest[0] === PAGE_VIEW.EDIT))
+      return {
+        page: PAGE.BACKTESTS,
+        id,
+        view: PAGE_VIEW.SAMPLES,
+        sampleId: section,
+        editing: rest.length === 1,
+      };
+  }
   if (rest.length === 0) {
     if (page === PAGE_HASHES.accounts && !action && !section)
       return { page: PAGE.ACCOUNTS, id };
@@ -148,6 +196,13 @@ export function routeFor(hash: string): Route {
     }
     if (page === PAGE_HASHES.watchlist) {
       const date = workspaceDaySchema.safeParse(id);
+      if (date.success && action === PAGE_VIEW.NEW && !section) {
+        return {
+          page: PAGE.WATCHLIST,
+          day: periodBounds(PERIOD.WEEK, date.data).start,
+          view: PAGE_VIEW.NEW,
+        };
+      }
       return {
         page: PAGE.WATCHLIST,
         day: date.success && !action && !section ? date.data : undefined,
@@ -161,6 +216,23 @@ export function routeFor(hash: string): Route {
       if (id && action === PAGE_VIEW.EDIT && !section)
         return { page: target, view: PAGE_VIEW.EDIT, id };
       return { page: target, view: PAGE_VIEW.LIST };
+    }
+    if (page === PAGE_HASHES[PAGE.MISSED_TRADES] && !section) {
+      if (id === PAGE_VIEW.NEW) {
+        const day = workspaceDaySchema.safeParse(action);
+        return {
+          page: PAGE.MISSED_TRADES,
+          view: PAGE_VIEW.NEW,
+          day: day.success ? day.data : undefined,
+        };
+      }
+      if (id && (!action || action === PAGE_VIEW.EDIT))
+        return {
+          page: PAGE.MISSED_TRADES,
+          view: action === PAGE_VIEW.EDIT ? PAGE_VIEW.EDIT : PAGE_VIEW.DETAILS,
+          id,
+        };
+      return { page: PAGE.MISSED_TRADES, view: PAGE_VIEW.LIST };
     }
     if (page === PAGE_HASHES[PAGE.BEST_TRADES]) {
       if (id === PAGE_VIEW.NEW && !action && !section)

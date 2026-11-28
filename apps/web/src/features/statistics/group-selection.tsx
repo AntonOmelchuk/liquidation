@@ -1,10 +1,11 @@
 import { selectedGroupTrades } from "@liquidation/domain/analytics/group-selection";
 import { tradeStatistics } from "@liquidation/domain/analytics/trade-statistics";
 import type { TradeGroupRecords } from "@liquidation/domain/analytics/types";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { EMPTY_VALUE } from "../../shared/constants.ts";
 import { numericTone } from "../../shared/format.ts";
 import { useLocale } from "../../shared/messages.ts";
+import { CheckboxField } from "../../shared/ui/checkbox-field.tsx";
 import { useStatisticsMessages } from "./messages.ts";
 import type { GroupCheckboxProps, GroupSelectionProps } from "./types.ts";
 
@@ -42,17 +43,12 @@ export function useTradeGroupSelection(groups: readonly TradeGroupRecords[]) {
 
 export function GroupCheckboxHeader({ selection }: GroupSelectionProps) {
   const s = useStatisticsMessages();
-  const ref = useRef<HTMLInputElement>(null);
-  useEffect(() => {
-    if (ref.current) ref.current.indeterminate = selection.partial;
-  }, [selection.partial]);
   return (
     <th scope="col" className="group-check-cell" title={s.chosenHint}>
-      <input
-        ref={ref}
-        type="checkbox"
+      <CheckboxField
         aria-label={s.selectAllGroups}
         checked={selection.all}
+        indeterminate={selection.partial}
         onChange={selection.toggleAll}
       />
     </th>
@@ -67,8 +63,7 @@ export function GroupCheckbox({
   const s = useStatisticsMessages();
   return (
     <td className="group-check-cell">
-      <input
-        type="checkbox"
+      <CheckboxField
         aria-label={s.selectGroups + " · " + label}
         checked={selection.keys.has(groupKey)}
         onChange={() => selection.toggle(groupKey)}

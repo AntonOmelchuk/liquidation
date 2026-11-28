@@ -27,7 +27,7 @@ export type WatchDraft = Omit<WatchItem, "screenshotIds"> & {
 export type WatchlistEditorProps = {
   week: string;
   entry?: WeeklyWatchlist;
-  onClose: () => void;
+  onClose: (saved?: boolean) => void;
 };
 export type WatchItemEditorProps = {
   week: string;
@@ -40,9 +40,15 @@ export type MissedTradesPanelProps = {
   from?: string;
   through?: string;
   initialDay?: string;
+  showBreakdown?: boolean;
 };
 export type MissedEditorProps = {
   entry?: MissedTrade;
   initialDay?: string;
-  onClose: () => void;
+  onClose: (savedId?: string) => void;
+};
+
+export type MissedTradesTableProps = {
+  records: readonly MissedTrade[];
+  executed: ReadonlySet<string>;
 };

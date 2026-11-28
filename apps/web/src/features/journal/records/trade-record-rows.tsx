@@ -5,6 +5,7 @@ import { formatCompactDay, numericTone } from "../../../shared/format.ts";
 import { useLocale } from "../../../shared/messages.ts";
 import { TradeSideBadge } from "../../../shared/ui/direction-badge.tsx";
 import { InstrumentIcons } from "../../../shared/ui/instrument-picker.tsx";
+import { PositionNewsBadge } from "../../market/position-news-badge.tsx";
 import { TRADE_RESULT } from "./constants.ts";
 import { useTradeRecordMessages } from "./messages.ts";
 import type { TradeRecordRowsProps } from "./types.ts";
@@ -60,6 +61,7 @@ export function TradeRecordRows({
             <InstrumentIcons symbol={record.symbol} />
             {record.symbol}
           </button>
+          {!trade && <PositionNewsBadge symbol={record.symbol} />}
         </th>
         <td>
           <TradeSideBadge side={record.direction} />

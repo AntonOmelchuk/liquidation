@@ -24,17 +24,6 @@
 .dashboard-account-empty {
   margin-bottom: 0.8rem;
 }
-.metrics.account-metrics {
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
-  gap: 0.65rem;
-}
-.metrics.account-metrics article {
-  padding: 0.7rem 0.85rem;
-}
-.metrics.account-metrics strong {
-  font-size: clamp(1.05rem, 1.5vw, 1.55rem);
-  margin-top: 0.4rem;
-}
 .account-limit-field {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -47,13 +36,6 @@
   padding: 0.85rem;
   display: grid;
   gap: 0.8rem;
-}
-.account-rule-progress dd {
-  overflow-wrap: anywhere;
-}
-.account-rule-progress small {
-  display: block;
-  margin: 0.25rem 0;
 }
 .account-field {
   display: grid;

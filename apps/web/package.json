@@ -3,9 +3,10 @@
   "type": "module",
   "private": true,
   "dependencies": {
+    "@liquidation/domain": "workspace:*",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "zustand": "^5.1.0",
-    "@liquidation/domain": "workspace:*"
+    "react-hot-toast": "2.6.0",
+    "zustand": "^5.1.0"
   }
 }

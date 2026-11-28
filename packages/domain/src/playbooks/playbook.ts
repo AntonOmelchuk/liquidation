@@ -56,7 +56,7 @@ export const playbookRulesSchema = z
     if (new Set(rules.map(({ id }) => id)).size !== rules.length) {
       context.addIssue({
         code: "custom",
-        message: "Rule IDs must be distinct within a version.",
+        message: "Rule IDs must be distinct within a playbook.",
       });
     }
   });
@@ -86,27 +86,43 @@ const versionSchema = playbookRulesSchema.safeExtend({
   number: z.number().int().positive(),
   at: z.iso.datetime(),
 });
-export const playbookReferenceSchema = z.object({
-  id: z.uuid(),
-  version: versionSchema.shape.number,
-});
+export const playbookReferenceSchema = z.object({ id: z.uuid() });
 const reviewSchema = planNoteSchema.safeExtend({
   id: z.uuid(),
   at: z.iso.datetime(),
 });
 const identity = { id: z.uuid(), revision: z.number().int().positive() };
-export const playbookSchema = playbookMetadataSchema.extend({
+const playbookRecord = playbookMetadataSchema.extend({
   ...identity,
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
-  versions: z
-    .array(versionSchema)
-    .nonempty()
-    .refine((versions) =>
-      versions.every(({ number }, index) => number === index + 1),
-    ),
   reviews: z.array(reviewSchema),
 });
+const legacyVersions = z
+  .array(versionSchema)
+  .nonempty()
+  .refine((versions) =>
+    versions.every(({ number }, index) => number === index + 1),
+  );
+const editablePlaybook = playbookRecord.extend({
+  rules: playbookRulesSchema,
+  // Preserve old rule labels and attachments for trades recorded before migration.
+  legacyVersions: legacyVersions.optional(),
+});
+export const playbookSchema = z.union([
+  editablePlaybook,
+  playbookRecord
+    .extend({ versions: legacyVersions })
+    .transform(({ versions, ...book }): z.output<typeof editablePlaybook> => {
+      const { setups, filters, management, strategy, screenshotIds } =
+        versions[versions.length - 1];
+      return {
+        ...book,
+        rules: { setups, filters, management, strategy, screenshotIds },
+        legacyVersions: versions,
+      };
+    }),
+]);
 
 const definition = {
   metadata: playbookMetadataSchema,
@@ -143,32 +159,42 @@ export const checklistSchema = z
   .array(ruleAnswerSchema)
   .min(1)
   .max(2 * MAX_PLAYBOOK_RULES);
-export const playbookLinkSchema = z
-  .object({
-    ...playbookReferenceSchema.partial({ version: true }).shape,
-    setupId: z.uuid().optional(),
-    entry: checklistSchema.optional(),
-    management: checklistSchema.optional(),
-  })
-  .refine(
-    ({ version, setupId, entry, management }) =>
-      version !== undefined || !(setupId || entry || management),
-  );
+export const recordedRulesSchema = z.object({
+  setupName: z.string().max(120).optional(),
+  entry: z.array(ruleSchema).max(2 * MAX_PLAYBOOK_RULES),
+  management: ruleList,
+});
+export const playbookLinkSchema = playbookReferenceSchema.extend({
+  setupId: z.uuid().optional(),
+  entry: checklistSchema.optional(),
+  management: checklistSchema.optional(),
+  recordedRules: recordedRulesSchema.optional(),
+  version: versionSchema.shape.number.optional(),
+});
 
-export function currentVersion(playbook: Playbook) {
-  return playbook.versions[playbook.versions.length - 1];
+export function entryRules(rules: PlaybookRules, setupId: string | undefined) {
+  const setup = rules.setups.find(({ id }) => id === setupId);
+  return [...(setup?.rules ?? []), ...rules.filters];
 }
 
-export function linkedVersion(playbook: Playbook, link: PlaybookLink) {
-  return playbook.versions.find(({ number }) => number === link.version);
+export function rulesForSetup(rules: PlaybookRules, setupId?: string) {
+  return {
+    setupName: rules.setups.find(({ id }) => id === setupId)?.name,
+    entry: setupId ? entryRules(rules, setupId) : [],
+    management: rules.management,
+  };
 }
 
-export function entryRules(
-  version: PlaybookRules,
-  setupId: string | undefined,
+export function tradePlaybookRules(
+  book: Playbook | undefined,
+  link: PlaybookLink,
 ) {
-  const setup = version.setups.find(({ id }) => id === setupId);
-  return [...(setup?.rules ?? []), ...version.filters];
+  if (link.recordedRules) return link.recordedRules;
+  if (!book) return undefined;
+  const historical = book.legacyVersions?.find(
+    ({ number }) => number === link.version,
+  );
+  return rulesForSetup(historical ?? book.rules, link.setupId);
 }
 
 export function playbookRulesScreenshotIds(rules: PlaybookRules) {
@@ -182,6 +208,7 @@ export function playbookRulesScreenshotIds(rules: PlaybookRules) {
 export function playbookScreenshotIds(book?: Playbook) {
   return new Set([
     ...(book?.reviews.flatMap((review) => review.screenshotIds) ?? []),
-    ...(book?.versions.flatMap(playbookRulesScreenshotIds) ?? []),
+    ...(book ? playbookRulesScreenshotIds(book.rules) : []),
+    ...(book?.legacyVersions?.flatMap(playbookRulesScreenshotIds) ?? []),
   ]);
 }

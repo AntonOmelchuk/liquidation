@@ -1,0 +1,119 @@
+.report-summary {
+  --review-violet: var(--chart-flat);
+  --review-blue: #9dbff5;
+  display: grid;
+  gap: clamp(0.75rem, 1.3vw, 1.15rem);
+  margin-block-end: 1rem;
+}
+[data-theme="light"] .report-summary {
+  --review-blue: #225b9a;
+}
+.report-summary [data-accent="violet"] {
+  --review-accent: var(--review-violet);
+}
+.report-summary [data-accent="blue"] {
+  --review-accent: var(--review-blue);
+}
+.report-summary [data-accent="amber"] {
+  --review-accent: var(--chart-caution);
+}
+.report-summary [data-accent="green"] {
+  --review-accent: var(--pnl-positive);
+}
+.report-summary [data-accent="red"] {
+  --review-accent: var(--pnl-negative);
+}
+.report-scorecard,
+.report-note-grid {
+  display: grid;
+  gap: clamp(0.65rem, 1.2vw, 1.05rem);
+  margin: 0;
+}
+.report-scorecard {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+}
+:is(.report-scorecard, .report-note-grid, .report-summary):empty {
+  display: none;
+}
+.report-scorecard > div,
+.report-note {
+  min-width: 0;
+  padding: clamp(0.85rem, 1.5vw, 1.25rem);
+  border: 1px solid color-mix(in srgb, var(--review-accent) 24%, var(--border));
+  border-radius: 0.8rem;
+  background: linear-gradient(
+    130deg,
+    color-mix(in srgb, var(--review-accent) 9%, var(--surface)),
+    var(--surface) 85%
+  );
+}
+.report-scorecard > div {
+  border-block-start-width: 3px;
+}
+.report-scorecard dt,
+.report-note h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0;
+}
+.review-icon {
+  flex: none;
+  width: 1.2em;
+  height: 1.2em;
+}
+.report-scorecard .review-icon,
+.report-note .review-icon {
+  color: var(--review-accent);
+}
+.report-scorecard dt {
+  font-size: 0.96rem;
+  font-weight: 660;
+}
+.report-scorecard dd {
+  margin: 0.65rem 0 0;
+  font-size: clamp(1.6rem, 2.2vw, 2.2rem);
+  font-weight: 740;
+  line-height: 1.12;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.report-scorecard .review-grade {
+  font-size: 0.82em;
+}
+.report-progress-max {
+  color: var(--muted);
+  font-size: 0.66em;
+  margin-inline-start: 0.12em;
+}
+.report-progress-value {
+  display: grid;
+  gap: 0.6rem;
+}
+.report-progress-value .metric-bar {
+  max-width: 16rem;
+}
+.report-note {
+  border-inline-start: 3px solid var(--review-accent);
+}
+.report-note h3 {
+  font-size: clamp(1.18rem, 1.42vw, 1.55rem);
+  letter-spacing: -0.018em;
+}
+.report-note p {
+  max-width: 82ch;
+  margin: 0.65rem 0 0;
+  color: var(--text);
+  font-size: clamp(1.05rem, 1.22vw, 1.2rem);
+  line-height: 1.58;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+@media (min-width: 56rem) {
+  .report-note-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .report-note-grid > :nth-child(odd):last-child {
+    grid-column: 1 / -1;
+  }
+}

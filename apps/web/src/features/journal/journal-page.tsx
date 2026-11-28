@@ -2,7 +2,6 @@ import { DashboardAccounts } from "../accounts/dashboard-accounts.tsx";
 import { useAccountOptions } from "../accounts/account-options.ts";
 import { useAccountMessages } from "../accounts/messages.ts";
 import { TRADE_SIDE } from "@liquidation/domain/trades/constants";
-import { tradeCurves } from "@liquidation/domain/analytics/trade-risk";
 import { tradeStatistics } from "@liquidation/domain/analytics/trade-statistics";
 import { localDay } from "@liquidation/domain/workspace/period";
 import { useDeferredValue, useMemo, useState } from "react";
@@ -12,6 +11,8 @@ import {
   RECENT_REVIEW_HREF,
 } from "../../app/constants.ts";
 import { AnalyticsSelect } from "../../shared/analytics/filter-fields.tsx";
+import { TradeMetricCards } from "../../shared/analytics/trade-metric-cards.tsx";
+import { useTradeCashSeries } from "../../shared/analytics/use-trade-cash-series.ts";
 import { FILTER_ALL } from "../../shared/constants.ts";
 import { useLocale } from "../../shared/messages.ts";
 import { Panel } from "../../shared/ui/layout.tsx";
@@ -24,7 +25,6 @@ import {
   MissedTradesShortcut,
 } from "../workspace/planning/missed-trades-panel.tsx";
 import "../workspace/workspace.css";
-import { DashboardMetrics } from "./dashboard/dashboard-metrics.tsx";
 import { PnlCalendar } from "./dashboard/pnl-calendar.tsx";
 import { JournalOverview } from "./dashboard/journal-overview.tsx";
 import { JOURNAL_STATUS } from "./data/constants.ts";
@@ -52,6 +52,7 @@ export function JournalPage() {
   const [grouping, setGrouping] = useState<TradeGrouping>(TRADE_GROUPING.WEEK);
   const trades = useJournal((state) => state.trades);
   const positions = useJournal((state) => state.positions);
+  const currency = useJournal((state) => state.currency);
   const status = useJournal((state) => state.status);
   const load = useJournal((state) => state.load);
   const [search, setSearch] = useState("");
@@ -71,13 +72,7 @@ export function JournalPage() {
     };
   }, [trades, positions, query, side, from, through, account]);
   const metrics = useMemo(() => tradeStatistics(filtered), [filtered]);
-  const netValues = useMemo(
-    () =>
-      filtered.length
-        ? [0, ...tradeCurves(filtered).cash.map(({ value }) => value)]
-        : [],
-    [filtered],
-  );
+  const netValues = useTradeCashSeries(filtered);
   const today = localDay(new Date().toISOString());
   const initialMonth = useMemo(() => {
     let latest = -Infinity;
@@ -181,9 +176,10 @@ export function JournalPage() {
           {t.invalidDateRange}
         </p>
       )}
-      <DashboardMetrics
+      <TradeMetricCards
         stats={metrics}
         values={netValues}
+        currency={currency}
         ready={trades !== null}
       />
       {status === JOURNAL_STATUS.ERROR && (

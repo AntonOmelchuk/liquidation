@@ -52,10 +52,14 @@ export function createJournal(
     command: PlaybookCommand,
     uploads = new Map<string, Uint8Array>(),
   ) {
-    return write((journal) => {
-      mutatePlaybook(journal, command, uploads);
-      return journal;
-    }, uploads);
+    return write(
+      (journal) => {
+        mutatePlaybook(journal, command, uploads);
+        return journal;
+      },
+      uploads,
+      true,
+    );
   }
 
   function updateBacktest(

@@ -1,3 +1,4 @@
+import { DateText } from "../../../shared/ui/date-text.tsx";
 import type { Position, Trade } from "@liquidation/domain/trades/types";
 import { useMemo, useState } from "react";
 import { PLAN_LINKS_PAGE_SIZE } from "./constants.ts";
@@ -7,6 +8,7 @@ import { netCents } from "@liquidation/domain/trades/trade";
 import { EMPTY_VALUE } from "../../../shared/constants.ts";
 import { formatCompactDateTime, numericTone } from "../../../shared/format.ts";
 import { useLocale } from "../../../shared/messages.ts";
+import { CheckboxField } from "../../../shared/ui/checkbox-field.tsx";
 import { TradeSideBadge } from "../../../shared/ui/direction-badge.tsx";
 import { InstrumentIcons } from "../../../shared/ui/instrument-picker.tsx";
 import { useJournal } from "../../journal/data/store.ts";
@@ -69,17 +71,15 @@ export function PlanTradeFields({
             }}
           />
         </label>
-        <label className="plan-trade-checkbox">
-          <input
-            type="checkbox"
-            checked={selectedOnly}
-            onChange={(event) => {
-              setSelectedOnly(event.target.checked);
-              setLimit(PLAN_LINKS_PAGE_SIZE);
-            }}
-          />
+        <CheckboxField
+          checked={selectedOnly}
+          onChange={(event) => {
+            setSelectedOnly(event.currentTarget.checked);
+            setLimit(PLAN_LINKS_PAGE_SIZE);
+          }}
+        >
           {p.selectedTradesOnly}
-        </label>
+        </CheckboxField>
       </div>
       <p className="plan-field-hint" aria-live="polite">
         {p.selectedTrades} · {format.integer.format(count)}
@@ -101,10 +101,6 @@ export function PlanTradeFields({
               {visible.slice(0, limit).map((record) => {
                 const checked = selected(record);
                 const closed = "closedAt" in record;
-                const opened = formatCompactDateTime(
-                  record.openedAt,
-                  format.clock,
-                );
                 const fullDate = format.date.format(
                   Date.parse(record.openedAt),
                 );
@@ -113,8 +109,7 @@ export function PlanTradeFields({
                 return (
                   <tr key={record.id}>
                     <td>
-                      <input
-                        type="checkbox"
+                      <CheckboxField
                         aria-label={`${p.includeTrade} · ${record.symbol} · ${t[record.direction]} · ${fullDate}`}
                         checked={checked}
                         onChange={(event) =>
@@ -134,9 +129,7 @@ export function PlanTradeFields({
                       </span>
                     </th>
                     <td>
-                      <time dateTime={record.openedAt} title={fullDate}>
-                        {opened}
-                      </time>
+                      <DateText value={record.openedAt} withTime />
                     </td>
                     <td>{closed ? p.closedState : p.openState}</td>
                     <td>

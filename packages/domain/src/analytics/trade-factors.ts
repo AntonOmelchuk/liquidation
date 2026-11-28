@@ -1,5 +1,9 @@
 import { mistakeKeys } from "../trades/mistakes.ts";
-import { tradeAccountKey, tradeTagKey } from "../trades/trade-tags.ts";
+import {
+  entryTestKey,
+  tradeAccountKey,
+  tradeTagKey,
+} from "../trades/trade-tags.ts";
 import { netCents } from "../trades/trade.ts";
 import type { Trade } from "../trades/types.ts";
 import {
@@ -20,10 +24,6 @@ function holdingBucket(trade: Trade) {
   return hours <= 72 ? HOLD_TIME.FROM_24_TO_72H : HOLD_TIME.OVER_72H;
 }
 
-export function playbookVersionKey(id: string, version?: number) {
-  return version === undefined ? id : `${id}:${version}`;
-}
-
 export function tradeFactorKeys(trade: Trade, factor: TradeFactor): string[] {
   switch (factor) {
     case TRADE_FACTOR.INSTRUMENT:
@@ -32,19 +32,9 @@ export function tradeFactorKeys(trade: Trade, factor: TradeFactor): string[] {
       return [trade.timeframe?.toUpperCase() ?? ""];
     case TRADE_FACTOR.PLAYBOOK:
       return [trade.playbook?.id ?? ""];
-    case TRADE_FACTOR.VERSION:
-      return [
-        trade.playbook
-          ? playbookVersionKey(trade.playbook.id, trade.playbook.version)
-          : "",
-      ];
     case TRADE_FACTOR.SETUP: {
       const link = trade.playbook;
-      return [
-        link?.setupId && link.version !== undefined
-          ? playbookVersionKey(link.id, link.version) + ":" + link.setupId
-          : "",
-      ];
+      return [link?.setupId ? link.id + ":" + link.setupId : ""];
     }
     case TRADE_FACTOR.SIDE:
       return [trade.direction];
@@ -74,6 +64,8 @@ export function tradeFactorKeys(trade: Trade, factor: TradeFactor): string[] {
       return [tradeTagKey(trade.style ?? "")];
     case TRADE_FACTOR.SESSION:
       return [trade.session ?? ""];
+    case TRADE_FACTOR.LIMIT_ENTRY_TEST:
+      return [entryTestKey(trade.limitEntryTest)];
     case TRADE_FACTOR.ENTRY_TYPE:
       return [trade.entryType ?? ""];
     case TRADE_FACTOR.MISTAKE:

@@ -1,0 +1,83 @@
+.record-table {
+  border: 1px solid var(--border);
+  border-radius: 0.7rem;
+}
+.record-table :is(th, td) {
+  padding: 0.48rem 0.65rem;
+  white-space: nowrap;
+  text-transform: none;
+}
+.record-table thead th {
+  background: var(--surface-raised);
+}
+.record-table tbody tr:hover {
+  background: color-mix(in srgb, var(--section-accent) 5%, var(--surface));
+}
+.record-table tbody > :last-child > * {
+  border-bottom: 0;
+}
+.record-table .record-table-actions {
+  width: 1%;
+  text-align: end;
+}
+.record-table .record-table-actions > div {
+  display: inline-flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+.record-table-excerpt {
+  display: inline-block;
+  max-inline-size: min(24vw, 22rem);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+@media (max-width: 50rem) {
+  .record-table-excerpt {
+    max-inline-size: 11rem;
+  }
+}
+.record-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  padding: 0.12rem 0.42rem;
+  border: 1px solid color-mix(in srgb, currentColor 27%, transparent);
+  border-radius: 0.32rem;
+  background: color-mix(in srgb, currentColor 9%, transparent);
+  font-size: 0.86em;
+  font-weight: 650;
+}
+.record-tag.attention {
+  color: var(--chart-caution);
+}
+.record-analysis-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.record-analysis-grid h4 {
+  margin: 0 0 0.45rem;
+}
+.record-analysis-grid > section {
+  min-width: 0;
+}
+@media (max-width: 68rem) {
+  .record-analysis-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.record-tag.neutral {
+  color: var(--chart-flat);
+}
+.trade-test-help {
+  margin-block: -0.3rem 0;
+  font-size: 0.85rem;
+}
+
+.record-table .analytics-sort {
+  white-space: nowrap;
+}
+.record-trade-mistakes {
+  color: var(--chart-caution);
+}

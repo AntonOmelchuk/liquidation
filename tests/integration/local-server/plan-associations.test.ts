@@ -73,7 +73,7 @@ function newPlaybook() {
   } satisfies PlaybookCommand;
 }
 
-test("creates a plan with a chosen status and playbook version and edits its historical trade links", async () => {
+test("creates a plan with a chosen status and playbook and edits its historical trade links", async () => {
   await withJournal(async (journal, directory) => {
     const book = newPlaybook();
     await journal.updatePlaybook(book);
@@ -86,10 +86,10 @@ test("creates a plan with a chosen status and playbook version and edits its his
         management: [{ ...book.rules.management[0], label: "Updated rule" }],
       },
     });
-    const playbook = { id: book.id, version: 1 };
+    const playbook = { id: book.id };
     const old = await journal.append({
       ...tradeInput,
-      playbook: { id: book.id, version: 2 },
+      playbook,
     });
     const open = (
       await journal.updatePosition({ action: "open", input: positionInput })
@@ -200,7 +200,7 @@ test("validates a playbook version on a plan and accepts a playbook chosen at po
     const book = newPlaybook();
     await journal.updatePlaybook(book);
     const id = randomUUID();
-    const playbook = { id: book.id, version: 1 };
+    const playbook = { id: book.id };
     const createPlan = {
       action: "create" as const,
       id,
@@ -210,9 +210,9 @@ test("validates a playbook version on a plan and accepts a playbook chosen at po
     await expect(
       journal.updatePlan({
         ...createPlan,
-        setup: { ...setup, playbook: { ...playbook, version: 5 } },
+        setup: { ...setup, playbook: { id: randomUUID() } },
       }),
-    ).rejects.toThrow("does not match the linked playbook version");
+    ).rejects.toThrow("The linked playbook is unavailable");
     expect((await journal.read()).plans).toHaveLength(0);
     await journal.updatePlan(createPlan);
 

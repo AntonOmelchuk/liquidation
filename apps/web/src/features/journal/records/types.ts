@@ -4,6 +4,7 @@ import type {
   TRADE_TABLE_MODE,
   TRADE_PAGE_SIZES,
   TRADE_EDITOR_MODE,
+  TRADE_RESULT,
 } from "./constants.ts";
 import type { PNL_CALCULATION } from "@liquidation/domain/trades/constants";
 import type { Plan } from "@liquidation/domain/plans/types";
@@ -104,7 +105,6 @@ export type LinkedPlaybookRulesProps = {
   historic: boolean;
   closed: boolean;
   closing: boolean;
-  plannedVersion?: number;
   context: EntryContext;
 };
 
@@ -118,4 +118,12 @@ export type TradeLinkFieldsProps = {
   editingId?: string;
   showAccount?: boolean;
   showPrices?: boolean;
+};
+
+export type TradeResult = (typeof TRADE_RESULT)[keyof typeof TRADE_RESULT];
+
+export type TradePaginationProps = TradePagination & {
+  count: number;
+  page: number;
+  onPage: (page: number) => void;
 };

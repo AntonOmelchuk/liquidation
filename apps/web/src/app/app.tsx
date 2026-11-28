@@ -9,6 +9,8 @@ import {
 import { useJournal } from "../features/journal/data/store.ts";
 import { JournalPage } from "../features/journal/journal-page.tsx";
 import { TRADE_EDITOR_MODE } from "../features/journal/records/constants.ts";
+import { MarketCalendarProvider } from "../features/market/calendar-context.tsx";
+import { NewsReminderToasts } from "../features/market/news-reminder-toasts.tsx";
 import { PlanDetailsPage } from "../features/plans/details/plan-details-page.tsx";
 import { PlanEditorPage } from "../features/plans/editor/plan-editor-page.tsx";
 import { PlansPage } from "../features/plans/plans-page.tsx";
@@ -19,6 +21,12 @@ import { Header } from "./header.tsx";
 import { usePage } from "./page.ts";
 import type { PageContentProps } from "./types.ts";
 
+const BacktestSamplePage = lazy(
+  () => import("../features/backtests/backtest-sample-page.tsx"),
+);
+const MissedTradesPage = lazy(
+  () => import("../features/workspace/planning/missed-trades-page.tsx"),
+);
 const TradeEditorPage = lazy(() =>
   import("../features/journal/records/trade-editor-page.tsx").then(
     (module) => ({ default: module.TradeEditorPage }),
@@ -99,7 +107,31 @@ function PageContent({ route }: PageContentProps) {
       ) : (
         <PlaybookEditorPage />
       );
+    case PAGE.MISSED_TRADES:
+      return (
+        <MissedTradesPage
+          key={
+            "id" in route
+              ? route.id + "/" + route.view
+              : route.view + "/" + (route.day ?? "")
+          }
+          {...route}
+        />
+      );
     case PAGE.BACKTESTS:
+      if (route.view === PAGE_VIEW.SAMPLES)
+        return (
+          <BacktestSamplePage
+            key={
+              route.id +
+              "/" +
+              (route.sampleId ?? "") +
+              "/" +
+              Number(route.editing)
+            }
+            {...route}
+          />
+        );
       if ("id" in route) {
         return route.view === PAGE_VIEW.DETAILS ? (
           <BacktestDetailsPage key={route.id} id={route.id} />
@@ -159,7 +191,13 @@ function PageContent({ route }: PageContentProps) {
         />
       );
     case PAGE.WATCHLIST:
-      return <WatchlistPage key={route.day} day={route.day} />;
+      return (
+        <WatchlistPage
+          key={`${route.day ?? ""}/${route.view ?? ""}`}
+          day={route.day}
+          creating={route.view === PAGE_VIEW.NEW}
+        />
+      );
     case PAGE.TRASH:
       return <TrashPage />;
     case PAGE.REVIEW:
@@ -189,8 +227,9 @@ export function App() {
   }, [load]);
 
   return (
-    <>
+    <MarketCalendarProvider>
       <Header page={route.page} />
+      <NewsReminderToasts />
       <Suspense
         fallback={
           <main>
@@ -200,6 +239,6 @@ export function App() {
       >
         <PageContent route={route} />
       </Suspense>
-    </>
+    </MarketCalendarProvider>
   );
 }

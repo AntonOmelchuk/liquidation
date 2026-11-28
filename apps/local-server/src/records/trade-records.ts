@@ -21,7 +21,7 @@ import { POSITION_ACTION } from "@liquidation/domain/trades/constants";
 import { tradeSchema } from "@liquidation/domain/trades/trade";
 import { tradeLinksSchema } from "@liquidation/domain/trades/trade-links";
 import { InvalidJournalInput, JournalConflict } from "../errors.ts";
-import { assertPlaybookLink } from "./playbook-records.ts";
+import { recordTradePlaybook } from "./playbook-records.ts";
 import { normalizeAccountLink } from "./account-records.ts";
 import { tradeScreenshotIds } from "@liquidation/domain/trades/trade-evidence";
 import { assertScreenshotAttachments } from "./screenshot-attachments.ts";
@@ -109,8 +109,13 @@ export function appendTrade(
 ) {
   assertScreenshotAttachments(new Set(), tradeScreenshotIds(input), uploads);
   assertPlanExists(journal, input.planId);
-  assertPlaybookLink(journal, input.playbook, undefined, true);
   const { riskPercent, pnlCalculation, ...record } = input;
+  record.playbook = recordTradePlaybook(
+    journal,
+    input.playbook,
+    undefined,
+    true,
+  );
   const sized = sizeTrade(
     journal,
     normalizeAccountLink(journal, record),
@@ -138,8 +143,8 @@ export function mutatePosition(
       uploads,
     );
     assertPlanExists(journal, command.input.planId);
-    assertPlaybookLink(journal, command.input.playbook);
     const { riskPercent, ...record } = command.input;
+    record.playbook = recordTradePlaybook(journal, record.playbook);
     const sized = sizeTrade(
       journal,
       normalizeAccountLink(journal, record),
@@ -165,8 +170,12 @@ export function mutatePosition(
       uploads,
     );
     assertPlanExists(journal, command.input.planId, position.planId);
-    assertPlaybookLink(journal, command.input.playbook, position.playbook);
     const { riskPercent, ...record } = command.input;
+    record.playbook = recordTradePlaybook(
+      journal,
+      record.playbook,
+      position.playbook,
+    );
     const sized = sizeTrade(
       journal,
       normalizeAccountLink(journal, record, position),
@@ -188,14 +197,19 @@ export function mutatePosition(
     let playbook = associations.playbook;
     if (links) assertPlanExists(journal, links.planId, position.planId);
     if (management) {
-      if (!playbook?.version)
+      if (!playbook)
         throw new InvalidJournalInput(
-          "A versioned playbook is needed to review management.",
+          "A linked playbook is needed to review management.",
         );
       playbook = { ...playbook, management };
     }
     if (links || management)
-      assertPlaybookLink(journal, playbook, position.playbook, true);
+      playbook = recordTradePlaybook(
+        journal,
+        playbook,
+        position.playbook,
+        true,
+      );
     const draft = replaceTradeLinks(
       { ...position, ...outcome },
       { ...associations, playbook },
@@ -234,14 +248,26 @@ export function mutateTradeLinks(
     );
     return journal;
   }
+  const links = normalizeAccountLink(journal, next, trade);
+  links.playbook = recordTradePlaybook(
+    journal,
+    links.playbook,
+    trade.playbook,
+    true,
+  );
+  if (current === JSON.stringify(tradeLinksSchema.parse(links))) {
+    assertScreenshotAttachments(
+      tradeScreenshotIds(trade),
+      tradeScreenshotIds(trade),
+      uploads,
+    );
+    return journal;
+  }
   if (current !== JSON.stringify(previous))
     throw new JournalConflict("Trade links have changed.");
 
   assertPlanExists(journal, next.planId, trade.planId);
-  assertPlaybookLink(journal, next.playbook, trade.playbook, true);
-  const result = tradeSchema.safeParse(
-    replaceTradeLinks(trade, normalizeAccountLink(journal, next, trade)),
-  );
+  const result = tradeSchema.safeParse(replaceTradeLinks(trade, links));
   if (!result.success) throw new InvalidJournalInput("Invalid trade context.");
   assertScreenshotAttachments(
     tradeScreenshotIds(trade),

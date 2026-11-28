@@ -42,3 +42,5 @@ export const TRADE_EDITOR_MODE = {
   RECORD: "record",
   ...POSITION_ACTION,
 } as const;
+
+export const FIELD_HAS_LIMIT_TEST = "limitEntryTest";

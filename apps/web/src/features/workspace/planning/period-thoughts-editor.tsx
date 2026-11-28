@@ -1,3 +1,5 @@
+import { ICON_ACTION } from "../../../shared/ui/constants.ts";
+import { IconAction } from "../../../shared/ui/icon-action.tsx";
 import {
   PREPARATION_FIELDS,
   PREPARATION_OUTLOOK_LIMIT,
@@ -120,16 +122,13 @@ export function PeriodThoughtsEditor({
                   );
                 }}
               />
-              <button
-                type="button"
-                className="secondary"
-                aria-label={m.remove + " · " + (task.text || m.task)}
+              <IconAction
+                icon={ICON_ACTION.DELETE}
+                label={m.remove + " · " + (task.text || m.task)}
                 onClick={() =>
                   setTasks((items) => items.filter(({ id }) => id !== task.id))
                 }
-              >
-                ×
-              </button>
+              />
             </div>
           ))}
           <button

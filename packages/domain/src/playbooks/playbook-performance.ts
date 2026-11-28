@@ -3,9 +3,10 @@ import type {
   Checklist,
   ChecklistPhase,
   Playbook,
-  PlaybookVersion,
+  PlaybookRule,
 } from "./types.ts";
 
+import { tradePlaybookRules } from "./playbook.ts";
 import { realizedR, summarize } from "../trades/trade.ts";
 
 const allMet = (answers: Checklist) => answers.every(({ met }) => met);
@@ -46,23 +47,24 @@ export function playbookReviewProgress(book: Playbook, closed: number) {
   };
 }
 
-export function ruleOutcomes(
-  book: Playbook,
-  version: PlaybookVersion,
-  linked: readonly Trade[],
-) {
+export function ruleOutcomes(book: Playbook, linked: readonly Trade[]) {
   const assessed = linked.filter(
     ({ playbook }) =>
-      playbook?.id === book.id &&
-      playbook.version === version.number &&
+      playbook &&
+      playbook.id === book.id &&
       (playbook.entry || playbook.management),
   );
-  const ruleList = [
-    ...version.setups.flatMap(({ rules }) => rules),
-    ...version.filters,
-    ...version.management,
-  ];
-  const rows = ruleList.flatMap((rule) => {
+  const rules = new Map<string, PlaybookRule>();
+  for (const trade of assessed) {
+    if (!trade.playbook) continue;
+    const evidence = tradePlaybookRules(book, trade.playbook);
+    for (const rule of [
+      ...(evidence?.entry ?? []),
+      ...(evidence?.management ?? []),
+    ])
+      if (!rules.has(rule.id)) rules.set(rule.id, rule);
+  }
+  const rows = [...rules.values()].flatMap((rule) => {
     const misses = assessed.flatMap((trade) => {
       const answers = [
         ...(trade.playbook?.entry ?? []),

@@ -8,7 +8,6 @@ export type DeleteRecordProps = {
   legacyThoughtRevision?: number;
   afterDelete?: () => void;
   disabled?: boolean;
-  iconOnly?: boolean;
   recordLabel?: string;
 };
 

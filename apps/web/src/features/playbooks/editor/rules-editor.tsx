@@ -1,3 +1,5 @@
+import { ICON_ACTION } from "../../../shared/ui/constants.ts";
+import { IconAction } from "../../../shared/ui/icon-action.tsx";
 import {
   MAX_PLAYBOOK_RULES,
   MAX_PLAYBOOK_SETUPS,
@@ -45,14 +47,11 @@ export function RuleFields({ rules, onChange }: RuleFieldsProps) {
               maxLength={1000}
             />
           </label>
-          <button
-            type="button"
-            className="secondary"
-            aria-label={`${b.removeRule} · ${index + 1}`}
+          <IconAction
+            icon={ICON_ACTION.DELETE}
+            label={`${b.removeRule} · ${index + 1}`}
             onClick={() => onChange(rules.filter((rule) => rule.id !== id))}
-          >
-            {b.removeRule}
-          </button>
+          />
         </div>
       ))}
       <div>
@@ -106,16 +105,13 @@ export function SetupFields({
               />
             </label>
             {setups.length > 1 && (
-              <button
-                type="button"
-                className="secondary"
-                aria-label={`${b.removeSetup} · ${index + 1}`}
+              <IconAction
+                icon={ICON_ACTION.DELETE}
+                label={`${b.removeSetup} · ${index + 1}`}
                 onClick={() =>
                   onChange(setups.filter((setup) => setup.id !== id))
                 }
-              >
-                {b.removeSetup}
-              </button>
+              />
             )}
           </div>
           <label>

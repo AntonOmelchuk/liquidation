@@ -1,6 +1,14 @@
 import { localDay } from "@liquidation/domain/workspace/period";
 
 export function createFormatters(locale: string) {
+  const clock = new Intl.DateTimeFormat(locale, {
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  });
+  const day = (value: Date | number) =>
+    formatCompactDay(new Date(value).toISOString().slice(0, 10));
+
   return {
     money: new Intl.NumberFormat(locale, {
       minimumFractionDigits: 2,
@@ -14,19 +22,19 @@ export function createFormatters(locale: string) {
       style: "percent",
       maximumFractionDigits: 4,
     }),
-    day: new Intl.DateTimeFormat(locale, {
-      dateStyle: "medium",
-      timeZone: "UTC",
-    }),
-    date: new Intl.DateTimeFormat(locale, {
-      dateStyle: "medium",
-      timeStyle: "short",
-    }),
-    clock: new Intl.DateTimeFormat(locale, {
-      hour: "2-digit",
-      minute: "2-digit",
-      hourCycle: "h23",
-    }),
+    day: {
+      format: day,
+      formatRange(start: Date | number, end: Date | number) {
+        const from = day(start);
+        const through = day(end);
+        return from === through ? from : `${from} – ${through}`;
+      },
+    },
+    date: {
+      format: (value: Date | number) =>
+        formatCompactDateTime(new Date(value).toISOString(), clock),
+    },
+    clock,
     integer: new Intl.NumberFormat(locale),
     price: new Intl.NumberFormat(locale, { maximumFractionDigits: 10 }),
   };
@@ -65,7 +73,7 @@ export function isoToLocalDateTime(value: string) {
 
 export function formatCompactDay(day: string) {
   const [year, month, date] = day.split("-");
-  return `${date}.${month}.${year.slice(-2)}`;
+  return `${date}.${month}.${year}`;
 }
 
 export function formatCompactDateTime(iso: string, clock: Intl.DateTimeFormat) {

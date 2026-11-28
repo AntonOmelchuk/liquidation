@@ -1,3 +1,5 @@
+import { ICON_ACTION } from "../../../shared/ui/constants.ts";
+import { IconAction } from "../../../shared/ui/icon-action.tsx";
 import { TRASH_KIND } from "@liquidation/domain/journal/trash/constants";
 import { trashRecordKey } from "@liquidation/domain/journal/trash/trash";
 import { getPlanVoiding } from "@liquidation/domain/plans/plan-lifecycle";
@@ -9,7 +11,6 @@ import {
 } from "@liquidation/domain/workspace/analytics";
 import {
   PERIOD,
-  REPORT_FIELDS,
   WORKSPACE_RECORD,
 } from "@liquidation/domain/workspace/constants";
 import {
@@ -22,7 +23,6 @@ import type { ReviewPeriod } from "@liquidation/domain/workspace/types";
 import { useMemo, useState } from "react";
 import { planHref, reportHref } from "../../../app/page.ts";
 import { useLocale } from "../../../shared/messages.ts";
-import { ScreenshotGallery } from "../../../shared/screenshots/screenshot-gallery.tsx";
 import { Panel } from "../../../shared/ui/layout.tsx";
 import { useJournal } from "../../journal/data/store.ts";
 import { TradeTable } from "../../journal/records/trade-table.tsx";
@@ -36,10 +36,11 @@ import { useWorkspaceSave } from "../use-workspace-save.ts";
 import { WorkspaceFeedback } from "../workspace-feedback.tsx";
 import { SavedAssessments, SubjectResult } from "./assessment-fields.tsx";
 import { ComparisonTable } from "./comparison-table.tsx";
-import { REPORT_LESSON_FIELD } from "./constants.ts";
 import { MistakeSummary } from "./mistake-summary.tsx";
 import { PeriodInsights } from "./period-insights.tsx";
 import { ReportEditor } from "./report-editor.tsx";
+import { ReportSummary } from "./report-summary.tsx";
+import { ReviewIcon } from "./review-icon.tsx";
 
 export function PeriodReport({
   period,
@@ -147,7 +148,7 @@ export function PeriodReport({
       >
         {m.today}
       </a>
-      <MissedTradesShortcut />
+      <MissedTradesShortcut withinReport />
     </div>
   );
   const performance = (
@@ -158,18 +159,22 @@ export function PeriodReport({
           {dateLinks}
         </div>
       )}
-      <p>
-        {period === PERIOD.DAY
-          ? m.dailyBasis
-          : period === PERIOD.WEEK
-            ? m.weeklyBasis
-            : m.monthlyBasis}
-      </p>
-      {period === PERIOD.WEEK && (
+      <div className="review-comparison-intro">
         <p>
-          {m.weeklyOpen} · {format.integer.format(weeklyOpen)}
+          {period === PERIOD.DAY
+            ? m.dailyBasis
+            : period === PERIOD.WEEK
+              ? m.weeklyBasis
+              : m.monthlyBasis}
         </p>
-      )}
+        {period === PERIOD.WEEK && (
+          <div className="review-positions">
+            <ReviewIcon name="positions" />
+            {m.weeklyOpen}
+            <strong>{format.integer.format(weeklyOpen)}</strong>
+          </div>
+        )}
+      </div>
       <ComparisonTable
         current={currentTrades}
         previous={previousTrades}
@@ -207,7 +212,7 @@ export function PeriodReport({
         />
       ) : (
         <Panel
-          title={m.overview}
+          title={m.reviewSummary}
           detail={
             <div className="workspace-actions">
               {report && (
@@ -217,13 +222,21 @@ export function PeriodReport({
                   revision={report.revision}
                 />
               )}
-              <button
-                className="secondary"
-                type="button"
-                onClick={() => setEditing(true)}
-              >
-                {report ? m.edit : m.newReview}
-              </button>
+              {report ? (
+                <IconAction
+                  icon={ICON_ACTION.EDIT}
+                  label={m.edit}
+                  onClick={() => setEditing(true)}
+                />
+              ) : (
+                <button
+                  className="secondary"
+                  type="button"
+                  onClick={() => setEditing(true)}
+                >
+                  {m.newReview}
+                </button>
+              )}
             </div>
           }
         >
@@ -234,44 +247,7 @@ export function PeriodReport({
                   {m.saved}
                 </p>
               )}
-              <dl className="workspace-notes">
-                {report.grade && (
-                  <div>
-                    <dt>{m.processGrade}</dt>
-                    <dd>{report.grade}</dd>
-                  </div>
-                )}
-                {report.quality && (
-                  <div>
-                    <dt>{m.quality}</dt>
-                    <dd>{report.quality}</dd>
-                  </div>
-                )}
-                {report.progress !== undefined && (
-                  <div>
-                    <dt>{m.progress}</dt>
-                    <dd>{report.progress}/10</dd>
-                  </div>
-                )}
-                {report.writtenPnl !== undefined && (
-                  <div>
-                    <dt>{m.writtenPnl}</dt>
-                    <dd>{format.money.format(report.writtenPnl)}</dd>
-                  </div>
-                )}
-                {REPORT_FIELDS.map(
-                  (key) =>
-                    report[key] && (
-                      <div key={key}>
-                        <dt>
-                          {key === REPORT_LESSON_FIELD ? m.keyLesson : m[key]}
-                        </dt>
-                        <dd>{report[key]}</dd>
-                      </div>
-                    ),
-                )}
-              </dl>
-              <ScreenshotGallery ids={report.screenshotIds} />
+              <ReportSummary report={report} />
               {best && (
                 <div className="workspace-actions">
                   <strong>

@@ -13,7 +13,6 @@
   --border: #343337;
   --field: #141416;
   --field-border: #4a484e;
-  --metric-highlight: #252329;
   --accent: #83e6c1;
   --section-accent: #83e6c1;
   --pnl-positive: #77dcad;
@@ -21,6 +20,7 @@
   --chart-win: #53c891;
   --chart-loss: #f17170;
   --chart-flat: #ac9af6;
+  --chart-caution: #f0c47a;
   --chart-track: #38353d;
 }
 * {
@@ -84,17 +84,11 @@ h3 {
   font-size: 1.16rem;
   line-height: 1.35;
 }
-.metrics,
 .layout,
 fieldset {
   display: grid;
   gap: 1rem;
 }
-.metrics {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin-bottom: 1rem;
-}
-.metrics article,
 .panel {
   padding: clamp(0.9rem, 1.6vw, 1.55rem);
   background: var(--surface);
@@ -102,26 +96,10 @@ fieldset {
   border-radius: 1rem;
   min-width: 0;
 }
-.metrics article {
-  background: linear-gradient(
-    135deg,
-    var(--metric-highlight),
-    var(--surface) 74%
-  );
-}
-.metrics span,
 .panel-detail,
 p,
 small {
   color: var(--muted);
-}
-.metrics strong {
-  display: block;
-  margin-top: 0.65rem;
-  font-size: clamp(1.2rem, 3vw, 2.45rem);
-  letter-spacing: -0.035em;
-  font-variant-numeric: tabular-nums;
-  overflow-wrap: anywhere;
 }
 .panel-heading {
   margin-bottom: 1rem;
@@ -278,10 +256,6 @@ dialog::backdrop {
   background: #0a090bbc;
 }
 @media (max-width: 28rem) {
-  .metrics {
-    grid-template-columns: 1fr;
-    gap: 0.5rem;
-  }
   fieldset {
     grid-template-columns: 1fr;
   }
@@ -397,7 +371,6 @@ dialog::backdrop {
   --border: #c7d0de;
   --field: #fafcff;
   --field-border: #929fb4;
-  --metric-highlight: #e6f1ff;
   --accent: #97dfc6;
   --section-accent: #19785d;
   --pnl-positive: #106d53;
@@ -405,6 +378,7 @@ dialog::backdrop {
   --chart-win: #187f56;
   --chart-loss: #bb3e49;
   --chart-flat: #6953ba;
+  --chart-caution: #81540d;
   --chart-track: #dce1e9;
 }
 [data-theme="light"] .chart {
@@ -564,9 +538,24 @@ button.icon-action {
   height: 2.1rem;
   padding: 0;
 }
+.icon-action.secondary {
+  color: var(--accent);
+}
+.icon-action.record-delete {
+  color: var(--pnl-negative);
+  border-color: color-mix(in srgb, var(--pnl-negative) 30%, var(--border));
+  background: color-mix(in srgb, var(--pnl-negative) 7%, var(--surface));
+}
 .icon-action svg {
   width: 1.05rem;
   height: 1.05rem;
+}
+.page-heading h1[tabindex="-1"]:focus {
+  outline: none;
+}
+.date-text {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 .action-link:hover,
 button:not(:disabled):hover {

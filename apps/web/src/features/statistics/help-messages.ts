@@ -12,6 +12,8 @@ const enFactors: Record<TradeFactor, string> = {
     "The account linked to the trade. Unassigned records appear in their own group.",
   [TRADE_FACTOR.OUTCOME]:
     "Profit, loss or zero result based on net P&L after costs.",
+  [TRADE_FACTOR.LIMIT_ENTRY_TEST]:
+    "Whether price retested the level for a limit entry, independent of the order used.",
   [TRADE_FACTOR.ENTRY_TYPE]: "The recorded order type: market, limit or stop.",
   [TRADE_FACTOR.MISTAKE]:
     "Tags recorded on trades, such as an early entry or a rule exception. One trade can contribute to several tag groups.",
@@ -29,9 +31,7 @@ const enFactors: Record<TradeFactor, string> = {
   [TRADE_FACTOR.STYLE]:
     "The recorded trading style, such as swing or intraday.",
   [TRADE_FACTOR.PLAYBOOK]: "The trading strategy linked to the trade.",
-  [TRADE_FACTOR.VERSION]: "The specific rules version saved with a trade.",
-  [TRADE_FACTOR.SETUP]:
-    "The named model or setup within a specific version of a playbook.",
+  [TRADE_FACTOR.SETUP]: "The named model or setup within a playbook.",
 };
 
 const ukFactors: Record<TradeFactor, string> = {
@@ -41,6 +41,8 @@ const ukFactors: Record<TradeFactor, string> = {
     "Торговий рахунок, прив’язаний до угоди. Записи без рахунку утворюють окрему групу.",
   [TRADE_FACTOR.OUTCOME]:
     "Прибуток, збиток або нуль за чистим P&L з урахуванням витрат.",
+  [TRADE_FACTOR.LIMIT_ENTRY_TEST]:
+    "Чи ціна повернулася до рівня для лімітного входу. Фактичний тип ордера враховується окремо.",
   [TRADE_FACTOR.ENTRY_TYPE]: "Записаний тип заявки: market, limit або stop.",
   [TRADE_FACTOR.MISTAKE]:
     "Теги угод, наприклад ранній вхід або порушення правила. Одна угода може належати до кількох груп помилок.",
@@ -56,9 +58,7 @@ const ukFactors: Record<TradeFactor, string> = {
   [TRADE_FACTOR.STYLE]:
     "Записаний стиль торгівлі, наприклад swing або intraday.",
   [TRADE_FACTOR.PLAYBOOK]: "Торгова стратегія, прив’язана до угоди.",
-  [TRADE_FACTOR.VERSION]: "Конкретна версія правил, збережена з угодою.",
-  [TRADE_FACTOR.SETUP]:
-    "Названа торгова модель або сетап у конкретній версії плейбука.",
+  [TRADE_FACTOR.SETUP]: "Названа торгова модель або сетап в плейбуку.",
 };
 
 const enMetrics: Record<TradeColumn, string> = {

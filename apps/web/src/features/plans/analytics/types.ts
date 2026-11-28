@@ -4,6 +4,7 @@ import type {
   ScenarioUnit,
 } from "@liquidation/domain/analytics/types";
 import type {
+  ExecutionTotals,
   Plan,
   PlanExecution,
   PlanStatus,
@@ -44,4 +45,10 @@ export type OutcomeChartProps = {
 export type PlanPerformancePanelProps = {
   data: PlanPerformance;
   unit?: ScenarioUnit;
+};
+
+export type PlanOverviewCardsProps = {
+  data: PlanPerformance;
+  totalPlans: number;
+  executed: readonly ExecutionTotals[];
 };

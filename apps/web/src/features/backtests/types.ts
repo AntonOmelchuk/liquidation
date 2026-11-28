@@ -14,7 +14,13 @@ export type BacktestComparisonProps = {
 export type BacktestSampleFormProps = {
   run: Backtest;
   sample?: BacktestSample;
-  finish: () => void;
+  finish: (savedId?: string) => void;
 };
 
 export type BacktestEditorProps = { run?: Backtest };
+
+export type BacktestSamplePageProps = {
+  id: string;
+  sampleId?: string;
+  editing: boolean;
+};

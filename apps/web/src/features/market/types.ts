@@ -1,4 +1,5 @@
 import type {
+  CalendarFeed,
   CalendarEvent,
   QuoteSnapshot,
 } from "@liquidation/domain/market/types";
@@ -25,4 +26,11 @@ export type ReleaseReactionPanelProps = {
   event: CalendarEvent;
   id: string;
   now: number;
+};
+
+export type MarketCalendar = {
+  feed: CalendarFeed | undefined;
+  now: number;
+  today: string;
+  upcoming: ReadonlyMap<string, CalendarEvent[]>;
 };

@@ -4,8 +4,8 @@ import {
   PLAYBOOK_STATUS,
 } from "@liquidation/domain/playbooks/constants";
 import {
-  currentVersion,
-  entryRules,
+  rulesForSetup,
+  tradePlaybookRules,
 } from "@liquidation/domain/playbooks/playbook";
 import { useState } from "react";
 import type {
@@ -42,11 +42,6 @@ export function readTradeLinks(data: FormData) {
   const entry = readChecklist(data, CHECKLIST_PHASE.ENTRY);
   const management = readChecklist(data, CHECKLIST_PHASE.MANAGEMENT);
   const setupId = data.get("setupId") || undefined;
-  const number = data.get("playbookVersion");
-  const version =
-    number && (entry || management || setupId || data.has("pinPlaybook"))
-      ? Number(number)
-      : undefined;
   return {
     ...readTradeTags(data),
     ...readAccountLink(data),
@@ -54,7 +49,7 @@ export function readTradeLinks(data: FormData) {
     breakeven: data.has("breakeven") || undefined,
     timeframe: String(data.get("timeframe") ?? "").trim() || undefined,
     planId: data.get("planId") || undefined,
-    playbook: id ? { id, version, setupId, entry, management } : undefined,
+    playbook: id ? { id, setupId, entry, management } : undefined,
   };
 }
 
@@ -64,28 +59,28 @@ function LinkedPlaybookRules({
   historic,
   closed,
   closing,
-  plannedVersion,
   context,
 }: LinkedPlaybookRulesProps) {
   const b = usePlaybookMessages();
-  const [number] = useState(
-    () => initial?.version ?? plannedVersion ?? currentVersion(book).number,
-  );
-  const version =
-    book.versions.find(({ number: candidate }) => candidate === number) ??
-    currentVersion(book);
   const [setupId, setSetupId] = useState(
     initial?.setupId ??
-      (!initial && version.setups.length === 1 ? version.setups[0].id : ""),
+      (!initial && book.rules.setups.length === 1
+        ? book.rules.setups[0].id
+        : ""),
   );
-  const rules = setupId ? entryRules(version, setupId) : [];
-  const pinned =
-    !historic || (closing && !initial) || initial?.version !== undefined;
+  const sameSetup = Boolean(initial && setupId === (initial.setupId ?? ""));
+  const recorded =
+    sameSetup && initial ? tradePlaybookRules(book, initial) : undefined;
+  const rules = recorded ?? rulesForSetup(book.rules, setupId || undefined);
+  const oldSetupId = initial?.setupId;
+  const oldSetup =
+    oldSetupId && !book.rules.setups.some(({ id }) => id === oldSetupId)
+      ? ((initial && tradePlaybookRules(book, initial)?.setupName) ??
+        b.onlySetup)
+      : undefined;
 
   return (
     <>
-      <input type="hidden" name="playbookVersion" value={version.number} />
-      {pinned && <input type="hidden" name="pinPlaybook" value="yes" />}
       <SelectField
         label={b.setup}
         name="setupId"
@@ -93,22 +88,21 @@ function LinkedPlaybookRules({
         onChange={(event) => setSetupId(event.target.value)}
       >
         <option value="">{b.noSetup}</option>
-        {version.setups.map(({ id, name }) => (
+        {oldSetupId && oldSetup !== undefined && (
+          <option value={oldSetupId}>{oldSetup || b.onlySetup}</option>
+        )}
+        {book.rules.setups.map(({ id, name }) => (
           <option key={id} value={id}>
             {name || b.onlySetup}
           </option>
         ))}
       </SelectField>
-      <p className="wide checklist-meta">
-        {!pinned && !setupId
-          ? b.unversioned
-          : `${b.version} · v${version.number}`}
-      </p>
       {!historic && <PlaybookFrame book={book} context={context} />}
       <ChecklistFields
         phase={CHECKLIST_PHASE.ENTRY}
-        rules={rules}
-        initial={initial?.entry}
+        key={setupId}
+        rules={rules.entry}
+        initial={sameSetup ? initial?.entry : undefined}
         recordByDefault={Boolean(setupId)}
         requireRecording={
           !historic ||
@@ -120,8 +114,9 @@ function LinkedPlaybookRules({
       {closed && (
         <ChecklistFields
           phase={CHECKLIST_PHASE.MANAGEMENT}
-          rules={version.management}
-          initial={initial?.management}
+          key={setupId + CHECKLIST_PHASE.MANAGEMENT}
+          rules={rules.management}
+          initial={sameSetup ? initial?.management : undefined}
           recordByDefault
           requireRecording={
             closing || !historic || !initial || Boolean(initial.management)
@@ -210,15 +205,14 @@ export function TradeLinkFields({
       </PlaybookSelect>
       {selected && (
         <LinkedPlaybookRules
-          key={`${selected.id}:${suggested?.version ?? ""}`}
+          key={selected.id}
           book={selected}
           initial={
-            selected.id === initial?.playbook?.id ? initial.playbook : undefined
+            initial?.playbook?.id === selected.id ? initial.playbook : undefined
           }
           historic={historic}
           closed={closed || closing}
           closing={closing}
-          plannedVersion={suggested?.version}
           context={{ openedAt, risk, editingId }}
         />
       )}

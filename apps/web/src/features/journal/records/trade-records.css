@@ -285,15 +285,6 @@ dialog.trade-details-dialog {
   border-color: #d59c9c;
 }
 
-.metrics.trade-review-metrics {
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
-}
-.trade-review-metrics article {
-  padding: 0.8rem 1rem;
-}
-.trade-review-metrics strong {
-  font-size: clamp(1.05rem, 1.7vw, 1.6rem);
-}
 .trade-editor > .panel {
   margin-bottom: 1rem;
 }

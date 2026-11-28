@@ -1,59 +1,69 @@
+import { TradeMetricCards } from "../../shared/analytics/trade-metric-cards.tsx";
+import { useTradeCashSeries } from "../../shared/analytics/use-trade-cash-series.ts";
 import { EMPTY_VALUE } from "../../shared/constants.ts";
+import { numericTone } from "../../shared/format.ts";
 import { useLocale } from "../../shared/messages.ts";
-import { Metric } from "../../shared/ui/layout.tsx";
+import { InfoTip } from "../../shared/ui/info-tip.tsx";
 import { useStatisticsMessages } from "./messages.ts";
 import type { StatisticsSummaryProps } from "./types.ts";
 
-export function StatisticsSummary({ metrics }: StatisticsSummaryProps) {
+export function StatisticsSummary({ metrics, trades }: StatisticsSummaryProps) {
   const { t, format } = useLocale();
   const s = useStatisticsMessages();
+  const values = useTradeCashSeries(trades);
   const decimal = (value: number | null) =>
     value === null ? EMPTY_VALUE : format.money.format(value);
   const facts = [
     [s.avgRR, decimal(metrics.payoff)],
-    [s.expectancy, decimal(metrics.expectancy)],
-    [s.expectancyR, decimal(metrics.expectancyR)],
-    [s.sample, format.integer.format(metrics.countWithRisk)],
-    [s.lowest, metrics.count ? decimal(metrics.lowestPnl) : EMPTY_VALUE],
-    [s.averageWin, decimal(metrics.averageWin)],
-    [s.averageLoss, decimal(metrics.averageLoss)],
+    [
+      s.expectancy,
+      decimal(metrics.expectancy),
+      numericTone(metrics.expectancy ?? 0),
+    ],
+    [
+      s.expectancyR,
+      decimal(metrics.expectancyR),
+      numericTone(metrics.expectancyR ?? 0),
+    ],
+    [
+      s.lowest,
+      metrics.count ? decimal(metrics.lowestPnl) : EMPTY_VALUE,
+      numericTone(metrics.lowestPnl),
+    ],
+    [
+      s.averageWin,
+      decimal(metrics.averageWin),
+      numericTone(metrics.averageWin ?? 0),
+    ],
+    [
+      s.averageLoss,
+      decimal(metrics.averageLoss),
+      numericTone(metrics.averageLoss ?? 0),
+    ],
     [s.maxWin, format.integer.format(metrics.longestWin)],
     [s.maxLoss, format.integer.format(metrics.longestLoss)],
     [s.flat, format.integer.format(metrics.flat)],
     [s.avgDuration, decimal(metrics.duration.mean)],
     [s.medianDuration, decimal(metrics.duration.median)],
-  ];
+  ] as const;
 
   return (
     <>
-      <section className="metrics statistics-metrics" aria-label={t.statistics}>
-        <Metric
-          label={t.pnl}
-          value={decimal(metrics.net)}
-          detail={`${t.count} · ${format.integer.format(metrics.count)}`}
-        />
-        <Metric label={t.profitFactor} value={decimal(metrics.profitFactor)} />
-        <Metric label={s.expectancy} value={decimal(metrics.expectancy)} />
-        <Metric
-          label={t.win}
-          value={
-            metrics.winRate === null
-              ? EMPTY_VALUE
-              : format.percentage.format(metrics.winRate)
-          }
-        />
-        <Metric
-          label={s.drawdown}
-          value={metrics.count ? decimal(metrics.maxDrawdown) : EMPTY_VALUE}
-        />
-      </section>
+      <TradeMetricCards stats={metrics} values={values} />
       <details className="panel analytics-more statistics-summary">
         <summary>{t.statistics}</summary>
         <dl className="statistics-facts">
-          {facts.map(([label, value]) => (
+          <div>
+            <dt>
+              {s.sample}{" "}
+              <InfoTip label={s.sample} text={s.initialRiskCountHint} />
+            </dt>
+            <dd>{format.integer.format(metrics.countWithRisk)}</dd>
+          </div>
+          {facts.map(([label, value, tone]) => (
             <div key={label}>
               <dt>{label}</dt>
-              <dd>{value}</dd>
+              <dd className={tone}>{value}</dd>
             </div>
           ))}
         </dl>

@@ -1,4 +1,9 @@
-import type { MetricProps, PanelProps, RecordActionsProps } from "./types.ts";
+import { useEffect, useRef } from "react";
+import type {
+  PanelProps,
+  RecordActionsProps,
+  RecordHeadingProps,
+} from "./types.ts";
 
 export function Panel({ id, title, detail, children }: PanelProps) {
   return (
@@ -12,13 +17,33 @@ export function Panel({ id, title, detail, children }: PanelProps) {
   );
 }
 
-export function Metric({ label, value, detail }: MetricProps) {
+export function RecordHeading({
+  title,
+  backHref,
+  backLabel,
+  meta,
+  actions,
+}: RecordHeadingProps) {
+  const heading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    heading.current?.focus({ preventScroll: true });
+  }, []);
   return (
-    <article>
-      <span>{label}</span>
-      <strong>{value}</strong>
-      {detail && <small>{detail}</small>}
-    </article>
+    <>
+      <a className="record-back" href={backHref}>
+        ← {backLabel}
+      </a>
+      <header className="page-heading plan-detail-heading">
+        <div>
+          <h1 ref={heading} tabIndex={-1}>
+            {title}
+          </h1>
+          {meta && <div className="plan-detail-meta">{meta}</div>}
+        </div>
+        {actions && <div className="workspace-actions">{actions}</div>}
+      </header>
+    </>
   );
 }
 

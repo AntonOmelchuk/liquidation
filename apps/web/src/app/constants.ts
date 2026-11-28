@@ -9,6 +9,7 @@ export const PAGE = {
   LECTURES: "lectures",
   NOTES: "notes",
   BEST_TRADES: "best-trades",
+  MISSED_TRADES: "missed-trades",
   THOUGHTS: "thoughts",
   WATCHLIST: "watchlist",
   TRASH: "trash",
@@ -29,6 +30,7 @@ export const PAGE_VIEW = {
   LINKS: "links",
   OPEN: "open",
   CLOSE: "close",
+  SAMPLES: "samples",
 } as const;
 
 export const PAGE_HASHES = {
@@ -42,6 +44,7 @@ export const PAGE_HASHES = {
   [PAGE.LECTURES]: "#lectures",
   [PAGE.NOTES]: "#notes",
   [PAGE.BEST_TRADES]: "#best-trades",
+  [PAGE.MISSED_TRADES]: "#missed-trades",
   [PAGE.THOUGHTS]: "#thoughts",
   [PAGE.WATCHLIST]: "#watchlist",
   [PAGE.TRASH]: "#trash",

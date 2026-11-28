@@ -1,3 +1,4 @@
+import { DateText } from "../../../shared/ui/date-text.tsx";
 import {
   LEARNING_KIND,
   LEARNING_TOPIC,
@@ -101,7 +102,7 @@ function LearningList({
               <LearningTags entry={entry} />
             </div>
             <small>
-              {format.date.format(Date.parse(entry.updatedAt))}
+              <DateText value={entry.updatedAt} withTime />
               {entry.completed && " · " + m.completed}
             </small>
           </li>
@@ -197,9 +198,11 @@ function LearningList({
                     {entry.title}
                   </a>
                 </h2>
-                <time className="note-card-date" dateTime={entry.updatedAt}>
-                  {format.date.format(Date.parse(entry.updatedAt))}
-                </time>
+                <DateText
+                  value={entry.updatedAt}
+                  className="note-card-date"
+                  withTime
+                />
               </div>
               <LearningTags entry={entry} />
               {entry.body && (

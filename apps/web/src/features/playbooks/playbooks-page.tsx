@@ -1,5 +1,6 @@
+import { ICON_ACTION } from "../../shared/ui/constants.ts";
+import { IconAction } from "../../shared/ui/icon-action.tsx";
 import { PLAYBOOK_STATUS } from "@liquidation/domain/playbooks/constants";
-import { currentVersion } from "@liquidation/domain/playbooks/playbook";
 import { getPlaybookTemplate } from "@liquidation/domain/playbooks/strategy";
 import {
   playbookResults,
@@ -93,7 +94,6 @@ export function PlaybooksPage() {
                   <th>{b.title}</th>
                   <th>{s.template}</th>
                   <th>{b.status}</th>
-                  <th>{b.version}</th>
                   <th>{t.count}</th>
                   <th>WR</th>
                   <th>{t.pnl}</th>
@@ -104,7 +104,6 @@ export function PlaybooksPage() {
               </thead>
               <tbody>
                 {books.map((book) => {
-                  const version = currentVersion(book);
                   const results = playbookResults(
                     (trades ?? []).filter(
                       ({ playbook }) => playbook?.id === book.id,
@@ -126,7 +125,7 @@ export function PlaybooksPage() {
                           </small>
                         )}
                       </th>
-                      <td>{s[getPlaybookTemplate(version.strategy)]}</td>
+                      <td>{s[getPlaybookTemplate(book.rules.strategy)]}</td>
                       <td>
                         <span
                           className="playbook-status"
@@ -135,7 +134,6 @@ export function PlaybooksPage() {
                           {b[book.status]}
                         </span>
                       </td>
-                      <td>v{format.integer.format(version.number)}</td>
                       <td>{format.integer.format(results.count)}</td>
                       <td>
                         {results.winRate === null
@@ -165,12 +163,11 @@ export function PlaybooksPage() {
                         )}
                       </td>
                       <td>
-                        <a
-                          className="record-link"
+                        <IconAction
+                          icon={ICON_ACTION.EDIT}
+                          label={b.edit}
                           href={playbookHref(book.id, true)}
-                        >
-                          {b.edit}
-                        </a>
+                        />
                       </td>
                     </tr>
                   );

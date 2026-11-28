@@ -1,3 +1,5 @@
+import { ICON_ACTION } from "../../shared/ui/constants.ts";
+import { IconAction } from "../../shared/ui/icon-action.tsx";
 import { ACCOUNT_RECORD } from "@liquidation/domain/accounts/constants";
 import {
   accountPerformance,
@@ -66,14 +68,12 @@ export function AccountDetails({ account }: AccountDetailsProps) {
           >
             {t.statistics}
           </a>
-          <button
-            type="button"
-            className="secondary"
+          <IconAction
+            icon={ICON_ACTION.EDIT}
+            label={m.editAccount}
             disabled={editing || saving}
             onClick={() => setEditing(true)}
-          >
-            {m.editAccount}
-          </button>
+          />
           <button
             type="button"
             className="secondary"

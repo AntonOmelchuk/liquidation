@@ -2,6 +2,13 @@ import { LANGUAGE } from "../../../shared/constants.ts";
 import { useLocale } from "../../../shared/messages.ts";
 
 const en = {
+  entryTest: "Test",
+  entryTestYes: "Limit possible",
+  entryTestNo: "Market only",
+  entryTestUnknown: "Unspecified",
+  entryTestHelp:
+    "Did price retest the planned entry level so a limit order could fill? This is independent of the order you used.",
+
   evidence: "Trade screenshots",
   entryEvidence: "Entry & setup charts",
   exitEvidence: "Exit & review charts",
@@ -75,6 +82,13 @@ const en = {
     "Could not update the risk state. Refresh the journal if this position changed in another tab.",
 };
 const uk: typeof en = {
+  entryTest: "Test",
+  entryTestYes: "Був тест · Limit",
+  entryTestNo: "Без тесту · Market",
+  entryTestUnknown: "Не вказано",
+  entryTestHelp:
+    "Чи повернулася ціна до запланованого рівня, де міг виконатися лімітний ордер? Фактичний тип ордера вказується окремо.",
+
   evidence: "Скріншоти угоди",
   entryEvidence: "Графіки входу й сетапу",
   exitEvidence: "Графіки виходу й рев’ю",
@@ -149,6 +163,11 @@ const uk: typeof en = {
   riskChangeError:
     "Не вдалося оновити стан ризику. Онови журнал, якщо позицію змінили в іншій вкладці.",
 };
+export function tradeRecordMessages(
+  language: (typeof LANGUAGE)[keyof typeof LANGUAGE],
+) {
+  return language === LANGUAGE.UKRAINIAN ? uk : en;
+}
 export function useTradeRecordMessages() {
-  return useLocale().language === LANGUAGE.UKRAINIAN ? uk : en;
+  return tradeRecordMessages(useLocale().language);
 }

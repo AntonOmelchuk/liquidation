@@ -6,6 +6,11 @@ import {
 export const DEFAULT_QUOTE_SYMBOLS = ["EURUSD", "GBPUSD", "USDJPY", "XAUUSD"];
 export const CALENDAR_POLL_MS = 60_000;
 export const CALENDAR_CLOCK_MS = 15_000;
+export const MARKET_CALENDAR_ID = "market-calendar";
+export const MARKET_CALENDAR_HREF = "#" + MARKET_CALENDAR_ID;
+export const SHOWN_NEWS_KEY = "liquidation.news-reminders";
+export const NEWS_TOAST_DURATION_MS = 12_000;
+export const NEWS_TOAST_LIMIT = 3;
 export const REACTION_POLL_MS = 30_000;
 export const RELEASE_TIMING = { PAST: "past", NEXT: "next" } as const;
 export const QUOTE_POLL_MS = 5_000;

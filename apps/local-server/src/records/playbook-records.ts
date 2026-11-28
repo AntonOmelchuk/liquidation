@@ -12,27 +12,17 @@ import type {
   PlaybookCommand,
   PlaybookLink,
   PlaybookRule,
+  PlaybookReference,
 } from "@liquidation/domain/playbooks/types";
 
 import {
-  currentVersion,
-  entryRules,
-  linkedVersion,
+  rulesForSetup,
+  tradePlaybookRules,
   playbookScreenshotIds,
 } from "@liquidation/domain/playbooks/playbook";
 import { InvalidJournalInput, JournalConflict } from "../errors.ts";
 import { assertScreenshotAttachments } from "./screenshot-attachments.ts";
 import { assertNewIdentity } from "./trash-records.ts";
-
-function rulesOf({
-  setups,
-  filters,
-  management,
-  strategy,
-  screenshotIds,
-}: ReturnType<typeof currentVersion>) {
-  return { setups, filters, management, strategy, screenshotIds };
-}
 
 function editPlaybook(
   previous: Playbook,
@@ -45,25 +35,13 @@ function editPlaybook(
     revision: previous.revision + 1,
   };
   if (command.action === PLAYBOOK_ACTION.EDIT) {
-    const latest = currentVersion(previous);
     if (
-      getPlaybookTemplate(latest.strategy) !==
+      getPlaybookTemplate(previous.rules.strategy) !==
       getPlaybookTemplate(command.rules.strategy)
     ) {
       throw new InvalidJournalInput("The playbook template cannot be changed.");
     }
-    const changed =
-      JSON.stringify(rulesOf(latest)) !== JSON.stringify(command.rules);
-    return {
-      ...updated,
-      ...command.metadata,
-      versions: changed
-        ? [
-            ...previous.versions,
-            { ...command.rules, number: latest.number + 1, at },
-          ]
-        : previous.versions,
-    };
+    return { ...updated, ...command.metadata, rules: command.rules };
   }
 
   const existing = previous.reviews.find(({ id }) => id === command.reviewId);
@@ -107,8 +85,7 @@ function nextPlaybook(
         };
         if (
           JSON.stringify(metadata) === JSON.stringify(command.metadata) &&
-          JSON.stringify(rulesOf(currentVersion(previous))) ===
-            JSON.stringify(command.rules)
+          JSON.stringify(previous.rules) === JSON.stringify(command.rules)
         )
           return previous;
       }
@@ -120,7 +97,7 @@ function nextPlaybook(
       createdAt: at,
       updatedAt: at,
       ...command.metadata,
-      versions: [{ ...command.rules, number: 1, at }],
+      rules: command.rules,
       reviews: [],
     };
   }
@@ -175,13 +152,11 @@ function reasonsRecorded(answers: Checklist | undefined, previous?: Checklist) {
   );
 }
 
-export function assertPlaybookLink(
+function linkedPlaybook(
   journal: Journal,
-  link: PlaybookLink | undefined,
-  previous?: PlaybookLink,
-  closed = false,
+  link: PlaybookReference,
+  previous?: PlaybookReference,
 ) {
-  if (!link) return;
   const book =
     journal.playbooks.find(({ id }) => id === link.id) ??
     (previous?.id === link.id
@@ -190,43 +165,67 @@ export function assertPlaybookLink(
   if (
     !book ||
     (book.status === PLAYBOOK_STATUS.RETIRED && book.id !== previous?.id)
-  ) {
+  )
     throw new InvalidJournalInput("The linked playbook is unavailable.");
-  }
+  return book;
+}
+
+export function assertPlaybookLink(
+  journal: Journal,
+  link: PlaybookReference | undefined,
+  previous?: PlaybookReference,
+) {
+  if (link) linkedPlaybook(journal, link, previous);
+}
+
+export function recordTradePlaybook(
+  journal: Journal,
+  link: PlaybookLink | undefined,
+  previous?: PlaybookLink,
+  closed = false,
+): PlaybookLink | undefined {
+  if (!link) return undefined;
+  const sameSetup =
+    previous?.id === link.id && previous.setupId === link.setupId;
+  const book = linkedPlaybook(journal, link, previous);
+  const historical =
+    sameSetup &&
+    previous &&
+    (previous.recordedRules || previous.version !== undefined)
+      ? tradePlaybookRules(book, previous)
+      : undefined;
+  const rules = historical ?? rulesForSetup(book.rules, link.setupId);
   if (link.management && !closed) {
     throw new InvalidJournalInput(
       "Management is reviewed when the position closes.",
     );
   }
-  if (link.version === undefined) return;
-  const sameVersion =
-    previous?.id === link.id && previous.version === link.version;
   if (
-    !reasonsRecorded(
-      link.entry,
-      sameVersion && previous.setupId === link.setupId
-        ? previous.entry
-        : undefined,
-    ) ||
+    !reasonsRecorded(link.entry, sameSetup ? previous?.entry : undefined) ||
     !reasonsRecorded(
       link.management,
-      sameVersion ? previous.management : undefined,
+      sameSetup ? previous?.management : undefined,
     )
   ) {
     throw new InvalidJournalInput(
       "Explain each rule exception in the checklist.",
     );
   }
-  const version = linkedVersion(book, link);
   if (
-    !version ||
-    (link.setupId && !version.setups.some(({ id }) => id === link.setupId)) ||
+    (link.setupId && rules.setupName === undefined) ||
     (link.entry && !link.setupId) ||
-    !matchesRules(link.entry, entryRules(version, link.setupId)) ||
-    !matchesRules(link.management, version.management)
+    !matchesRules(link.entry, rules.entry) ||
+    !matchesRules(link.management, rules.management)
   ) {
     throw new InvalidJournalInput(
-      "The checklist does not match the linked playbook version.",
+      "The checklist does not match the linked playbook.",
     );
   }
+  return {
+    id: link.id,
+    setupId: link.setupId,
+    entry: link.entry,
+    management: link.management,
+    recordedRules: rules,
+  };
 }

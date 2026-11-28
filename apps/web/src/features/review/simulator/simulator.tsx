@@ -1,3 +1,4 @@
+import { DateText } from "../../../shared/ui/date-text.tsx";
 import { useId } from "react";
 import {
   REVIEW_EXCLUSION_LIMIT,
@@ -23,7 +24,7 @@ export function ReviewSimulator({
 }: ReviewSimulatorProps) {
   const locale = useLocale();
   const m = useReviewMessages();
-  const { t, format } = locale;
+  const { t } = locale;
   const id = useId();
   const presentation = { ...locale, messages: m };
   const { amount, count } = reviewValues(presentation);
@@ -69,9 +70,7 @@ export function ReviewSimulator({
                 {result.excluded.map((trade) => (
                   <li key={trade.id}>
                     {trade.symbol} · {t[trade.direction]} ·{" "}
-                    <time dateTime={trade.openedAt}>
-                      {format.date.format(new Date(trade.openedAt))}
-                    </time>
+                    <DateText value={trade.openedAt} withTime />
                     {" · "}
                     {amount(netCents(trade) / 100)}
                   </li>

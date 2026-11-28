@@ -1,3 +1,4 @@
+export const ICON_ACTION = { EDIT: "edit", DELETE: "delete" } as const;
 export const KEYBOARD_KEY = {
   ESCAPE: "Escape",
   ENTER: "Enter",

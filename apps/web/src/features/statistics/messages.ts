@@ -10,6 +10,19 @@ const en = {
   filters: "Trade filters",
   allValues: "All values",
   overview: "Overview",
+  trades: "All trades",
+  tradeTable: "Closed trades",
+  tradeTableHint:
+    "Shows closed trades that match the filters above. Open a ticker for the full trade, including charts and notes.",
+  entryDate: "Entry date",
+  closeDate: "Close date",
+  winColumn: "Win",
+  modelColumn: "Model",
+  riskPct: "Risk %",
+  limitEntryTest: "Test",
+  initialRiskCountHint:
+    "Closed trades in the current selection with positive initial monetary risk. Divide net P&L by this risk to get R.",
+
   insights: "Trading insights",
   selectGroups: "Select groups",
   selectAllGroups: "Select all groups",
@@ -66,7 +79,6 @@ const en = {
   month: "Month",
   year: "Year",
   model: "Playbook",
-  version: "Playbook version",
   setup: "Setup",
   unnamedSetup: "Unnamed setup",
   direction: "Side",
@@ -83,7 +95,6 @@ const en = {
   entryType: "Entry type",
   mistake: "Mistake tags",
   unknown: "Unspecified",
-  unversioned: "Version unspecified",
   noMistakes: "No tags recorded",
   tagsHint:
     "A trade with several mistake tags appears in each matching row. The total counts each trade once.",
@@ -123,6 +134,19 @@ const uk: typeof en = {
   filters: "Фільтри угод",
   allValues: "Усі значення",
   overview: "Огляд",
+  trades: "Усі угоди",
+  tradeTable: "Закриті угоди",
+  tradeTableHint:
+    "Тут закриті угоди, що відповідають фільтрам вище. Натисни на тикер, щоб переглянути угоду, її графіки та нотатки.",
+  entryDate: "Дата входу",
+  closeDate: "Дата виходу",
+  winColumn: "Виграш",
+  modelColumn: "Модель",
+  riskPct: "Ризик %",
+  limitEntryTest: "Test",
+  initialRiskCountHint:
+    "Кількість закритих угод у вибірці з додатним початковим ризиком у грошах. Щоб отримати R, поділи чистий P&L на цей ризик.",
+
   insights: "Висновки",
   selectGroups: "Вибрати групи",
   selectAllGroups: "Вибрати всі групи",
@@ -179,7 +203,6 @@ const uk: typeof en = {
   month: "Місяць",
   year: "Рік",
   model: "Плейбук",
-  version: "Версія плейбука",
   setup: "Сетап",
   unnamedSetup: "Сетап без назви",
   direction: "Напрямок",
@@ -196,7 +219,6 @@ const uk: typeof en = {
   entryType: "Тип входу",
   mistake: "Теги помилок",
   unknown: "Не вказано",
-  unversioned: "Версію не вказано",
   noMistakes: "Теги не вказано",
   tagsHint:
     "Угода з кількома тегами є в кожному відповідному рядку. У підсумку її враховано один раз.",

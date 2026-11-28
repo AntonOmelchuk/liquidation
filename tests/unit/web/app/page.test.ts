@@ -3,9 +3,13 @@ import { expect, test } from "vitest";
 import {
   NEW_PLAN_HREF,
   NEW_PLAYBOOK_HREF,
+  PAGE_VIEW,
 } from "../../../../apps/web/src/app/constants.ts";
 import {
+  backtestSampleHref,
   highlightHref,
+  missedTradeHref,
+  newMissedTradeHref,
   learningHref,
   planHref,
   playbookHref,
@@ -93,6 +97,11 @@ test("addresses daily and weekly thoughts and watchlists by local period", () =>
     page: "watchlist",
     day: "2026-11-23",
   });
+  expect(routeFor(watchlistHref("2026-12-02", PAGE_VIEW.NEW))).toEqual({
+    page: "watchlist",
+    day: "2026-11-30",
+    view: "new",
+  });
   expect(routeFor("#thoughts/2026-02-30")).toEqual({
     page: "thoughts",
     day: undefined,
@@ -151,4 +160,44 @@ test("opens trade recording, opening, editing and closing as full pages and expo
     tradeId: id,
   });
   expect(routeFor("#mistakes")).toEqual({ page: "mistakes" });
+});
+
+test("opens missed and simulated trades independently of the list", () => {
+  const id = "0a047d28-0555-4dfb-b1fb-acfea3c1e577";
+  const sampleId = "0a047d28-0555-4dfb-b1fb-acfea3c1e578";
+  expect(routeFor(missedTradeHref(id))).toEqual({
+    page: "missed-trades",
+    view: "details",
+    id,
+  });
+  expect(routeFor(missedTradeHref(id, true))).toEqual({
+    page: "missed-trades",
+    view: "edit",
+    id,
+  });
+  expect(routeFor(newMissedTradeHref("2026-11-24"))).toEqual({
+    page: "missed-trades",
+    view: "new",
+    day: "2026-11-24",
+  });
+  expect(routeFor(backtestSampleHref(id))).toEqual({
+    page: "backtests",
+    view: "samples",
+    id,
+    editing: true,
+  });
+  expect(routeFor(backtestSampleHref(id, sampleId))).toEqual({
+    page: "backtests",
+    view: "samples",
+    id,
+    sampleId,
+    editing: false,
+  });
+  expect(routeFor(backtestSampleHref(id, sampleId, true))).toEqual({
+    page: "backtests",
+    view: "samples",
+    id,
+    sampleId,
+    editing: true,
+  });
 });

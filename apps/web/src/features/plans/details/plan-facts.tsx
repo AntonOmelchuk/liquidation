@@ -10,7 +10,7 @@ import type {
 } from "./types.ts";
 
 import { EMPTY_VALUE } from "../../../shared/constants.ts";
-import { formatCompactDay } from "../../../shared/format.ts";
+import { DateText } from "../../../shared/ui/date-text.tsx";
 import { useLocale } from "../../../shared/messages.ts";
 import { DirectionBadge } from "../../../shared/ui/direction-badge.tsx";
 import { usePlanMessages } from "../messages.ts";
@@ -46,7 +46,6 @@ export function PlanStatusChip({ plan, compact = false }: PlanStatusChipProps) {
 }
 
 export function PlanSpan({ setup, compact = false }: PlanSpanProps) {
-  const { format } = useLocale();
   const p = usePlanMessages();
   const { startsOn, endsOn } = setup;
   if (!startsOn) {
@@ -56,20 +55,14 @@ export function PlanSpan({ setup, compact = false }: PlanSpanProps) {
       <span>{p.noPeriod}</span>
     );
   }
-  const fullDate = (day: string) => format.day.format(Date.parse(day));
 
   return (
     <span className="plan-dates">
-      <time dateTime={startsOn} title={fullDate(startsOn)}>
-        {formatCompactDay(startsOn)}
-      </time>
+      <DateText value={startsOn} />
       {endsOn && endsOn !== startsOn && (
         <>
           {" "}
-          –{" "}
-          <time dateTime={endsOn} title={fullDate(endsOn)}>
-            {formatCompactDay(endsOn)}
-          </time>
+          – <DateText value={endsOn} />
         </>
       )}
     </span>
